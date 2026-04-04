@@ -1,0 +1,3088 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Cinémathèque | Dynamic Textures</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;0,900;1,600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f5e6d3;
+            --text-main: #3e2723;
+            --text-muted: #795548;
+            --accent: #e65100;
+            --card-bg: #ffffff;
+            --card-shadow: rgba(230, 81, 0, 0.2);
+            --gold: #D4AF37;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            transition: background-color 0.8s ease, color 0.8s ease;
+            overflow-x: hidden;
+            height: 100vh; 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- DYNAMIC FILM OVERLAYS (THE MAGIC) --- */
+        #film-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 900;
+            opacity: 0;
+            transition: opacity 0.8s ease, background 0.8s ease;
+        }
+
+        /* 70s: 35mm Grain & Animated Scratch */
+        .overlay-70s {
+            opacity: 1 !important;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+        .overlay-70s::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 20%;
+            width: 2px; height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            animation: scratchJump 3s infinite steps(1);
+        }
+
+        @keyframes scratchJump {
+            0% { left: 20%; opacity: 0.3; }
+            20% { left: 60%; opacity: 0.1; }
+            40% { left: 80%; opacity: 0.4; }
+            60% { left: 10%; opacity: 0.2; }
+            80% { left: 50%; opacity: 0; }
+            100% { left: 30%; opacity: 0.5; }
+        }
+
+        /* 80s: CRT Scanlines (UPDATED for better visibility) */
+        .overlay-80s {
+            opacity: 1 !important;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.3),
+                rgba(0, 0, 0, 0.3) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            mix-blend-mode: overlay;
+        }
+
+        /* 90s: Grunge Vignette & High Contrast Noise */
+        .overlay-90s {
+            opacity: 1 !important;
+            background: 
+                radial-gradient(circle, transparent 50%, rgba(0,0,0,0.6) 150%),
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E");
+            mix-blend-mode: color-burn;
+        }
+
+        /* 00s: Y2K Moving Digital Grid */
+        .overlay-00s {
+            opacity: 1 !important;
+            background: 
+                linear-gradient(rgba(0, 123, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 123, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mix-blend-mode: multiply;
+            animation: gridMove 15s linear infinite;
+        }
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
+        }
+
+        /* 10s: Glowing Light Leaks */
+        .overlay-10s {
+            opacity: 1 !important;
+            background: 
+                radial-gradient(circle at 15% 20%, rgba(255, 77, 109, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 85% 80%, rgba(255, 160, 0, 0.4) 0%, transparent 50%);
+            mix-blend-mode: screen;
+            animation: lightLeak 8s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes lightLeak {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.3) translate(20px, -20px); opacity: 1; }
+        }
+
+        /* 20s: Ultra-Modern Color Shine */
+        .overlay-20s {
+            opacity: 1 !important;
+            background: linear-gradient(
+                105deg, 
+                transparent 0%, 
+                rgba(99, 102, 241, 0.25) 50%, 
+                transparent 100%
+            );
+            background-size: 200% 100%;
+            mix-blend-mode: screen;
+            animation: glassShine 7s infinite linear;
+            pointer-events: none;
+        }
+        @keyframes glassShine {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* --- Header & Navigation --- */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 3rem;
+            background: inherit;
+            z-index: 1000;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent);
+            letter-spacing: -1px;
+        }
+        
+        .lang-toggle-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--text-muted);
+            color: var(--text-main);
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .lang-toggle-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .decade-nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(0,0,0,0.02);
+            position: relative;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s;
+            border-radius: 50px;
+        }
+        .nav-btn.active { background: var(--accent); color: white; }
+
+        /* --- Gallery Grid --- */
+        .gallery-container {
+            padding: 1rem 3rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 0.8s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .decade-header { text-align: center; margin-bottom: 2rem; }
+        .decade-header h2 { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 900; line-height: 1; }
+        .decade-header p { text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; color: var(--accent); margin-top: 5px; font-weight: 600; }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+        }
+
+        .movie-box {
+            position: relative;
+            aspect-ratio: 2/3;
+            border-radius: 10px;
+            overflow: visible;
+            cursor: pointer;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .movie-box:hover { z-index: 20; }
+        .movie-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; z-index: 1; }
+
+        /* ---- TILTED CARD ---- */
+        /* The inner element that physically tilts */
+        .movie-box-tilt-inner {
+            width: 100%; height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            transform-origin: center center;
+            /* no preserve-3d here — avoids sub-pixel artifacts */
+        }
+
+        /* Sheen: subtle, never white on edges */
+        .movie-box-sheen {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.25s;
+            background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.10) 0%, transparent 60%);
+            mix-blend-mode: screen;
+        }
+        .movie-box:hover .movie-box-sheen { opacity: 1; }
+
+        /* Tooltip caption */
+        .movie-box-caption {
+            position: absolute;
+            background: rgba(0,0,0,0.82);
+            backdrop-filter: blur(6px);
+            color: #fff;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 0.78rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            pointer-events: none;
+            white-space: nowrap;
+            opacity: 0;
+            z-index: 100;
+            transform: translate(-50%, -140%) rotate(var(--cap-rot, 0deg));
+            border: 1px solid rgba(212,175,55,0.35);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            left: var(--cap-x, 50%);
+            top: var(--cap-y, 0%);
+            transition: opacity 0.15s;
+        }
+        .movie-box:hover .movie-box-caption { opacity: 1; }
+
+        .img-wrapper {
+            width: 100%; height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .fallback-poster {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            padding: 1.5rem; color: white; font-family: 'Playfair Display', serif;
+            font-size: 1.5rem; font-weight: 900; line-height: 1.1; z-index: 1;
+        }
+
+        .movie-box-overlay {
+            position: absolute; bottom: 0; width: 100%; padding: 3rem 1rem 1rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.95));
+            color: white; opacity: 0; transition: 0.3s; z-index: 2; text-align: center;
+            border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
+        }
+
+        .movie-box:hover .movie-box-overlay { opacity: 1; }
+        .movie-box-overlay h3 { font-size: 1rem; }
+
+        /* --- POSTER AWARDS --- */
+        .poster-awards {
+            position: absolute; top: 10px; right: 10px;
+            display: flex; flex-direction: column; gap: 6px; z-index: 10;
+        }
+
+        .badge-icon {
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px);
+            padding: 5px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--gold); width: 30px; height: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .badge-icon svg { width: 18px; height: 18px; fill: var(--gold); }
+
+        /* --- GOLDEN GLOW (Quiz Result) --- */
+        @keyframes goldPulse {
+            0% { box-shadow: 0 0 20px 5px rgba(212, 175, 55, 0.6); }
+            50% { box-shadow: 0 0 40px 15px rgba(212, 175, 55, 0.9); }
+            100% { box-shadow: 0 0 20px 5px rgba(212, 175, 55, 0.6); }
+        }
+
+        .golden-glow .movie-box-tilt-inner { animation: goldPulse 2s infinite ease-in-out; border: 3px solid var(--gold); }
+        .golden-glow .img-wrapper { border-radius: 7px; }
+
+        .recommended-label {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            background: var(--gold); color: #000; padding: 6px 16px; border-radius: 20px;
+            font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.75rem;
+            letter-spacing: 1.5px; z-index: 100; box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            white-space: nowrap; opacity: 0; animation: popIn 0.5s forwards 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: translateX(-50%) scale(0.5); }
+            to { opacity: 1; transform: translateX(-50%) scale(1); }
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.35); backdrop-filter: blur(18px) saturate(1.4);
+            -webkit-backdrop-filter: blur(18px) saturate(1.4);
+            display: none; align-items: center; justify-content: center; z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(24px) saturate(1.6);
+            -webkit-backdrop-filter: blur(24px) saturate(1.6);
+            border: 1px solid rgba(255,255,255,0.25);
+            width: 100%; max-width: 900px; height: 70vh;
+            display: flex; border-radius: 16px; overflow: hidden; position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .modal-img-side { flex: 0 0 35%; background: #000; position: relative; }
+        .modal-img-side img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .modal-info-side { flex: 1; padding: 2.5rem; color: var(--text-main); overflow-y: auto; display: flex; flex-direction: column; justify-content: center; background: rgba(255,255,255,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        
+        .close-btn { 
+            position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.05); 
+            border: none; font-size: 1.5rem; width: 35px; height: 35px; border-radius: 50%; 
+            cursor: pointer; color: var(--text-muted); transition: 0.3s; 
+            display: flex; align-items: center; justify-content: center; z-index: 10; 
+        }
+        .close-btn:hover { background: var(--accent); color: white; }
+
+        .dir-label { color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 0.2rem; display: block; }
+        
+        .m-director-name { 
+            font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; 
+            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; position: relative; transition: color 0.3s ease;
+        }
+        .m-director-name::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -2px; left: 0; background-color: var(--accent); transition: width 0.3s ease; }
+        .m-director-name:hover { color: var(--accent); }
+        .m-director-name:hover::after { width: 100%; }
+        .m-director-name svg { width: 14px; height: 14px; fill: currentColor; opacity: 0; transform: translateX(-5px); transition: all 0.3s ease; }
+        .m-director-name:hover svg { opacity: 1; transform: translateX(0); }
+
+        .m-main-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 900; line-height: 1; margin-bottom: 1.5rem; letter-spacing: -1px; }
+        
+        .cast-box { margin-bottom: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.03); border-radius: 8px; }
+        .cast-box strong { display: block; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 0.3rem; }
+        .cast-list { font-size: 0.95rem; line-height: 1.4; font-weight: 600; }
+
+        .synopsis-section strong { text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; color: var(--text-muted); }
+        .synopsis-body { line-height: 1.6; font-size: 1rem; margin-top: 0.5rem; font-weight: 400; }
+
+        .trivia-tag { margin-top: 1.5rem; padding: 0.8rem; border-left: 3px solid var(--accent); background: rgba(230, 81, 0, 0.05); font-style: italic; font-size: 0.9rem; }
+
+        /* ================================================
+           DIRECTOR SPOTLIGHT DRAWER (ENHANCED)
+        ================================================= */
+        #dir-spotlight {
+            position: fixed;
+            top: 0; right: 0;
+            width: 460px;
+            height: 100vh;
+            background: var(--card-bg);
+            z-index: 3000;
+            box-shadow: -12px 0 50px rgba(0,0,0,0.3);
+            transform: translateX(110%);
+            transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            color: var(--text-main);
+        }
+        #dir-spotlight.open { transform: translateX(0); }
+
+        .dir-spotlight-header {
+            padding: 2.2rem 2rem 1.6rem;
+            background: linear-gradient(145deg, var(--accent), #1a1a1a);
+            color: white;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .dir-spotlight-close {
+            position: absolute; top: 1rem; right: 1rem;
+            background: rgba(255,255,255,0.15); border: none; color: white;
+            width: 34px; height: 34px; border-radius: 50%; font-size: 1.1rem;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        .dir-spotlight-close:hover { background: rgba(255,255,255,0.35); }
+
+        .dir-spotlight-badge {
+            font-size: 0.58rem; letter-spacing: 3px; text-transform: uppercase;
+            opacity: 0.65; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;
+        }
+        .dir-spotlight-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem; font-weight: 900; line-height: 1.1; margin-bottom: 0.5rem;
+        }
+        .dir-spotlight-meta {
+            font-size: 0.75rem; opacity: 0.72; letter-spacing: 0.5px; line-height: 1.6;
+        }
+
+        /* Quick-stat pills row */
+        .dir-stats-row {
+            display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.9rem;
+        }
+        .dir-stat-pill {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 20px; padding: 0.25rem 0.75rem;
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 0.8px;
+            text-transform: uppercase; white-space: nowrap;
+        }
+
+        /* Scrollable body */
+        .dir-spotlight-body {
+            flex: 1; overflow-y: auto; padding: 1.6rem 2rem;
+        }
+
+        /* Section labels */
+        .dir-section-label {
+            font-size: 0.6rem; font-weight: 800; letter-spacing: 2.5px;
+            text-transform: uppercase; color: var(--accent);
+            margin-bottom: 0.7rem; margin-top: 1.6rem;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .dir-section-label::after {
+            content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08);
+        }
+        .dir-section-label:first-child { margin-top: 0; }
+
+        /* Style tags */
+        .dir-style-tags {
+            display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.2rem;
+        }
+        .dir-style-tag {
+            background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 20px; padding: 0.22rem 0.7rem;
+            font-size: 0.7rem; font-weight: 600; color: var(--text-muted);
+        }
+
+        /* Bio text */
+        .dir-bio {
+            font-size: 0.9rem; line-height: 1.72; color: var(--text-muted);
+        }
+
+        /* Signature quote */
+        .dir-quote {
+            margin: 0.8rem 0 0;
+            padding: 0.8rem 1rem;
+            border-left: 3px solid var(--accent);
+            background: rgba(0,0,0,0.03);
+            border-radius: 0 6px 6px 0;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        /* Film cards */
+        .dir-film-list { display: flex; flex-direction: column; gap: 0.55rem; }
+
+        .dir-film-item {
+            display: flex; align-items: center; gap: 0.9rem;
+            padding: 0.75rem 1rem;
+            background: rgba(0,0,0,0.03); border-radius: 10px;
+            cursor: pointer; transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .dir-film-item:hover {
+            background: rgba(0,0,0,0.06); border-color: var(--accent);
+            transform: translateX(5px);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .dir-film-year {
+            font-size: 0.68rem; font-weight: 800; color: var(--accent);
+            min-width: 38px; letter-spacing: 0.5px;
+        }
+        .dir-film-info { flex: 1; }
+        .dir-film-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.92rem; font-weight: 700; font-style: italic;
+        }
+        .dir-film-cast {
+            font-size: 0.7rem; color: var(--text-muted); margin-top: 1px;
+        }
+        .dir-film-awards { display: flex; gap: 3px; align-items: center; }
+        .dir-film-awards .badge-icon { width: 22px; height: 22px; padding: 3px; }
+        .dir-film-awards .badge-icon svg { width: 12px; height: 12px; }
+
+        /* Career awards grid */
+        .dir-career-awards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.55rem;
+            margin-bottom: 0.2rem;
+        }
+        .dir-award-card {
+            background: rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 0.65rem 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+        .dir-award-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .dir-award-info { flex: 1; }
+        .dir-award-count {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1;
+        }
+        .dir-award-label {
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+        .dir-award-card--gold .dir-award-count { color: #D4AF37; }
+        .dir-career-total {
+            background: rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 0.65rem 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            grid-column: 1 / -1;
+        }
+
+        /* Footer with two buttons */
+        .dir-spotlight-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(0,0,0,0.07);
+            flex-shrink: 0;
+            display: flex; gap: 0.6rem;
+        }
+        .dir-wiki-btn {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            gap: 8px; padding: 0.85rem 1.2rem;
+            background: linear-gradient(135deg, #D4AF37 0%, #f5e27a 45%, #b8962e 100%);
+            border: none;
+            color: #1a0e00;
+            border-radius: 10px; cursor: pointer;
+            font-family: 'Outfit', sans-serif; font-weight: 800;
+            font-size: 0.82rem; letter-spacing: 1.2px;
+            text-transform: uppercase;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 18px rgba(212,175,55,0.45), 0 1px 0 rgba(255,255,255,0.3) inset;
+        }
+        .dir-wiki-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+            transition: left 0.5s ease;
+        }
+        .dir-wiki-btn:hover::before { left: 160%; }
+        .dir-wiki-btn:hover {
+            background: linear-gradient(135deg, #e8c43a 0%, #fff0a0 45%, #c8a030 100%);
+            box-shadow: 0 6px 28px rgba(212,175,55,0.7), 0 1px 0 rgba(255,255,255,0.4) inset;
+            transform: translateY(-1px);
+        }
+        .dir-wiki-btn:active { transform: translateY(0); }
+
+        #dir-scrim {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.35); z-index: 2999; opacity: 0;
+            pointer-events: none; transition: opacity 0.4s; backdrop-filter: blur(2px);
+        }
+        #dir-scrim.visible { opacity: 1; pointer-events: all; }
+
+        /* --- TRAILER OVERLAY & IFRAME --- */
+        .play-btn-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .play-btn-overlay:hover {
+            transform: translate(-50%, -50%) scale(1.15);
+            background: var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        .play-btn-overlay svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+            margin-left: 5px;
+        }
+
+        .video-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #000;
+        }
+
+        /* --- QUIZ --- */
+        .quiz-launcher {
+            position: fixed; bottom: 1.5rem; right: 1.5rem; width: 50px; height: 50px;
+            background: var(--accent); color: white; border-radius: 50%;
+            border: none; cursor: pointer; font-size: 1.5rem; z-index: 1000;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s;
+        }
+        .quiz-launcher:hover { transform: scale(1.1); }
+
+        #quiz-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.98); z-index: 3000; display: none;
+            align-items: center; justify-content: center; color: white;
+            backdrop-filter: blur(5px);
+        }
+
+        .quiz-card { max-width: 600px; width: 90%; padding: 3rem 2rem; text-align: center; background: #111; border-radius: 16px; border: 1px solid #333; }
+        .quiz-card h2 { font-family: 'Playfair Display'; font-size: 2.2rem; margin-bottom: 2rem; color: var(--gold); }
+        .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .quiz-opt-btn {
+            background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #ddd;
+            padding: 1.2rem; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 1.1rem; font-family: 'Outfit'; font-weight: 400;
+        }
+        .quiz-opt-btn:hover { background: var(--gold); color: black; border-color: var(--gold); font-weight: 600; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ================================================
+           LIPS TRAIL EFFECT
+        ================================================= */
+        .lips-trail {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99999;
+            font-size: 1.2rem;
+            transform: translate(-50%, -50%);
+            opacity: 0.9;
+            user-select: none;
+            line-height: 1;
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .lips-trail.fading {
+            opacity: 0;
+            transform: translate(-50%, -75%) scale(0.5);
+        }
+
+        /* ================================================
+           FRENCH CORNER DECORATIONS
+        ================================================= */
+        .french-corner-items {
+            position: fixed;
+            z-index: 500;
+            pointer-events: none; /* container transparent, children handle clicks */
+        }
+
+        .french-item {
+            position: absolute;
+            font-size: 1.35rem;
+            opacity: 0.18;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            pointer-events: all;
+            
+            user-select: none;
+            filter: saturate(0.7);
+        }
+
+        .french-item:hover {
+            opacity: 0.55;
+            transform: scale(1.2) rotate(-5deg);
+        }
+
+        /* Top-left cluster */
+        .corner-tl { top: 80px; left: 10px; }
+        .corner-tl .french-item:nth-child(1) { top: 0; left: 0; font-size: 1.2rem; }
+        .corner-tl .french-item:nth-child(2) { top: 30px; left: 20px; font-size: 1rem; }
+        .corner-tl .french-item:nth-child(3) { top: -10px; left: 30px; font-size: 1.4rem; }
+
+        /* Top-right cluster */
+        .corner-tr { top: 80px; right: 10px; }
+        .corner-tr .french-item:nth-child(1) { top: 0; right: 0; font-size: 1.3rem; }
+        .corner-tr .french-item:nth-child(2) { top: 32px; right: 15px; font-size: 1rem; }
+        .corner-tr .french-item:nth-child(3) { top: -5px; right: 28px; font-size: 1.1rem; }
+
+        /* Bottom-left cluster */
+        .corner-bl { bottom: 80px; left: 10px; }
+        .corner-bl .french-item:nth-child(1) { bottom: 0; left: 0; font-size: 1.2rem; }
+        .corner-bl .french-item:nth-child(2) { bottom: 30px; left: 22px; font-size: 1rem; }
+        .corner-bl .french-item:nth-child(3) { bottom: -5px; left: 32px; font-size: 1.3rem; }
+
+        /* Bottom-right cluster */
+        .corner-br { bottom: 80px; right: 10px; }
+        .corner-br .french-item:nth-child(1) { bottom: 0; right: 0; font-size: 1.2rem; }
+        .corner-br .french-item:nth-child(2) { bottom: 28px; right: 20px; font-size: 1rem; }
+        .corner-br .french-item:nth-child(3) { bottom: -8px; right: 30px; font-size: 1.4rem; }
+
+        /* Clickable croissant easter egg trigger */
+        .croissant-trigger {
+            opacity: 0.22 !important;
+            transition: opacity 0.3s, transform 0.3s, filter 0.3s !important;
+            cursor: pointer !important;
+            pointer-events: all !important;
+            position: relative;
+            z-index: 9000 !important;
+        }
+        .croissant-trigger:hover {
+            opacity: 0.6 !important;
+            transform: scale(1.3) rotate(-8deg) !important;
+            filter: saturate(1.5) drop-shadow(0 0 6px rgba(230,150,0,0.6)) !important;
+        }
+        .croissant-trigger.activated {
+            opacity: 0.9 !important;
+            animation: croissantPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes croissantPop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.8) rotate(20deg); }
+            100% { transform: scale(1.3) rotate(-8deg); }
+        }
+
+        /* ================================================
+           NAPOLEON EASTER EGG MODAL
+        ================================================= */
+        #napoleon-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.97);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(12px);
+            padding: 20px;
+        }
+        #napoleon-modal.open { display: flex; }
+
+        .napoleon-content {
+            max-width: 820px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            background: linear-gradient(145deg, #1a0a00, #0d0500);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 20px;
+            padding: 3rem;
+            position: relative;
+            box-shadow: 0 0 80px rgba(212,175,55,0.12), 0 30px 60px rgba(0,0,0,0.8);
+            animation: napoleonReveal 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes napoleonReveal {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .napoleon-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(212,175,55,0.2);
+        }
+
+        .napoleon-secret-badge {
+            display: inline-block;
+            background: rgba(212,175,55,0.1);
+            border: 1px solid rgba(212,175,55,0.4);
+            color: #D4AF37;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 5px 16px;
+            border-radius: 30px;
+            margin-bottom: 1rem;
+        }
+
+        .napoleon-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.1;
+        }
+        .napoleon-header h2 span { color: #D4AF37; font-style: italic; }
+
+        .napoleon-header p {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .napoleon-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .napoleon-event {
+            display: flex;
+            gap: 1.5rem;
+            position: relative;
+            padding-left: 0.5rem;
+        }
+        .napoleon-event::before {
+            content: '';
+            position: absolute;
+            left: 36px;
+            top: 50px;
+            bottom: -24px;
+            width: 1px;
+            background: rgba(212,175,55,0.15);
+        }
+        .napoleon-event:last-child::before { display: none; }
+
+        .napoleon-year {
+            flex-shrink: 0;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(212,175,55,0.08);
+            border: 1px solid rgba(212,175,55,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: #D4AF37;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .napoleon-body { flex: 1; padding-top: 0.6rem; }
+        .napoleon-body h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            color: #fff;
+            margin-bottom: 0.4rem;
+        }
+        .napoleon-body p {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.9rem;
+            line-height: 1.65;
+        }
+
+        .napoleon-emoji { font-size: 1.5rem; margin-right: 4px; vertical-align: middle; }
+
+        .napoleon-close-btn {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            
+            transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .napoleon-close-btn:hover { background: #D4AF37; color: #000; border-color: #D4AF37; }
+
+        /* Easter egg hint toast */
+        #easter-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: rgba(0,0,0,0.85);
+            border: 1px solid rgba(212,175,55,0.4);
+            color: rgba(255,255,255,0.8);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            padding: 10px 22px;
+            border-radius: 40px;
+            z-index: 8000;
+            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s;
+            opacity: 0;
+        }
+        #easter-hint.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* ================================================
+           DOME GALLERY SECTION
+        ================================================= */
+        #dome-section {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: #060010;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .dome-section-label {
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .dome-section-label p {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            font-style: italic;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.2em;
+            margin-top: 0.4rem;
+        }
+
+        .dome-section-label h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .dome-section-label span {
+            color: var(--gold, #D4AF37);
+            font-style: italic;
+        }
+
+        /* ---- Sphere root ---- */
+        .sphere-root {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            --radius: 520px;
+            --viewer-pad: 72px;
+            --circ: calc(var(--radius) * 3.14);
+            --rot-y: calc((360deg / var(--segments-x, 35)) / 2);
+            --rot-x: calc((360deg / var(--segments-y, 35)) / 2);
+            --item-width: calc(var(--circ) / var(--segments-x, 35));
+            --item-height: calc(var(--circ) / var(--segments-y, 35));
+            --overlay-blur-color: #060010;
+            --tile-radius: 12px;
+            --enlarge-radius: 20px;
+            --image-filter: grayscale(0.4) contrast(1.1);
+        }
+
+        .sphere-root * { box-sizing: border-box; }
+
+        .sphere,
+        .dg-item { transform-style: preserve-3d; }
+        /* dg-item__image must NOT be preserve-3d — hover label would go behind sphere */
+
+        main.sphere-main {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            background: transparent;
+        }
+
+        .dg-stage {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            place-items: center;
+            perspective: calc(var(--radius) * 2);
+            perspective-origin: 50% 50%;
+            contain: layout paint size;
+        }
+
+        .sphere {
+            transform: translateZ(calc(var(--radius) * -1));
+            will-change: transform;
+        }
+
+        .dg-overlay,
+        .dg-overlay--blur {
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .dg-overlay {
+            background-image: radial-gradient(rgba(235,235,235,0) 65%, var(--overlay-blur-color, #060010) 100%);
+        }
+
+        .dg-overlay--blur {
+            -webkit-mask-image: radial-gradient(rgba(235,235,235,0) 70%, var(--overlay-blur-color, #060010) 90%);
+            mask-image: radial-gradient(rgba(235,235,235,0) 70%, var(--overlay-blur-color, #060010) 90%);
+            backdrop-filter: blur(3px);
+        }
+
+        .dg-item {
+            width: calc(var(--item-width) * var(--item-size-x, 2));
+            height: calc(var(--item-height) * var(--item-size-y, 2));
+            position: absolute;
+            top: -999px; bottom: -999px; left: -999px; right: -999px;
+            margin: auto;
+            transform-origin: 50% 50%;
+            backface-visibility: hidden;
+            transition: transform 300ms;
+            transform:
+                rotateY(calc(var(--rot-y) * (var(--offset-x) + ((var(--item-size-x, 2) - 1) / 2)) + var(--rot-y-delta, 0deg)))
+                rotateX(calc(var(--rot-x) * (var(--offset-y) - ((var(--item-size-y, 2) - 1) / 2)) + var(--rot-x-delta, 0deg)))
+                translateZ(var(--radius));
+        }
+
+        .dg-item__image {
+            position: absolute;
+            display: block;
+            inset: 8px;
+            border-radius: var(--tile-radius, 12px);
+            background: #1a1a2e;
+            overflow: hidden;
+            backface-visibility: hidden;
+            transition: transform 300ms;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            pointer-events: auto;
+        }
+
+        .dg-item__image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            backface-visibility: hidden;
+            filter: var(--image-filter, none);
+            transition: filter 0.5s ease, transform 0.4s ease;
+        }
+
+        .dg-item__image:hover {
+            box-shadow: 0 0 0 2px rgba(212,175,55,0.8), 0 8px 40px rgba(212,175,55,0.3);
+            z-index: 10;
+        }
+        .dg-item__image:hover img {
+            filter: none;
+            transform: scale(1.06);
+        }
+
+        /* Hover title label that slides up */
+        .dg-item__image .dg-tile-label {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 1.8rem 0.7rem 0.7rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.92));
+            color: #fff;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .dg-item__image:hover .dg-tile-label { transform: translateY(0); }
+        .dg-tile-label-year {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.42rem;
+            letter-spacing: 0.28em;
+            color: var(--gold, #D4AF37);
+            text-transform: uppercase;
+            margin-bottom: 0.15rem;
+        }
+        .dg-tile-label-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.68rem;
+            font-weight: 700;
+            font-style: italic;
+            line-height: 1.2;
+        }
+        .dg-tile-label-dir {
+            font-size: 0.46rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 0.12rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .dg-viewer {
+            position: absolute;
+            inset: 0;
+            z-index: 20;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--viewer-pad);
+        }
+
+        .dg-frame {
+            height: 100%;
+            aspect-ratio: 1;
+            border-radius: var(--enlarge-radius, 20px);
+            display: flex;
+        }
+
+        .dg-scrim {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            background: rgba(0,0,0,0.5);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 500ms ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .sphere-root[data-enlarging='true'] .dg-scrim {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .dg-enlarge {
+            position: absolute;
+            z-index: 30;
+            border-radius: var(--enlarge-radius, 20px);
+            overflow: hidden;
+            transition: transform 400ms ease, opacity 400ms ease;
+            transform-origin: top left;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+
+        .dg-enlarge img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .dg-edge-fade {
+            position: absolute;
+            left: 0; right: 0;
+            height: 140px;
+            z-index: 5;
+            pointer-events: none;
+            background: linear-gradient(to bottom, transparent, var(--overlay-blur-color, #060010));
+        }
+
+        .dg-edge-fade--top { top: 0; transform: rotate(180deg); }
+        .dg-edge-fade--bottom { bottom: 0; }
+
+        /* Enlarge label overlay */
+        .dg-enlarge-label {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 2.5rem 1.5rem 1.5rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            color: #fff;
+            pointer-events: none;
+        }
+
+        .dg-enlarge-label .dg-el-year {
+            font-family: 'Outfit', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            color: var(--gold, #D4AF37);
+            text-transform: uppercase;
+            margin-bottom: 0.3rem;
+        }
+
+        .dg-enlarge-label .dg-el-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 900;
+            font-style: italic;
+            line-height: 1.1;
+        }
+
+        .dg-enlarge-label .dg-el-dir {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.55);
+            margin-top: 0.25rem;
+        }
+
+        /* Hint bar bottom of dome */
+        .dome-hint {
+            position: absolute;
+            bottom: 1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.18);
+            pointer-events: none;
+        }
+
+        /* ================================================
+           MOBILE & TABLET RESPONSIVE
+        ================================================= */
+
+        /* ---- Tablet: 768px and below ---- */
+        @media (max-width: 768px) {
+
+            body { height: auto; min-height: 100vh; }
+
+            /* Header */
+            .top-bar {
+                padding: 0.85rem 1.2rem;
+            }
+            .logo { font-size: 1.4rem; }
+            .lang-toggle-btn { padding: 0.35rem 0.9rem; font-size: 0.75rem; }
+
+            /* Decade nav — horizontal scroll on mobile */
+            .decade-nav {
+                gap: 0.3rem;
+                padding: 0.4rem 0.8rem;
+                overflow-x: auto;
+                justify-content: flex-start;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .decade-nav::-webkit-scrollbar { display: none; }
+            .nav-btn {
+                font-size: 0.78rem;
+                padding: 0.4rem 0.8rem;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            /* Gallery */
+            .gallery-container {
+                padding: 0.8rem 1rem 1.5rem;
+                justify-content: flex-start;
+            }
+            .decade-header { margin-bottom: 1.2rem; }
+            .decade-header h2 { font-size: 2rem; }
+            .decade-header p { font-size: 0.7rem; letter-spacing: 2px; }
+
+            /* 2-column poster grid on tablet */
+            .movie-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            /* Always show title overlay on mobile (no hover) */
+            .movie-box-overlay { opacity: 1 !important; }
+            .movie-box-caption { display: none; }
+            .movie-box-sheen { display: none; }
+
+            /* Modal — full screen on mobile */
+            .modal-overlay { padding: 0; align-items: flex-end; }
+            .modal-content {
+                flex-direction: column;
+                height: 92vh;
+                border-radius: 20px 20px 0 0;
+                max-width: 100%;
+            }
+            .modal-img-side {
+                flex: 0 0 220px;
+                width: 100%;
+            }
+            .modal-img-side img { object-position: center top; }
+            .modal-info-side {
+                flex: 1;
+                padding: 1.5rem 1.2rem;
+                overflow-y: auto;
+            }
+            .m-main-title { font-size: 1.8rem; margin-bottom: 1rem; }
+            .play-btn-overlay { width: 52px; height: 52px; }
+            .play-btn-overlay svg { width: 22px; height: 22px; }
+
+            /* Director spotlight — full-width drawer */
+            #dir-spotlight { width: 100%; border-radius: 20px 20px 0 0; top: auto; bottom: 0; height: 88vh; transform: translateY(110%); }
+            #dir-spotlight.open { transform: translateY(0); }
+            .dir-spotlight-header { padding: 1.5rem 1.2rem 1.2rem; }
+            .dir-spotlight-name { font-size: 1.6rem; }
+            .dir-spotlight-body { padding: 1.2rem; }
+            .dir-career-awards { grid-template-columns: repeat(2, 1fr); }
+            .dir-spotlight-footer { padding: 0.8rem 1rem; }
+
+            /* Quiz */
+            .quiz-launcher { width: 44px; height: 44px; font-size: 1.3rem; bottom: 1rem; right: 1rem; }
+            .quiz-card { padding: 2rem 1.2rem; }
+            .quiz-card h2 { font-size: 1.6rem; margin-bottom: 1.5rem; }
+            .quiz-opts { grid-template-columns: 1fr; gap: 10px; }
+            .quiz-opt-btn { padding: 1rem; font-size: 1rem; }
+
+            /* Dome section */
+            #dome-section { height: 60vh; min-height: 360px; }
+            .sphere-root {
+                --radius: 280px;
+            }
+            .dome-section-label h3 { font-size: 1.4rem; }
+
+            /* French corner items — smaller, less intrusive */
+            .french-item { font-size: 1rem !important; }
+            .corner-tl, .corner-tr { top: 60px; }
+            .corner-bl, .corner-br { bottom: 60px; }
+
+            /* Napoleon modal */
+            .napoleon-content { padding: 1.8rem 1.2rem; border-radius: 16px; }
+            .napoleon-event { gap: 1rem; }
+            .napoleon-year { width: 58px; height: 58px; font-size: 0.68rem; }
+            .napoleon-body h3 { font-size: 1rem; }
+            .napoleon-body p { font-size: 0.82rem; }
+
+            /* Easter hint — above quiz button */
+            #easter-hint { bottom: 70px; font-size: 0.68rem; padding: 8px 16px; white-space: nowrap; }
+        }
+
+        /* ---- Phone: 480px and below ---- */
+        @media (max-width: 480px) {
+
+            .top-bar { padding: 0.7rem 1rem; }
+            .logo { font-size: 1.25rem; }
+
+            /* Single column on small phones */
+            .movie-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.7rem;
+            }
+
+            .decade-header h2 { font-size: 1.7rem; }
+
+            /* Modal img shorter on small screens */
+            .modal-img-side { flex: 0 0 170px; }
+            .m-main-title { font-size: 1.5rem; }
+            .cast-box { padding: 0.7rem; }
+            .synopsis-body { font-size: 0.9rem; }
+
+            /* Dome even smaller on phone */
+            #dome-section { height: 50vh; min-height: 300px; }
+            .sphere-root { --radius: 200px; }
+
+            /* Director drawer full-width */
+            #dir-spotlight { width: 100%; }
+            .dir-career-awards { grid-template-columns: 1fr 1fr; }
+
+            /* Hide french corners on very small screens to avoid clutter */
+            .french-corner-items { display: none; }
+
+            .napoleon-content { padding: 1.2rem 1rem; max-height: 92vh; }
+            .napoleon-year { width: 50px; height: 50px; font-size: 0.6rem; }
+        }
+
+        /* ---- Touch device: disable hover-only effects, enable tap ---- */
+        @media (hover: none) and (pointer: coarse) {
+            .movie-box-tilt-inner { transform: none !important; }
+            .movie-box-overlay { opacity: 1 !important; background: linear-gradient(transparent 40%, rgba(0,0,0,0.85)); }
+            .dir-film-item:hover { transform: none; }
+            .dg-item__image:hover img { transform: none; filter: var(--image-filter, none); }
+            .dg-item__image:hover { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================================================
+         CUSTOM RED LIPS CURSOR
+    ================================================= -->
+
+    <!-- ================================================
+         FRENCH CORNER DECORATIVE ITEMS
+    ================================================= -->
+
+    <!-- Top-left: Eiffel Tower, Beret, Baguette -->
+    <div class="french-corner-items corner-tl" style="position:fixed;top:80px;left:10px;width:80px;height:80px;">
+        <span class="french-item" style="position:absolute;top:0;left:5px;" title="Tour Eiffel">🗼</span>
+        <span class="french-item" style="position:absolute;top:38px;left:0;" title="Béret">🎩</span>
+        <span class="french-item" style="position:absolute;top:10px;left:38px;" title="Baguette">🥖</span>
+    </div>
+
+    <!-- Top-right: Wine glass, Croissant (easter egg!), Palette -->
+    <div class="french-corner-items corner-tr" style="position:fixed;top:80px;right:10px;width:80px;height:80px;">
+        <span class="french-item" style="position:absolute;top:0;right:5px;" title="Vin">🍷</span>
+        <span class="french-item croissant-trigger" id="croissant-easter-egg" style="position:absolute;top:36px;right:0;" title="🥐 Cliquez...">🥐</span>
+        <span class="french-item" style="position:absolute;top:8px;right:38px;" title="Palette d'artiste">🎨</span>
+    </div>
+
+    <!-- Bottom-left: Fleur-de-lis (★), Champagne, Cheese -->
+    <div class="french-corner-items corner-bl" style="position:fixed;bottom:80px;left:10px;width:80px;height:80px;">
+        <span class="french-item" style="position:absolute;bottom:0;left:5px;" title="Fleur de lis">⚜️</span>
+        <span class="french-item" style="position:absolute;bottom:35px;left:2px;" title="Champagne">🥂</span>
+        <span class="french-item" style="position:absolute;bottom:10px;left:35px;" title="Fromage">🧀</span>
+    </div>
+
+    <!-- Bottom-right: Mona Lisa, Macaron, Map of France -->
+    <div class="french-corner-items corner-br" style="position:fixed;bottom:80px;right:10px;width:80px;height:80px;">
+        <span class="french-item" style="position:absolute;bottom:0;right:5px;" title="Mona Lisa">🖼️</span>
+        <span class="french-item" style="position:absolute;bottom:34px;right:0;" title="Macaron">🌸</span>
+        <span class="french-item" style="position:absolute;bottom:8px;right:36px;" title="Parfum">🫙</span>
+    </div>
+
+    <!-- Easter egg hint toast -->
+    <div id="easter-hint">🥐 &nbsp;Psst... quelque chose se cache ici &nbsp;🥐</div>
+
+    <!-- ================================================
+         NAPOLEON HISTORY MODAL (Easter Egg)
+    ================================================= -->
+    <div id="napoleon-modal" role="dialog" aria-modal="true" aria-labelledby="napoleon-title">
+        <div class="napoleon-content">
+            <button class="napoleon-close-btn" id="napoleon-close" aria-label="Fermer">✕</button>
+
+            <div class="napoleon-header">
+                <div class="napoleon-secret-badge">🥐 Easter Egg Débloqué</div>
+                <h2 id="napoleon-title"><span>Napoléon</span> Bonaparte</h2>
+                <p>1769 – 1821 &nbsp;·&nbsp; Empereur des Français</p>
+            </div>
+
+            <div class="napoleon-timeline">
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1769<br>Naissance</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">👶</span>Naissance en Corse</h3>
+                        <p>Napoléon Bonaparte naît le 15 août 1769 à Ajaccio, en Corse, seulement un an après le rattachement de l'île à la France. Fils d'un avocat noble d'origine italienne, il est envoyé à l'École Militaire de Brienne à l'âge de 9 ans, où ses camarades le surnomment "the foreigner" pour son accent corse.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1793<br>Toulon</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">⚔️</span>Siège de Toulon — La révélation</h3>
+                        <p>À seulement 24 ans, le jeune capitaine d'artillerie Napoléon Bonaparte s'illustre brillamment lors du siège de Toulon contre les Britanniques. Sa stratégie audacieuse force les Anglais à fuir le port. Il est promu général de brigade — le début d'une ascension fulgurante.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1796<br>Italie</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">🗺️</span>Campagne d'Italie — Le mythe naît</h3>
+                        <p>Commandant l'Armée d'Italie à 26 ans, Napoléon remporte une série de victoires éblouissantes contre les Autrichiens et les Piémontais. En moins d'un an, il transforme une armée déguenillée en machine de guerre invincible, s'imposant comme le génie militaire de son époque. Il rentre à Paris en héros national.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1798<br>Égypte</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">🏛️</span>Expédition d'Égypte — Le savant conquérant</h3>
+                        <p>Napoléon emmène 38 000 soldats et 167 scientifiques en Égypte pour couper la route des Indes à l'Angleterre. Malgré la défaite navale d'Aboukir face à Nelson, l'expédition est un triomphe culturel : la découverte de la Pierre de Rosette révolutionnera l'égyptologie mondiale.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1799<br>18 Brumaire</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">🏛️</span>Coup d'État — Premier Consul</h3>
+                        <p>Le 9 novembre 1799, Napoléon s'empare du pouvoir par un coup d'État habilement orchestré. Il devient Premier Consul, puis Consul à vie. Il entreprend aussitôt de reconstruire la France : Code civil, Légion d'honneur, Banque de France, lycées publics — ses réformes façonnent encore la société française aujourd'hui.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1804<br>Sacre</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">👑</span>Sacre de Notre-Dame — L'Empereur</h3>
+                        <p>Le 2 décembre 1804, en présence du Pape Pie VII, Napoléon se sacre lui-même Empereur des Français à Notre-Dame de Paris. Dans un geste théâtral immortalisé par David, il pose lui-même la couronne sur sa tête, symbolisant que son pouvoir ne tient que de lui-même — non du Pape, non du peuple.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1805<br>Austerlitz</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">🌟</span>Austerlitz — Le soleil d'Austerlitz</h3>
+                        <p>Considérée comme la plus belle victoire militaire de l'Histoire, la bataille d'Austerlitz (2 décembre 1805) voit Napoléon écraser l'armée austro-russe en 9 heures. Avec 65 000 hommes contre 85 000, il inflige 36 000 pertes à l'ennemi pour seulement 9 000 du sien. L'Europe tremble.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1812<br>Moscou</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">❄️</span>Campagne de Russie — Le début de la fin</h3>
+                        <p>Avec 600 000 hommes, la Grande Armée envahit la Russie. Moscou est prise... mais les Russes l'ont incendiée. Face à l'hiver russe et aux armées cosaques, la retraite devient un désastre apocalyptique. Seuls 100 000 soldats repasseront la frontière française. C'est le tournant irréversible.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1814<br>Exil</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">🏝️</span>Abdication & l'Île d'Elbe</h3>
+                        <p>Acculé par les armées coalisées, Napoléon abdique en avril 1814 et est exilé à l'île d'Elbe. Mais l'Aigle ne reste pas en cage : neuf mois plus tard, il s'échappe avec 700 hommes et marche sur Paris. Les soldats envoyés pour l'arrêter le rejoignent un à un. Louis XVIII fuit. C'est le Vol de l'Aigle.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1815<br>Waterloo</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">💔</span>Waterloo — La chute finale</h3>
+                        <p>Le 18 juin 1815, après les Cent-Jours, Napoléon affronte Wellington à Waterloo (actuelle Belgique). Une attaque retardée, l'arrivée des Prussiens de Blücher, et peut-être une mauvaise journée d'un général souffrant : la défaite est totale. Il abdique pour la seconde fois et est exilé à Sainte-Hélène.</p>
+                    </div>
+                </div>
+
+                <div class="napoleon-event">
+                    <div class="napoleon-year">1821<br>Mort</div>
+                    <div class="napoleon-body">
+                        <h3><span class="napoleon-emoji">🕯️</span>Mort à Sainte-Hélène — La légende immortelle</h3>
+                        <p>Napoléon meurt le 5 mai 1821 à Sainte-Hélène, au milieu de l'Atlantique Sud, à seulement 51 ans. Ses derniers mots auraient été <em>"France, armée, Joséphine."</em> Empoisonnement à l'arsenic ou cancer de l'estomac ? Le débat reste ouvert. En 1840, ses cendres sont ramenées triomphalement aux Invalides, à Paris.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="film-overlay"></div>
+
+    <header class="top-bar">
+        <div class="logo">Cinémathèque.</div>
+        <button class="lang-toggle-btn" onclick="toggleLang()">FR / EN</button>
+    </header>
+
+    <nav class="decade-nav" id="nav"></nav>
+
+    <main class="gallery-container" id="gallery"></main>
+
+    <!-- DIRECTOR SPOTLIGHT SCRIM + DRAWER -->
+    <div id="dir-scrim" onclick="closeDirectorSpotlight()"></div>
+    <div id="dir-spotlight">
+        <div class="dir-spotlight-header">
+            <button class="dir-spotlight-close" onclick="closeDirectorSpotlight()">✕</button>
+            <div class="dir-spotlight-badge">✦ DIRECTOR SPOTLIGHT</div>
+            <div class="dir-spotlight-name" id="ds-name"></div>
+            <div class="dir-spotlight-meta" id="ds-meta"></div>
+            <div class="dir-stats-row" id="ds-stats"></div>
+        </div>
+        <div class="dir-spotlight-body">
+            <div class="dir-section-label" id="ds-style-label">STYLE &amp; SIGNATURE</div>
+            <div class="dir-style-tags" id="ds-tags"></div>
+            <div class="dir-section-label" id="ds-bio-label">ABOUT</div>
+            <p class="dir-bio" id="ds-bio"></p>
+            <blockquote class="dir-quote" id="ds-quote" style="display:none"></blockquote>
+            <div id="ds-career-awards" style="display:none;">
+                <div class="dir-section-label" id="ds-career-label">PALMARÈS &amp; CARRIÈRE</div>
+                <div class="dir-career-awards" id="ds-career-grid"></div>
+            </div>
+            <div class="dir-section-label" id="ds-films-label">FILMS IN THIS COLLECTION</div>
+            <div class="dir-film-list" id="ds-films"></div>
+        </div>
+        <div class="dir-spotlight-footer">
+            <button class="dir-wiki-btn" id="ds-wiki-btn">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12.09,2.91C9.5,2.91 7.05,3.99 5.28,5.91L6.7,7.33C8.09,5.77 10.01,4.91 12.09,4.91C14.04,4.91 15.86,5.67 17.24,7.03L18.66,5.61C16.92,3.9 14.58,2.91 12.09,2.91M19.07,7.05L17.65,8.47C18.64,9.64 19.18,11.12 19.18,12.66C19.18,16.27 16.27,19.18 12.66,19.18C11.12,19.18 9.64,18.64 8.47,17.65L7.05,19.07C8.58,20.35 10.53,21.18 12.66,21.18C17.37,21.18 21.18,17.37 21.18,12.66C21.18,10.53 20.35,8.58 19.07,7.05M4.91,8.47L3.07,7.07L1.91,8.61L3.75,10.01C3.5,10.86 3.36,11.75 3.36,12.66C3.36,14.79 4.09,16.74 5.37,18.27L6.79,16.85C5.8,15.68 5.18,14.18 5.18,12.66C5.18,11.15 5.68,9.68 6.59,8.5L4.91,8.47M12.09,7.27C9.97,7.27 8.18,8.79 7.73,10.82L9.7,10.82C10.07,9.87 11,9.27 12.09,9.27C13.5,9.27 14.64,10.41 14.64,11.82C14.64,12.91 14.04,13.84 13.09,14.21L13.09,16.18C15.12,15.73 16.64,13.94 16.64,11.82C16.64,9.3 14.61,7.27 12.09,7.27Z"/></svg>
+                <span id="ds-wiki-label">Wikipedia</span>
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" style="opacity:0.6;margin-left:2px"><path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ================================================
+         DOME GALLERY SECTION
+    ================================================= -->
+    <section id="dome-section">
+        <div class="dome-section-label">
+            <p id="dome-label-sub">L'ensemble des films</p>
+            <h3 id="dome-label-title">Explorez <span>L'Archive</span></h3>
+        </div>
+        <div class="sphere-root" id="dg-root" style="--segments-x:35;--segments-y:35;">
+            <main class="sphere-main" id="dg-main">
+                <div class="dg-stage">
+                    <div class="sphere" id="dg-sphere"></div>
+                </div>
+                <div class="dg-overlay"></div>
+                <div class="dg-overlay dg-overlay--blur"></div>
+                <div class="dg-edge-fade dg-edge-fade--top"></div>
+                <div class="dg-edge-fade dg-edge-fade--bottom"></div>
+                <div class="dg-viewer" id="dg-viewer">
+                    <div id="dg-scrim" class="dg-scrim"></div>
+                    <div id="dg-frame" class="dg-frame"></div>
+                </div>
+            </main>
+        </div>
+        <p class="dome-hint" id="dome-hint">Drag to rotate &nbsp;·&nbsp; Click any poster to zoom</p>
+    </section>
+
+    <button class="quiz-launcher" onclick="startQuiz()" title="Film Recommender">?</button>
+
+    <div id="quiz-modal">
+        <div class="quiz-card" id="quiz-box"></div>
+    </div>
+
+    <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal(event, true)">&times;</button>
+            <div class="modal-img-side" id="m-img-container"></div>
+            <div class="modal-info-side">
+                <div>
+                    <span class="dir-label" id="m-dir-label">RÉALISATEUR</span>
+                    <div class="m-director-name" id="m-director" title="Rechercher / Search"></div>
+                    <h2 class="m-main-title" id="m-title"></h2>
+                    <div class="cast-box">
+                        <strong id="m-cast-label">ACTEURS PRINCIPAUX</strong>
+                        <div class="cast-list" id="m-cast"></div>
+                    </div>
+                    <div class="synopsis-section">
+                        <strong id="m-syn-label">L'HISTOIRE</strong>
+                        <p class="synopsis-body" id="m-syn"></p>
+                    </div>
+                    <div class="trivia-tag" id="m-trivia"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const icons = {
+            cannes: `<svg viewBox="0 0 24 24"><path d="M21,11.5C21,14.54 18.54,17 15.5,17C14.16,17 12.95,16.5 12,15.75C11.05,16.5 9.84,17 8.5,17C5.46,17 3,14.54 3,11.5C3,9.5 4.07,7.74 5.67,6.75C5.24,5.84 5,4.82 5,3.75C5,1.68 6.68,0 8.75,0C10.05,0 11.19,0.66 11.85,1.66C12.5,1.34 13.23,1.16 14,1.16C15.91,1.16 17.5,2.75 17.5,4.66C17.5,5.27 17.34,5.84 17.06,6.34C19.34,7.3 21,9.6 21,12.25L21,11.5M10.3,13.2C10.6,12.7 10.8,12.1 10.9,11.5H9C8.9,12.1 9.1,12.7 9.4,13.2L7.6,14.5C7,13.7 6.6,12.6 6.6,11.5C6.6,10.4 7,9.3 7.6,8.5L9.4,9.8C9.1,10.3 8.9,10.9 9,11.5H10.9C10.8,10.9 10.6,10.3 10.3,9.8L12,8.5L13.7,9.8C13.4,10.3 13.2,10.9 13.1,11.5H15C15.1,10.9 14.9,10.3 14.6,9.8L16.4,8.5C17,9.3 17.4,10.4 17.4,11.5C17.4,12.6 17,13.7 16.4,14.5L14.6,13.2C14.9,12.7 15.1,12.1 15,11.5H13.1C13.2,12.1 13.4,12.7 13.7,13.2L12,14.5L10.3,13.2Z"/></svg>`,
+            oscar: `<svg viewBox="0 0 24 24"><path d="M12,2L14.19,8.63H21.27L15.54,12.73L17.73,19.37L12,15.27L6.27,19.37L8.46,12.73L2.73,8.63H9.81L12,2Z"/></svg>`,
+            externalLink: `<svg viewBox="0 0 24 24"><path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/></svg>`
+        };
+
+        const cinemaData = [
+            {
+                decade: { fr: "Années 70", en: "1970s" }, sub: { fr: "L'âge d'or du polar", en: "The golden age of thrillers" },
+                theme: { bg: "#f5e6d3", text: "#3e2723", accent: "#e65100", card: "#ffffff", shadow: "rgba(230, 81, 0, 0.2)", cssFilter: "overlay-70s" },
+                movies: [
+                    { title: {fr:"Le Cercle Rouge", en:"The Red Circle"}, dir:"Jean-Pierre Melville", cast:"Alain Delon, Bourvil", syn:{fr:"Un malfrat, un évadé et un ex-flic unissent leurs forces pour un casse impossible.", en:"A thief, an escapee, and an ex-cop join forces for an impossible heist."}, awards:{}, trivia:{fr:"Melville a exigé 25 minutes de silence total pendant le braquage.", en:"Melville demanded 25 minutes of total silence during the robbery."}, img:"images/le-cercle-rouge.png", trailer: "taSkmZUa4dY" },
+                    { title: {fr:"La Nuit Américaine", en:"Day for Night"}, dir:"François Truffaut", cast:"Jacqueline Bisset, Jean-Pierre Léaud", syn:{fr:"Les drames personnels des acteurs se mêlent à la magie de la création sur un plateau.", en:"Personal dramas of actors blend with the magic of creation on a film set."}, awards:{oscar:"Winner"}, trivia:{fr:"Truffaut joue lui-même le rôle du réalisateur.", en:"Truffaut himself plays the director."}, img:"images/la-nuit-americaine.png", trailer: "9cAJd82SB00" },
+                    { title: {fr:"Jeanne Dielman", en:"Jeanne Dielman"}, dir:"Chantal Akerman", cast:"Delphine Seyrig", syn:{fr:"Le portrait hypnotique d'une veuve dont la routine cache une faille tragique.", en:"The hypnotic portrait of a widow whose routine hides a tragic flaw."}, awards:{}, trivia:{fr:"Élu meilleur film de l'histoire par Sight & Sound en 2022.", en:"Voted greatest film of all time by Sight & Sound in 2022."}, img:"images/jeanne-dielman.png", trailer: "iuP1MN6RNJU" },
+                    { title: {fr:"Le Locataire", en:"The Tenant"}, dir:"Roman Polanski", cast:"Roman Polanski, Isabelle Adjani", syn:{fr:"Un homme s'installe dans un appartement et sombre dans une paranoïa mortelle.", en:"A man moves into an apartment and descends into deadly paranoia."}, awards:{cannes:"Nominated"}, trivia:{fr:"Polanski a filmé dans un véritable immeuble parisien.", en:"Polanski filmed in a real Paris building."}, img:"images/le-locataire.png", trailer: "88Y9ViLIDL8" },
+                    { title: {fr:"Céline et Julie", en:"Celine & Julie"}, dir:"Jacques Rivette", cast:"Juliet Berto, Dominique Labourier", syn:{fr:"Deux amies s'immergent dans une énigme magique à l'intérieur d'une villa.", en:"Two friends immerse themselves in a magical enigma inside a mysterious villa."}, awards:{}, trivia:{fr:"Le film explore le concept de méta-fiction sur plus de 3 heures.", en:"The film explores meta-fiction over 3 hours."}, img:"images/celine-et-julie.png", trailer: "CcVuBjWpIEI" }
+                ]
+            },
+            {
+                decade: { fr: "Années 80", en: "1980s" }, sub: { fr: "L'esthétique du Look", en: "Cinema of Look" },
+                theme: { bg: "#FF2E93", text: "#FFFFFF", accent: "#00FFFF", card: "#2E1B4E", shadow: "rgba(0, 255, 255, 0.4)", cssFilter: "overlay-80s" }, // UPDATED FOR SYNTHWAVE LOOK
+                movies: [
+                    { title: {fr:"Diva", en:"Diva"}, dir:"Jean-Jacques Beineix", cast:"Frédéric Andréi", syn:{fr:"Un postier se retrouve mêlé à un meurtre après avoir enregistré une cantatrice.", en:"A postman is tangled in a murder after illegally recording a singer."}, awards:{}, trivia:{fr:"Le film a été boudé avant de devenir culte.", en:"The film was ignored before becoming a cult classic."}, img:"images/diva.png", trailer: "VCwqnPFzUBk" },
+                    { title: {fr:"Subway", en:"Subway"}, dir:"Luc Besson", cast:"Isabelle Adjani, Christopher Lambert", syn:{fr:"Un voleur découvre une société secrète dans le métro parisien.", en:"A thief discovers a secret society in the Paris Metro."}, awards:{}, trivia:{fr:"Besson a obtenu des autorisations spéciales pour filmer la nuit.", en:"Besson got special permits to film at night."}, img:"images/subway.png", trailer: "UdpLg2NHIco" },
+                    { title: {fr:"Mauvais Sang", en:"Bad Blood"}, dir:"Leos Carax", cast:"Denis Lavant, Juliette Binoche", syn:{fr:"Un jeune homme doit voler le vaccin d'une MST mortelle.", en:"A young man must steal the vaccine for a deadly STD."}, awards:{}, trivia:{fr:"La scène de course sur 'Modern Love' est légendaire.", en:"The running scene set to 'Modern Love' is legendary."}, img:"images/mauvais-sang.png", trailer: "r_nJz2KTKIk" },
+                    { title: {fr:"Au Revoir les Enfants", en:"Goodbye Children"}, dir:"Louis Malle", cast:"Gaspard Manesse", syn:{fr:"L'amitié entre un pensionnaire et un élève juif caché en 1944.", en:"Friendship between a student and a hidden Jewish pupil in 1944."}, awards:{oscar:"Nominated"}, trivia:{fr:"Inspiré d'un souvenir traumatisant de Malle.", en:"Inspired by a traumatic memory of Malle."}, img:"images/au-revoir-les-enfants.png", trailer: "zXmvdKtMQcI" },
+                    { title: {fr:"Le Grand Bleu", en:"The Big Blue"}, dir:"Luc Besson", cast:"Jean-Marc Barr, Jean Reno", syn:{fr:"La rivalité mystique entre deux plongeurs en apnée.", en:"The mystical rivalry between two free-divers."}, awards:{}, trivia:{fr:"Le film est resté à l'affiche plus d'un an.", en:"The film stayed in theaters for over a year."}, img:"images/le-grand-bleu.png", trailer: "WNkIjVyf3UQ" }
+                ]
+            },
+            {
+                decade: { fr: "Années 90", en: "1990s" }, sub: { fr: "Nouvelles Vagues Urbaines", en: "New Urban Waves" },
+                theme: { bg: "#E0ECE4", text: "#1A2624", accent: "#11999E", card: "#FFFFFF", shadow: "rgba(17, 153, 158, 0.4)", cssFilter: "overlay-90s" },
+                movies: [
+                    { title: {fr:"La Haine", en:"La Haine"}, dir:"Mathieu Kassovitz", cast:"Vincent Cassel", syn:{fr:"Trois amis vivent la journée la plus cruciale de leur vie après des émeutes.", en:"Three friends live their most crucial day after riots."}, awards:{cannes:"Best Director"}, trivia:{fr:"Le film a été projeté devant le gouvernement.", en:"The film was screened for the government."}, img:"images/la-haine.png", trailer: "FKwcXt3JIaU" },
+                    { title: {fr:"Delicatessen", en:"Delicatessen"}, dir:"Caro & Jeunet", cast:"Dominique Pinon", syn:{fr:"Un boucher singulier fournit une viande très spéciale dans le futur.", en:"A peculiar butcher provides special meat in the future."}, awards:{}, trivia:{fr:"Les décors ont été entièrement construits à la main.", en:"The sets were entirely hand-built."}, img:"images/delicatessen.png", trailer: "GVL5_I4CvTc" },
+                    { title: {fr:"Nikita", en:"Nikita"}, dir:"Luc Besson", cast:"Anne Parillaud", syn:{fr:"Une délinquante est forcée de devenir tueuse d'élite.", en:"A delinquent is forced to become an elite assassin."}, awards:{}, trivia:{fr:"Jean Reno y joue un 'nettoyeur'.", en:"Jean Reno plays a 'cleaner'."}, img:"images/nikita.png", trailer: "JRfo_bNco6M" },
+                    { title: {fr:"La Cité des Enfants Perdus", en:"City of Lost Children"}, dir:"Caro & Jeunet", cast:"Ron Perlman", syn:{fr:"Un colosse part sauver son frère d'un voleur de rêves.", en:"A giant saves his brother from a dream thief."}, awards:{cannes:"Nominated"}, trivia:{fr:"Ron Perlman a appris ses répliques phonétiquement.", en:"Ron Perlman learned his lines phonetically."}, img:"images/la-cite.png", trailer: "n1_YX8mHAwY" },
+                    { title: {fr:"Beau Travail", en:"Beau Travail"}, dir:"Claire Denis", cast:"Denis Lavant", syn:{fr:"Un officier se remémore sa haine envers une jeune recrue.", en:"An officer recalls his hatred for a recruit."}, awards:{}, trivia:{fr:"Le film utilise la danse comme langage militaire.", en:"The film uses dance as a military language."}, img:"images/beau-travail.png", trailer: "Hh4HzACZOOQ" }
+                ]
+            },
+            {
+                decade: { fr: "Années 2000", en: "2000s" }, sub: { fr: "Succès Planétaires", en: "Global Success" },
+                theme: { bg: "#F0F8FF", text: "#003366", accent: "#007BFF", card: "#FFFFFF", shadow: "rgba(0, 123, 255, 0.2)", cssFilter: "overlay-00s" },
+                movies: [
+                    { title: {fr:"Amélie Poulain", en:"Amélie"}, dir:"Jean-Pierre Jeunet", cast:"Audrey Tautou", syn:{fr:"Une serveuse décide d'améliorer la vie de ceux qui l'entourent.", en:"A waitress secretly improves the lives of others."}, awards:{oscar:"Nominated"}, trivia:{fr:"Le film a boosté le tourisme à Montmartre.", en:"The film permanently boosted Montmartre tourism."}, img:"images/amelie-poulain.png", trailer: "HUECWi5pX7o" },
+                    { title: {fr:"Irréversible", en:"Irreversible"}, dir:"Gaspar Noé", cast:"Monica Bellucci, Vincent Cassel", syn:{fr:"La descente aux enfers d'un homme cherchant vengeance, à l'envers.", en:"A man's hellish revenge told in reverse."}, awards:{cannes:"Nominated"}, trivia:{fr:"L'infra-basse au début provoque un malaise physique.", en:"Infrasound at the start causes real physical unease."}, img:"images/irreversible.png", trailer: "HYke7Wywo08" },
+                    { title: {fr:"Caché", en:"Hidden"}, dir:"Michael Haneke", cast:"Juliette Binoche, Daniel Auteuil", syn:{fr:"Une famille est terrorisée par des vidéos anonymes de sa maison.", en:"A family is terrorized by anonymous surveillance videos."}, awards:{cannes:"Best Director"}, trivia:{fr:"Haneke a utilisé des plans fixes extrêmement longs.", en:"Haneke used extremely long static shots."}, img:"images/cache.png", trailer: "pvT_9TqIEtM" },
+                    { title: {fr:"Les Choristes", en:"The Chorus"}, dir:"Christophe Barratier", cast:"Gérard Jugnot", syn:{fr:"Un surveillant crée une chorale pour enfants en difficulté.", en:"A teacher creates a choir for troubled children."}, awards:{oscar:"Nominated"}, trivia:{fr:"Le jeune J.B. Maunier chantait réellement ses parties.", en:"Young J.B. Maunier actually sang all his parts."}, img:"images/les-choristes.png", trailer: "qhYtVMoWFNQ" },
+                    { title: {fr:"Un Prophète", en:"A Prophet"}, dir:"Jacques Audiard", cast:"Tahar Rahim", syn:{fr:"Un jeune gravit les échelons de la mafia corse en prison.", en:"A young man climbs the ranks of the mafia in prison."}, awards:{cannes:"Grand Prix", oscar:"Nominated"}, trivia:{fr:"Tahar Rahim était inconnu avant ce rôle.", en:"Tahar Rahim was unknown before this role."}, img:"images/un-prophete.png", trailer: "l69ARbQt-Ko" }
+                ]
+            },
+            {
+                decade: { fr: "Années 2010", en: "2010s" }, sub: { fr: "La diversité des genres", en: "Diversity of genres" },
+                theme: { bg: "#1A050F", text: "#FFF5F5", accent: "#FF4D6D", card: "#2D0A16", shadow: "rgba(255, 77, 109, 0.4)", cssFilter: "overlay-10s" },
+                movies: [
+                    { title: {fr:"Incendies", en:"Incendies"}, dir:"Denis Villeneuve", cast:"Lubna Azabal", syn:{fr:"Des jumeaux partent déterrer un secret de famille au Moyen-Orient.", en:"Twins travel to the Middle East to unearth a family secret."}, awards:{oscar:"Nominated"}, trivia:{fr:"C'est une co-production majeure française.", en:"It is a major French co-production."}, img:"images/incendies.png", trailer: "XJ69WnwvZhE" },
+                    { title: {fr:"Portrait de la jeune fille...", en:"Lady on Fire"}, dir:"Céline Sciamma", cast:"Noémie Merlant, Adèle Haenel", syn:{fr:"Une peintre réalise le portrait d'une femme qui refuse de poser.", en:"A painter creates a portrait of a woman who refuses to pose."}, awards:{cannes:"Best Screenplay"}, trivia:{fr:"Aucune musique n'est utilisée avant la fin.", en:"No music is used until the very last scene."}, img:"images/portrait-jeune-fille.png", trailer: "Bn_-YoG69Sw" },
+                    { title: {fr:"Grave", en:"Raw"}, dir:"Julia Ducournau", cast:"Garance Marillier", syn:{fr:"Une végétarienne subit un bizutage déclenchant une faim cannibale.", en:"A vegetarian hazing triggers a cannibalistic hunger."}, awards:{cannes:"Winner"}, trivia:{fr:"Le film a causé des évanouissements à Toronto.", en:"The film caused faints during its Toronto premiere."}, img:"images/grave.png", trailer: "NFIvI3ajjN8" },
+                    { title: {fr:"Intouchables", en:"The Intouchables"}, dir:"Nakache & Toledano", cast:"Omar Sy, François Cluzet", syn:{fr:"L'amitié entre un aristocrate tétraplégique et son aide à domicile.", en:"Friendship between a quadriplegic aristocrat and his caregiver."}, awards:{}, trivia:{fr:"Film français le plus vu au monde (hors France).", en:"Most-watched French film in the world (outside France)."}, img:"images/intouchables.png", trailer: "34WIbmXkewU" },
+                    { title: {fr:"La Vie d'Adèle", en:"Blue Warmest Color"}, dir:"Abdellatif Kechiche", cast:"Léa Seydoux", syn:{fr:"L'histoire d'amour foudroyante entre deux jeunes femmes.", en:"The striking love story between two young women."}, awards:{cannes:"Palme d'Or"}, trivia:{fr:"Palme d'Or remise au réalisateur ET aux actrices.", en:"Palme d'Or given to the director AND actresses."}, img:"images/la-vie-dadele.png", trailer: "7yvanLYFzWw" }
+                ]
+            },
+            {
+                decade: { fr: "Années 2020", en: "2020s" }, sub: { fr: "Le renouveau moderne", en: "Modern renewal" },
+                theme: { bg: "#0A0A0A", text: "#FAFAFA", accent: "#6366F1", card: "#1A1A1A", shadow: "rgba(99, 102, 241, 0.4)", cssFilter: "overlay-20s" },
+                movies: [
+                    { title: {fr:"Anatomie d'une chute", en:"Anatomy of a Fall"}, dir:"Justine Triet", cast:"Sandra Hüller", syn:{fr:"Une écrivaine est accusée du meurtre de son mari.", en:"A writer is accused of her husband's murder."}, awards:{cannes:"Palme d'Or", oscar:"Winner"}, trivia:{fr:"Le chien Snoop a gagné la 'Palm Dog'.", en:"Snoop the dog won the 'Palm Dog'."}, img:"images/anatomie-dune-chute.png", trailer: "4vomBbFSs8g" },
+                    { title: {fr:"Titane", en:"Titane"}, dir:"Julia Ducournau", cast:"Agathe Rousselle", syn:{fr:"Une jeune femme transformée par le titane se fait passer pour un fils.", en:"A titanium-transformed woman poses as a missing son."}, awards:{cannes:"Palme d'Or"}, trivia:{fr:"Ducournau est la 2ème femme à gagner la Palme.", en:"Ducournau is the 2nd woman to win the Palme alone."}, img:"images/titane.png", trailer: "1-xZrghaYAw" },
+                    { title: {fr:"Le Règne Animal", en:"The Animal Kingdom"}, dir:"Thomas Cailley", cast:"Romain Duris", syn:{fr:"Des humains mutent en animaux, un père cherche sa femme.", en:"Humans mutate into animals, a father searches for his wife."}, awards:{}, trivia:{fr:"Utilise des effets spéciaux pratiques.", en:"Uses practical makeup effects."}, img:"images/le-regne-animal.png", trailer: "K1pfR_IC7pU" },
+                    { title: {fr:"L'Événement", en:"Happening"}, dir:"Audrey Diwan", cast:"Anamaria Vartolomei", syn:{fr:"En 1963, une étudiante décide d'avorter clandestinement.", en:"In 1963, a student seeks a clandestine abortion."}, awards:{}, trivia:{fr:"Inspiré du roman d'Annie Ernaux, Prix Nobel.", en:"Based on the novel by Nobel winner Annie Ernaux."}, img:"images/levenement.png", trailer: "eKvA9DORGOA" },
+                    { title: {fr:"Saint Omer", en:"Saint Omer"}, dir:"Alice Diop", cast:"Guslagie Malanda", syn:{fr:"Une romancière suit le procès d'une mère infanticide.", en:"A novelist follows the trial of a mother."}, awards:{oscar:"Shortlisted"}, trivia:{fr:"Basé sur un véritable procès.", en:"Based on a real trial the director attended."}, img:"images/saint-omer.png", trailer: "iWw-EyrG5Sw" }
+                ]
+            }
+        ];
+
+        let lang = 'fr';
+        let currentIdx = 0;
+        let quizStep = 0;
+        let decadeScores = [0, 0, 0, 0, 0, 0];
+        
+        function init() {
+            const nav = document.getElementById('nav');
+            nav.innerHTML = '';
+            cinemaData.forEach((d, i) => {
+                const btn = document.createElement('button');
+                btn.className = `nav-btn ${i === currentIdx ? 'active' : ''}`;
+                btn.innerText = d.decade[lang];
+                btn.onclick = () => loadDecade(i);
+                nav.appendChild(btn);
+            });
+            loadDecade(currentIdx);
+        }
+
+        function loadDecade(idx) {
+            currentIdx = idx;
+            const data = cinemaData[idx];
+            const root = document.documentElement;
+            root.style.setProperty('--bg-color', data.theme.bg);
+            root.style.setProperty('--text-main', data.theme.text);
+            root.style.setProperty('--accent', data.theme.accent);
+            root.style.setProperty('--card-bg', data.theme.card);
+            root.style.setProperty('--card-shadow', data.theme.shadow);
+
+            // --- APPLY TEXTURE OVERLAY ---
+            const overlay = document.getElementById('film-overlay');
+            overlay.className = data.theme.cssFilter;
+
+            document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+
+            let html = `<div class="decade-header"><h2>${data.decade[lang]}</h2><p>${data.sub[lang]}</p></div><div class="movie-grid">`;
+            
+            data.movies.forEach((m, mi) => {
+                let badgeHtml = '<div class="poster-awards">';
+                if (m.awards.cannes) badgeHtml += `<div class="badge-icon" title="Cannes">${icons.cannes}</div>`;
+                if (m.awards.oscar) badgeHtml += `<div class="badge-icon" title="Oscar">${icons.oscar}</div>`;
+                badgeHtml += '</div>';
+
+                const safeTitle = m.title[lang].replace(/'/g, "\\'");
+                const fallbackHtml = `<div class='fallback-poster' style='background: linear-gradient(135deg, var(--accent), #222);'>${safeTitle}</div>`;
+                
+                html += `
+                <div class="movie-box" id="movie-${idx}-${mi}" onclick="openModal(${idx}, ${mi})">
+                    <div class="movie-box-tilt-inner">
+                        ${badgeHtml}
+                        <div class="img-wrapper">
+                            <img src="${m.img}" onerror="this.outerHTML=\`${fallbackHtml}\`">
+                        </div>
+                        <div class="movie-box-overlay"><h3>${m.title[lang]}</h3></div>
+                        <div class="movie-box-sheen"></div>
+                    </div>
+                    <div class="movie-box-caption">${m.title[lang]}</div>
+                </div>`;
+            });
+            html += `</div>`;
+            document.getElementById('gallery').innerHTML = html;
+
+            // Attach tilt effect to each newly rendered movie-box
+            attachTiltCards();
+        }
+
+        /* ============================================
+           TILTED CARD — vanilla JS spring tilt
+           Port of TiltedCard.jsx (no React/Motion)
+        ============================================ */
+        function attachTiltCards() {
+            const AMPLITUDE = 14;
+            const SCALE_ON  = 1.1;
+            const DAMPING   = 30;
+            const STIFFNESS = 100;
+            const MASS      = 2;
+
+            function makeSpring(initial) {
+                let cur = initial, vel = 0, target = initial;
+                return {
+                    setTarget(t) { target = t; },
+                    tick(dt) {
+                        const force = -STIFFNESS * (cur - target) - DAMPING * vel;
+                        vel += (force / MASS) * dt;
+                        cur += vel * dt;
+                        return cur;
+                    },
+                    get value()  { return cur; },
+                    get tgt()    { return target; },
+                    get settled(){ return Math.abs(cur - target) < 0.005 && Math.abs(vel) < 0.005; }
+                };
+            }
+
+            document.querySelectorAll('.movie-box').forEach(box => {
+                const inner   = box.querySelector('.movie-box-tilt-inner');
+                const sheen   = box.querySelector('.movie-box-sheen');
+                const caption = box.querySelector('.movie-box-caption');
+                if (!inner) return;
+
+                const rxSp  = makeSpring(0);
+                const rySp  = makeSpring(0);
+                const scSp  = makeSpring(1);
+                const crSp  = makeSpring(0);   // caption rotation
+
+                let raf      = null;
+                let isHover  = false;
+                let lastOffY = 0;
+
+                function tick() {
+                    const dt = 0.016;
+                    const rx = rxSp.tick(dt);
+                    const ry = rySp.tick(dt);
+                    const sc = scSp.tick(dt);
+                    const cr = crSp.tick(dt);
+
+                    inner.style.transform =
+                        `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) scale(${sc})`;
+
+                    if (isHover) {
+                        const shadow = Math.abs(rx) + Math.abs(ry);
+                        inner.style.boxShadow =
+                            `0 ${12 + shadow}px ${28 + shadow * 1.5}px var(--card-shadow)`;
+                    } else {
+                        inner.style.boxShadow = '';
+                    }
+
+                    if (caption) {
+                        caption.style.setProperty('--cap-rot', cr.toFixed(2) + 'deg');
+                    }
+
+                    const allDone = rxSp.settled && rySp.settled && scSp.settled && crSp.settled;
+                    if (allDone && !isHover) { raf = null; return; }
+                    raf = requestAnimationFrame(tick);
+                }
+
+                function startTick() { if (!raf) raf = requestAnimationFrame(tick); }
+
+                box.addEventListener('mouseenter', () => {
+                    isHover = true;
+                    scSp.setTarget(SCALE_ON);
+                    startTick();
+                });
+
+                box.addEventListener('mouseleave', () => {
+                    isHover = false;
+                    rxSp.setTarget(0);
+                    rySp.setTarget(0);
+                    scSp.setTarget(1);
+                    crSp.setTarget(0);
+                    if (caption) caption.style.opacity = '0';
+                    startTick();
+                });
+
+                box.addEventListener('mousemove', e => {
+                    const rect  = box.getBoundingClientRect();
+                    const ox    = e.clientX - rect.left  - rect.width  / 2;
+                    const oy    = e.clientY - rect.top   - rect.height / 2;
+
+                    rxSp.setTarget( (oy / (rect.height / 2)) * -AMPLITUDE );
+                    rySp.setTarget( (ox / (rect.width  / 2)) *  AMPLITUDE );
+
+                    // caption rotation from vertical velocity (matches rotateFigcaption spring)
+                    const velY = oy - lastOffY;
+                    crSp.setTarget(-velY * 0.6);
+                    lastOffY = oy;
+
+                    // sheen position
+                    if (sheen) {
+                        sheen.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width  * 100).toFixed(1) + '%');
+                        sheen.style.setProperty('--my', ((e.clientY - rect.top)  / rect.height * 100).toFixed(1) + '%');
+                    }
+
+                    // floating caption
+                    if (caption) {
+                        caption.style.setProperty('--cap-x', (e.clientX - rect.left) + 'px');
+                        caption.style.setProperty('--cap-y', (e.clientY - rect.top)  + 'px');
+                        caption.style.opacity = '1';
+                    }
+
+                    startTick();
+                });
+            });
+        }
+
+        function openModal(di, mi) {
+            const m = cinemaData[di].movies[mi];
+            const safeTitle = m.title[lang].replace(/'/g, "\\'");
+            const fallbackHtml = `<div class='fallback-poster' style='background: linear-gradient(135deg, var(--accent), #222); font-size: 2.5rem; padding: 2rem;'>${safeTitle}</div>`;
+            
+            // Check for trailer ID
+            const trailerId = m.trailer;
+
+            // Inject Image AND the Play Button (only if trailer exists)
+            document.getElementById('m-img-container').innerHTML = `
+                <img src="${m.img}" onerror="this.outerHTML=\`${fallbackHtml}\`">
+                ${trailerId ? `<button class="play-btn-overlay" onclick="playTrailer('${trailerId}')" title="Voir la bande-annonce / Watch Trailer">
+                    <svg viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                </button>` : ''}
+            `;
+            
+            const dirElement = document.getElementById('m-director');
+            dirElement.innerHTML = `${m.dir} ${icons.externalLink}`;
+            dirElement.onclick = () => openDirectorSpotlight(m.dir, lang);
+
+            document.getElementById('m-title').innerText = m.title[lang];
+            document.getElementById('m-cast').innerText = m.cast;
+            document.getElementById('m-syn').innerText = m.syn[lang];
+            document.getElementById('m-trivia').innerText = m.trivia[lang];
+            
+            document.getElementById('m-dir-label').innerText = lang === 'fr' ? 'RÉALISATEUR' : 'DIRECTOR';
+            document.getElementById('m-cast-label').innerText = lang === 'fr' ? 'ACTEURS PRINCIPAUX' : 'STARRING';
+            document.getElementById('m-syn-label').innerText = lang === 'fr' ? "L'HISTOIRE" : 'THE STORY';
+
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        // NEW FUNCTION: Swaps the image and button for a playing YouTube Iframe
+        function playTrailer(videoId) {
+            const container = document.getElementById('m-img-container');
+            container.innerHTML = `<iframe class="video-iframe" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        }
+
+        // UPDATED FUNCTION: Clears the container so the video stops playing when modal is closed
+        function closeModal(e, force = false) {
+            if (force || e.target.id === 'modal') {
+                document.getElementById('modal').style.display = 'none';
+                document.getElementById('m-img-container').innerHTML = ''; // Kills the iframe to stop audio
+            }
+        }
+
+        // --- DEEP QUIZ ---
+        const quizData = [
+            {
+                q: {fr: "Quelle est votre humeur ?", en: "What is your cinematic mood?"},
+                opts: [
+                    {t:{fr:"Sombre et tendue", en:"Dark & Tense"}, keys:[0, 2]}, 
+                    {t:{fr:"Néon et stylisée", en:"Neon & Stylish"}, keys:[1, 5]},
+                    {t:{fr:"Poétique et émouvante", en:"Poetic & Emotional"}, keys:[3, 4]},
+                    {t:{fr:"Étrange et décalée", en:"Weird & Offbeat"}, keys:[2, 5]} 
+                ]
+            },
+            {
+                q: {fr: "Quel décor vous attire ?", en: "Which setting draws you in?"},
+                opts: [
+                    {t:{fr:"Rues urbaines nocturnes", en:"Nighttime City Streets"}, keys:[0, 1, 2]},
+                    {t:{fr:"Huis clos étouffant", en:"Suffocating Indoors"}, keys:[0, 4, 5]},
+                    {t:{fr:"Grands espaces naturels", en:"Vast Natural Landscapes"}, keys:[1, 4]},
+                    {t:{fr:"Un monde de rêve ou de cauchemar", en:"A Dream/Nightmare World"}, keys:[1, 2, 3]}
+                ]
+            },
+            {
+                q: {fr: "Quel type de protagoniste ?", en: "What kind of protagonist?"},
+                opts: [
+                    {t:{fr:"Un anti-héros solitaire", en:"A lonely anti-hero"}, keys:[0, 1]},
+                    {t:{fr:"Une jeunesse en révolte", en:"Youth in revolt"}, keys:[2, 4]},
+                    {t:{fr:"Quelqu'un cherchant la vérité", en:"Someone seeking the truth"}, keys:[3, 5]},
+                    {t:{fr:"Un artiste ou un rêveur", en:"An artist or dreamer"}, keys:[1, 3, 4]}
+                ]
+            }
+        ];
+
+        function startQuiz() {
+            quizStep = 0; 
+            decadeScores = [0, 0, 0, 0, 0, 0];
+            
+            document.querySelectorAll('.golden-glow').forEach(el => el.classList.remove('golden-glow'));
+            document.querySelectorAll('.recommended-label').forEach(el => el.remove());
+
+            document.getElementById('quiz-modal').style.display = 'flex';
+            renderQuiz();
+        }
+
+        function renderQuiz() {
+            const q = quizData[quizStep];
+            let html = `<h2>${q.q[lang]}</h2><div class="quiz-opts">`;
+            q.opts.forEach(o => {
+                const keysStr = o.keys.join(',');
+                html += `<button class="quiz-opt-btn" onclick="answer('${keysStr}')">${o.t[lang]}</button>`;
+            });
+            document.getElementById('quiz-box').innerHTML = html + `</div>`;
+        }
+
+        function answer(keysStr) {
+            keysStr.split(',').forEach(k => decadeScores[parseInt(k)]++);
+            quizStep++;
+            
+            if(quizStep < quizData.length) {
+                renderQuiz();
+            } else {
+                let winDecade = 0;
+                let maxScore = -1;
+                decadeScores.forEach((score, index) => {
+                    if(score > maxScore) { maxScore = score; winDecade = index; }
+                });
+
+                document.getElementById('quiz-modal').style.display = 'none';
+                loadDecade(winDecade);
+
+                setTimeout(() => {
+                    const randomMovieIdx = Math.floor(Math.random() * 5);
+                    const chosenBox = document.getElementById(`movie-${winDecade}-${randomMovieIdx}`);
+                    
+                    if (chosenBox) {
+                        chosenBox.classList.add('golden-glow');
+                        const badge = document.createElement('div');
+                        badge.className = 'recommended-label';
+                        badge.innerText = lang === 'fr' ? '🌟 NOTRE CHOIX' : '🌟 OUR PICK';
+                        chosenBox.appendChild(badge);
+                    }
+                }, 100);
+            }
+        }
+
+        function toggleLang() {
+            lang = lang === 'fr' ? 'en' : 'fr';
+            document.getElementById('dome-label-sub').textContent = lang === 'fr' ? "L'ensemble des films" : "The complete collection";
+            document.getElementById('dome-label-title').innerHTML = lang === 'fr' ? 'Explorez <span>L\'Archive</span>' : 'Explore <span>The Archive</span>';
+            document.getElementById('dome-hint').textContent = lang === 'fr' ? 'Faites glisser · Cliquez une affiche pour zoomer' : 'Drag to rotate · Click any poster to zoom';
+            init();
+        }
+
+        /* ================================================
+           DIRECTOR SPOTLIGHT
+        ================================================= */
+        const directorData = {
+            "Jean-Pierre Melville": {
+                born: "1917, Paris", died: "1973", nationality: "🇫🇷 French", era: "1950s–70s",
+                tags: { fr: ["Polar minimaliste","Silence & tension","Esthétique froide","Influence américaine"], en: ["Minimalist thriller","Silence & tension","Icy aesthetic","American influence"] },
+                bio: { fr: "Maître incontesté du polar français, Melville a inventé un style épuré et glacial, profondément influencé par le film noir américain. Portant toujours son chapeau de cow-boy et ses lunettes noires, il incarnait lui-même le mythe du « cool ». Ses héros solitaires, condamnés dès le départ, évoluent dans un monde de loyauté codifiée et de trahisons inévitables. Ses longs silences, ses plans fixes et son refus du sentimentalisme ont influencé Tarantino, Johnnie To et toute la génération du cinéma de genre mondial.", en: "The undisputed master of French crime cinema, Melville forged an icy, stripped-down style deeply rooted in American film noir. Always wearing his signature cowboy hat and dark glasses, he embodied the myth of cool himself. His doomed, solitary heroes move through a world of codified loyalty and inevitable betrayal. His long silences, static frames, and refusal of sentiment influenced Tarantino, Johnnie To, and an entire generation of world genre filmmakers." },
+                quote: { fr: "\"Je ne veux pas raconter des histoires. Je veux créer des émotions.\"", en: "\"I don't want to tell stories. I want to create emotions.\"" },
+                imdb: "nm0578004",
+                careerStats: { totalFilms: 13, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Jamais primé à Cannes", en: "Never awarded at Cannes" } }
+            },
+            "François Truffaut": {
+                born: "1932, Paris", died: "1984", nationality: "🇫🇷 French", era: "1960s–80s",
+                tags: { fr: ["Nouvelle Vague","Autobiographie","Humour tendre","Amour du cinéma"], en: ["French New Wave","Autobiography","Tender humour","Love of cinema"] },
+                bio: { fr: "Ancien enfant difficile devenu critique acéré aux Cahiers du Cinéma, Truffaut a lancé la Nouvelle Vague avec Les 400 Coups en 1959 — film directement inspiré de sa propre enfance turbulente. Tout au long de sa carrière, il a exploré l'amour, l'enfance et la création avec une tendresse et une légèreté incomparables. La Nuit Américaine, son « film sur le cinéma », est à la fois une déclaration d'amour au 7e art et une comédie humaine d'une rare justesse.", en: "A troubled child turned sharp critic at Cahiers du Cinéma, Truffaut launched the French New Wave with The 400 Blows in 1959 — a film drawn directly from his own turbulent childhood. Throughout his career he explored love, childhood, and creation with unmatched tenderness and lightness. Day for Night, his 'film about film', is both a love letter to cinema and a human comedy of rare precision." },
+                quote: { fr: "\"Le cinéma, c'est l'art de faire faire de belles choses à de jolies femmes.\"", en: "\"Cinema is the art of showing beautiful things to beautiful women — and making them do it.\"" },
+                imdb: "nm0000080",
+                careerStats: { totalFilms: 25, oscars: 1, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix de la mise en scène (1959)", en: "Best Director (1959)" } }
+            },
+            "Chantal Akerman": {
+                born: "1950, Bruxelles", died: "2015", nationality: "🇧🇪 Belgian", era: "1970s–2010s",
+                tags: { fr: ["Féministe","Temps réel","Corps & routine","Avant-garde"], en: ["Feminist","Real time","Body & routine","Avant-garde"] },
+                bio: { fr: "Cinéaste avant-gardiste d'une radicalité absolue, Akerman a révolutionné la représentation des femmes et du temps à l'écran. Jeanne Dielman — tourné à 25 ans — a redéfini ce que le cinéma pouvait filmer : les gestes répétitifs, le silence domestique, l'ennui comme politique. Élu meilleur film de tous les temps par Sight & Sound en 2022, ce chef-d'œuvre reste le symbole d'un cinéma qui refuse de hiérarchiser le trivial et le sublime.", en: "An absolutely radical avant-garde filmmaker, Akerman revolutionized the representation of women and time on screen. Jeanne Dielman — shot at age 25 — redefined what cinema could film: repetitive gestures, domestic silence, boredom as politics. Named the greatest film of all time by Sight & Sound in 2022, this masterpiece remains the symbol of a cinema that refuses to rank the trivial above the sublime." },
+                quote: { fr: "\"Je ne fais pas des films sur les femmes. Je fais des films avec des femmes.\"", en: "\"I don't make films about women. I make films with women.\"" },
+                imdb: "nm0014638",
+                careerStats: { totalFilms: 45, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Hors compétition, influence mondiale", en: "Out of competition, global influence" } }
+            },
+            "Roman Polanski": {
+                born: "1933, Paris", nationality: "🇫🇷 French-Polish", era: "1960s–2010s",
+                tags: { fr: ["Horreur psychologique","Paranoïa","Claustrophobie","Absurde kafkaïen"], en: ["Psychological horror","Paranoia","Claustrophobia","Kafkaesque absurdism"] },
+                bio: { fr: "Survivant de la Shoah, Polanski a construit une œuvre hantée par l'enfermement et la persécution. Son style — espaces clos, caméra subjective, lumière anxiogène — traduit une vision du monde où la réalité se dérobe toujours. Le Locataire, dans lequel il joue lui-même, est peut-être son film le plus personnel : l'histoire d'un homme qui perd son identité, appartement après appartement.", en: "A Holocaust survivor, Polanski built a body of work haunted by confinement and persecution. His style — closed spaces, subjective camera, anxiety-inducing light — reflects a worldview where reality always slips away. The Tenant, in which he himself stars, may be his most personal film: the story of a man losing his identity, apartment by apartment." },
+                quote: { fr: "\"Le vrai sujet de mes films, c'est toujours la solitude.\"", en: "\"The real subject of my films is always solitude.\"" },
+                imdb: "nm0000591",
+                careerStats: { totalFilms: 20, oscars: 1, goldenGlobes: 1, cannesWins: 1, cannesNote: { fr: "Palme d'Or (2002 — Le Pianiste)", en: "Palme d'Or (2002 — The Pianist)" } }
+            },
+            "Jacques Rivette": {
+                born: "1928, Rouen", died: "2016", nationality: "🇫🇷 French", era: "1960s–2000s",
+                tags: { fr: ["Improvisation","Méta-fiction","Théâtre & complot","Durée extrême"], en: ["Improvisation","Meta-fiction","Theatre & conspiracy","Extreme duration"] },
+                bio: { fr: "Le plus secret et le plus radical des réalisateurs de la Nouvelle Vague, Rivette a fait de la longueur, du labyrinthe et de l'improvisation ses outils poétiques. Ses films peuvent durer 12 heures — comme Out 1 — ou osciller entre comédie surréaliste et enquête métaphysique. Céline et Julie vont en bateau reste son œuvre la plus accessible et la plus jubilatoire, un jeu de miroirs entre réalité et fiction pure.", en: "The most secretive and radical of the New Wave directors, Rivette made length, labyrinth, and improvisation his poetic tools. His films can run 12 hours — as with Out 1 — or oscillate between surreal comedy and metaphysical inquiry. Celine and Julie Go Boating remains his most accessible and joyful work, a hall of mirrors between reality and pure fiction." },
+                quote: { fr: "\"Un film doit durer aussi longtemps qu'il en a besoin.\"", en: "\"A film must last as long as it needs to.\"" },
+                imdb: "nm0730285",
+                careerStats: { totalFilms: 13, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Pilier de la Nouvelle Vague", en: "Pillar of the French New Wave" } }
+            },
+            "Jean-Jacques Beineix": {
+                born: "1946, Paris", died: "2022", nationality: "🇫🇷 French", era: "1980s–90s",
+                tags: { fr: ["Cinéma du Look","Esthétique pub","Couleurs saturées","Baroque visuel"], en: ["Cinéma du Look","Ad aesthetics","Saturated color","Visual baroque"] },
+                bio: { fr: "Chef de file du « Cinéma du Look », Beineix a imposé dans les années 80 une esthétique issue de la publicité et du clip — couleurs saturées, décors stylisés, lumière artificielle. Diva, son premier long métrage, fut méprisé par la critique avant de devenir un phénomène mondial. Il a prouvé que la surface pouvait être une forme d'intelligence.", en: "Pioneer of 'Cinéma du Look', Beineix introduced in the 1980s an aesthetic drawn from advertising and music videos — saturated colors, stylized sets, artificial light. Diva, his debut feature, was dismissed by critics before becoming a global phenomenon. He proved that surface itself could be a form of intelligence." },
+                quote: { fr: "\"La beauté est une forme de vérité.\"", en: "\"Beauty is a form of truth.\"" },
+                imdb: "nm0000886",
+                careerStats: { totalFilms: 5, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Icône du Cinéma du Look", en: "Icon of Cinéma du Look" } }
+            },
+            "Luc Besson": {
+                born: "1959, Paris", nationality: "🇫🇷 French", era: "1980s–2010s",
+                tags: { fr: ["Action stylisée","Anti-héros urbains","Rythme effréné","Cinéma mondial"], en: ["Stylized action","Urban anti-heroes","Breakneck pace","World cinema"] },
+                bio: { fr: "Réalisateur autodidacte élevé sur des bateaux, Besson a révolutionné le cinéma d'action français avec un sens visuel inné et une énergie débordante. Subway, Le Grand Bleu et Nikita — trois films sur la marginalité et l'évasion — ont fait de lui le premier cinéaste français à conquérir le marché mondial. Sa société EuropaCorp a ensuite défini le blockbuster européen.", en: "A self-taught filmmaker raised on boats, Besson revolutionized French action cinema with innate visual sense and boundless energy. Subway, The Big Blue, and Nikita — three films about outcasts and escape — made him the first French filmmaker to truly conquer the global market. His company EuropaCorp later defined the European blockbuster." },
+                quote: { fr: "\"Je fais des films comme d'autres font de la musique. Par instinct.\"", en: "\"I make films the way others make music. By instinct.\"" },
+                imdb: "nm0000108",
+                careerStats: { totalFilms: 22, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Fondateur d'EuropaCorp", en: "Founder of EuropaCorp" } }
+            },
+            "Leos Carax": {
+                born: "1960, Suresnes", nationality: "🇫🇷 French", era: "1980s–2020s",
+                tags: { fr: ["Romantisme radical","Poésie urbaine","Denis Lavant","Cinéma du corps"], en: ["Radical romanticism","Urban poetry","Denis Lavant","Cinema of the body"] },
+                bio: { fr: "Auteur romantique et intransigeant, Carax a construit l'une des œuvres les plus cohérentes et les plus singulières du cinéma français. Ses films — rares et soignés — gravitent autour d'une figure récurrente, Alex (Denis Lavant), et d'un amour impossible dans un Paris nocturne et fantasmé. La scène de Denis Lavant courant sur « Modern Love » dans Mauvais Sang est l'une des plus belles du cinéma mondial.", en: "A romantic and uncompromising auteur, Carax has built one of the most coherent and singular bodies of work in French cinema. His rare, carefully crafted films revolve around a recurring figure, Alex (Denis Lavant), and an impossible love in a nocturnal, fantasized Paris. The scene of Denis Lavant running to 'Modern Love' in Bad Blood is among the most beautiful in world cinema." },
+                quote: { fr: "\"Je ne suis pas un cinéaste. Je suis quelqu'un qui a besoin du cinéma pour vivre.\"", en: "\"I'm not a filmmaker. I'm someone who needs cinema to live.\"" },
+                imdb: "nm0001992",
+                careerStats: { totalFilms: 6, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix de la mise en scène (2012 — Holy Motors)", en: "Best Director (2012 — Holy Motors)" } }
+            },
+            "Louis Malle": {
+                born: "1932, Thumeries", died: "1995", nationality: "🇫🇷 French", era: "1950s–90s",
+                tags: { fr: ["Cinéaste libre","Documentaire & fiction","Mémoire & culpabilité","Franco-américain"], en: ["Free filmmaker","Documentary & fiction","Memory & guilt","Franco-American"] },
+                bio: { fr: "Élève de Jacques Cousteau avant d'être cinéaste, Malle est l'un des rares auteurs à avoir réussi avec une égale aisance en France et aux États-Unis. Son cinéma est celui de la mémoire et du tabou — Lacombe Lucien sur la collaboration, Au Revoir les Enfants sur l'enfance sous l'Occupation. Ce dernier, inspiré d'un souvenir réel de son enfance, reste une méditation déchirante sur la culpabilité et l'innocence perdue.", en: "A student of Jacques Cousteau before becoming a filmmaker, Malle is one of the rare auteurs who succeeded equally in France and the United States. His cinema addresses memory and taboo — Lacombe Lucien on collaboration, Au Revoir les Enfants on childhood under the Occupation. The latter, inspired by a real memory from his own childhood, remains a harrowing meditation on guilt and lost innocence." },
+                quote: { fr: "\"Un film réussi, c'est quand on ne peut plus distinguer l'autobiographie de la fiction.\"", en: "\"A successful film is when you can no longer tell autobiography from fiction.\"" },
+                imdb: "nm0000502",
+                careerStats: { totalFilms: 18, oscars: 0, goldenGlobes: 1, cannesWins: 1, cannesNote: { fr: "Prix du jury (1987 — Au Revoir les Enfants)", en: "Jury Prize (1987 — Au Revoir les Enfants)" } }
+            },
+            "Mathieu Kassovitz": {
+                born: "1967, Paris", nationality: "🇫🇷 French", era: "1990s–2000s",
+                tags: { fr: ["Cinéma social","Banlieues françaises","Noir & blanc","Regard politique"], en: ["Social cinema","French suburbs","Black & white","Political gaze"] },
+                bio: { fr: "Fils du cinéaste Peter Kassovitz, Mathieu a explosé à 27 ans avec La Haine — film tourné en noir et blanc, en temps réel, dans les cités de la banlieue parisienne. Projeté devant le gouvernement Juppé à l'Élysée, le film a provoqué un débat national. Sa mise en scène virtuose — le plan-séquence d'ouverture, le jeu sur le point de vue — en fait un modèle absolu de cinéma politique efficace.", en: "Son of filmmaker Peter Kassovitz, Mathieu exploded at age 27 with La Haine — shot in black-and-white, in real time, in the housing projects of suburban Paris. Screened for the Juppé government at the Élysée, the film sparked a national debate. Its virtuoso direction — the opening tracking shot, the play on point of view — makes it an absolute model of effective political cinema." },
+                quote: { fr: "\"La haine attire la haine. C'est tout le film.\"", en: "\"Hatred attracts hatred. That's the whole film.\"" },
+                imdb: "nm0001415",
+                careerStats: { totalFilms: 7, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix de la mise en scène (1995 — La Haine)", en: "Best Director (1995 — La Haine)" } }
+            },
+            "Caro & Jeunet": {
+                born: "Collaboration", nationality: "🇫🇷 French", era: "1990s",
+                tags: { fr: ["Rétro-futurisme","Humour noir","Décors bricolés","Univers total"], en: ["Retro-futurism","Dark humour","Handmade sets","Total world-building"] },
+                bio: { fr: "Marc Caro (le visuel) et Jean-Pierre Jeunet (le narrateur) ont formé l'un des tandems les plus créatifs du cinéma français. Leurs deux collaborations — Delicatessen et La Cité des Enfants Perdus — sont des univers total, construits entièrement en studio, où chaque détail du décor raconte une histoire. Leur esthétique bricolée, héritière du steampunk et du cirque, a influencé des générations de cinéastes et de game designers.", en: "Marc Caro (the visual artist) and Jean-Pierre Jeunet (the storyteller) formed one of the most creative partnerships in French cinema. Their two collaborations — Delicatessen and The City of Lost Children — are total worlds, built entirely in studio, where every set detail tells a story. Their handmade aesthetic, heir to steampunk and circus, has influenced generations of filmmakers and game designers." },
+                quote: { fr: "\"On ne cherche pas le réalisme. On cherche la vérité émotionnelle.\"", en: "\"We don't seek realism. We seek emotional truth.\"" },
+                imdb: "nm0001398",
+                careerStats: { totalFilms: 2, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Duo visionnaire des années 90", en: "Visionary duo of the 90s" } }
+            },
+            "Claire Denis": {
+                born: "1946, Paris", nationality: "🇫🇷 French", era: "1980s–2020s",
+                tags: { fr: ["Cinéma sensoriel","Corps & désir","Afrique postcoloniale","Pas de narration classique"], en: ["Sensory cinema","Body & desire","Post-colonial Africa","Non-linear narrative"] },
+                bio: { fr: "Cinéaste d'une singularité absolue, Claire Denis construit ses films comme des expériences sensorielles plutôt que des récits. Ayant grandi en Afrique, elle explore avec une délicatesse unique les thèmes du post-colonialisme, du désir et de l'altérité. Beau Travail — adaptation de Billy Budd de Melville — culmine dans une scène de danse finale de Denis Lavant qui est l'une des plus étranges et des plus bouleversantes du cinéma mondial.", en: "A filmmaker of absolute singularity, Claire Denis builds her films as sensory experiences rather than narratives. Having grown up in Africa, she explores post-colonialism, desire, and otherness with unique delicacy. Beau Travail — an adaptation of Melville's Billy Budd — culminates in a final dance by Denis Lavant that is one of the strangest and most devastating scenes in world cinema." },
+                quote: { fr: "\"Je ne raconte pas, j'évoque.\"", en: "\"I don't tell stories. I evoke them.\"" },
+                imdb: "nm0215662",
+                careerStats: { totalFilms: 20, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix de la mise en scène (2022 — Avec Amour et Acharnement)", en: "Best Director (2022 — Both Sides of the Blade)" } }
+            },
+            "Jean-Pierre Jeunet": {
+                born: "1953, Roanne", nationality: "🇫🇷 French", era: "1990s–2000s",
+                tags: { fr: ["Conte visuel","Couleurs chaudes","Personnages excentriques","Optimisme magique"], en: ["Visual fairytale","Warm colors","Eccentric characters","Magical optimism"] },
+                bio: { fr: "Après son duo avec Marc Caro, Jeunet a signé seul Le Fabuleux Destin d'Amélie Poulain — le film français le plus vu dans le monde entier. Avec ses couleurs chaudes, ses personnages attachants et sa vision enchantée de Montmartre, Amélie a redéfini l'image de Paris à l'international et provoqué un boom touristique durable. Jeunet est le maître du conte urbain optimiste.", en: "After his duo with Marc Caro, Jeunet created alone Amélie — the most internationally viewed French film ever. With its warm colors, charming characters, and enchanted vision of Montmartre, Amélie redefined the international image of Paris and sparked a lasting tourism boom. Jeunet is the master of the optimistic urban fairytale." },
+                quote: { fr: "\"Je veux que le spectateur sorte de la salle avec le sourire.\"", en: "\"I want the audience to leave the cinema smiling.\"" },
+                imdb: "nm0001398",
+                careerStats: { totalFilms: 8, oscars: 0, goldenGlobes: 1, cannesWins: 0, cannesNote: { fr: "Amélie — film français le plus vu au monde", en: "Amélie — most internationally viewed French film" } }
+            },
+            "Gaspar Noé": {
+                born: "1963, Buenos Aires", nationality: "🇦🇷 Argentine-French", era: "1990s–2020s",
+                tags: { fr: ["Cinéma provocation","Structure inversée","Infrasound","Sensations extrêmes"], en: ["Provocation cinema","Reversed structure","Infrasound","Extreme sensations"] },
+                bio: { fr: "Réalisateur argentin installé en France, Noé est le plus radical des cinéastes de sa génération. Ses films utilisent la structure narrative, le son et la lumière comme armes physiques contre le spectateur. Irréversible — raconté à l'envers — commence par une scène de violence insoutenable et se termine sur une image d'une beauté absolue, créant un effet de choc émotionnel total. Un cinéaste qui divise, mais dont l'ambition artistique est incontestable.", en: "An Argentine filmmaker based in France, Noé is the most radical director of his generation. His films use narrative structure, sound, and light as physical weapons against the viewer. Irréversible — told in reverse — begins with an unbearable act of violence and ends on an image of absolute beauty, creating a total emotional shock. A filmmaker who divides, but whose artistic ambition is undeniable." },
+                quote: { fr: "\"Le cinéma doit provoquer, pas endormir.\"", en: "\"Cinema must provoke, not sedate.\"" },
+                imdb: "nm0633812",
+                careerStats: { totalFilms: 7, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "L'enfant terrible du cinéma mondial", en: "The enfant terrible of world cinema" } }
+            },
+            "Michael Haneke": {
+                born: "1942, Munich", nationality: "🇩🇪 Austrian", era: "1990s–2010s",
+                tags: { fr: ["Violence médiatisée","Culpabilité du spectateur","Plans fixes","Double Palme d'Or"], en: ["Mediatized violence","Viewer guilt","Static shots","Double Palme d'Or"] },
+                bio: { fr: "Seul réalisateur à avoir remporté deux Palmes d'Or à Cannes pour deux films différents (Le Ruban Blanc, Amour), Haneke est le moraliste du cinéma contemporain. Ses films refusent le confort narratif et renvoient le spectateur à sa propre complicité avec la violence. Caché — où la caméra fixe se révèle être à la fois outil de surveillance et métaphore de la culpabilité coloniale — est son œuvre la plus politique.", en: "The only director to win two Palmes d'Or at Cannes for two different films (The White Ribbon, Amour), Haneke is the moralist of contemporary cinema. His films refuse narrative comfort and force viewers to confront their own complicity with violence. Caché — where the static camera reveals itself as both a surveillance tool and metaphor for colonial guilt — is his most political work." },
+                quote: { fr: "\"Tout film qui ne dérange pas est un film raté.\"", en: "\"Any film that doesn't disturb is a failed film.\"" },
+                imdb: "nm0359734",
+                careerStats: { totalFilms: 12, oscars: 1, goldenGlobes: 0, cannesWins: 2, cannesNote: { fr: "Double Palme d'Or (Ruban Blanc 2009, Amour 2012)", en: "Double Palme d'Or (White Ribbon 2009, Amour 2012)" } }
+            },
+            "Christophe Barratier": {
+                born: "1963, Paris", nationality: "🇫🇷 French", era: "2000s",
+                tags: { fr: ["Cinéma populaire","Musique & pédagogie","Nostalgie","Humanisme"], en: ["Popular cinema","Music & teaching","Nostalgia","Humanism"] },
+                bio: { fr: "Neveu du réalisateur Jacques Rouffio, Barratier a produit pendant des années avant de passer derrière la caméra. Les Choristes — adaptation du film La Cage aux Rossignols (1945) — a été un phénomène mondial inattendu : nommé aux Oscars, aux Césars et vendu dans plus de 50 pays. Le jeune Jean-Baptiste Maunier, dont la voix cristalline subjugue dans le film, est réellement un enfant choriste.", en: "Nephew of director Jacques Rouffio, Barratier produced for years before stepping behind the camera. The Chorus — an adaptation of La Cage aux Rossignols (1945) — became an unexpected global phenomenon: nominated for Oscars and Césars, sold in over 50 countries. Young Jean-Baptiste Maunier, whose crystalline voice entrances throughout the film, was genuinely a boy chorister." },
+                quote: { fr: "\"La musique sauve. C'est aussi simple que ça.\"", en: "\"Music saves. It's as simple as that.\"" },
+                imdb: "nm0057276",
+                careerStats: { totalFilms: 5, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "2 nominations aux Oscars pour Les Choristes", en: "2 Oscar nominations for The Chorus" } }
+            },
+            "Jacques Audiard": {
+                born: "1952, Paris", nationality: "🇫🇷 French", era: "1990s–2020s",
+                tags: { fr: ["Thriller social","Identité & transformation","Tension narrative","Palme d'Or"], en: ["Social thriller","Identity & transformation","Narrative tension","Palme d'Or"] },
+                bio: { fr: "Fils du scénariste légendaire Michel Audiard, Jacques a dû construire son identité contre l'ombre paternelle. Il y est brillamment parvenu avec une série de thrillers sociaux sur la construction de l'identité masculine — De battre mon coeur s'est arrêté, Un Prophète, Dheepan (Palme d'Or 2015). Un Prophète, en particulier, est considéré comme le meilleur film de prison depuis Midnight Express.", en: "Son of legendary screenwriter Michel Audiard, Jacques had to build his own identity against his father's shadow. He succeeded brilliantly with a series of social thrillers about the construction of male identity — The Beat That My Heart Skipped, A Prophet, Dheepan (Palme d'Or 2015). A Prophet in particular is considered the best prison film since Midnight Express." },
+                quote: { fr: "\"Mes personnages ne cherchent pas à survivre. Ils cherchent à exister.\"", en: "\"My characters don't seek to survive. They seek to exist.\"" },
+                imdb: "nm0000783",
+                careerStats: { totalFilms: 9, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Palme d'Or (2015 — Dheepan)", en: "Palme d'Or (2015 — Dheepan)" } }
+            },
+            "Denis Villeneuve": {
+                born: "1967, Gentilly, Québec", nationality: "🇨🇦 Canadian", era: "2000s–2020s",
+                tags: { fr: ["Drame intime","Science-fiction de prestige","Tension visuelle","Québec & Hollywood"], en: ["Intimate drama","Prestige sci-fi","Visual tension","Quebec & Hollywood"] },
+                bio: { fr: "Parti du Québec pour conquérir Hollywood, Villeneuve a réalisé l'une des trajectoires les plus impressionnantes du cinéma contemporain. D'Incendies — son œuvre la plus déchirante, une tragédie grecque moderne — à Blade Runner 2049 et Dune, il a prouvé qu'un cinéaste d'auteur pouvait réinventer le blockbuster. Sa maîtrise du son, du silence et de l'espace visuel est sans équivalent dans le cinéma de genre actuel.", en: "Having left Quebec to conquer Hollywood, Villeneuve has achieved one of the most impressive trajectories in contemporary cinema. From Incendies — his most harrowing work, a modern Greek tragedy — to Blade Runner 2049 and Dune, he proved that an auteur filmmaker could reinvent the blockbuster. His mastery of sound, silence, and visual space is unmatched in current genre cinema." },
+                quote: { fr: "\"Le silence est mon outil le plus puissant.\"", en: "\"Silence is my most powerful tool.\"" },
+                imdb: "nm0898288",
+                careerStats: { totalFilms: 13, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Maître du blockbuster d'auteur", en: "Master of the auteur blockbuster" } }
+            },
+            "Céline Sciamma": {
+                born: "1978, Pontoise", nationality: "🇫🇷 French", era: "2000s–2020s",
+                tags: { fr: ["Cinéma féministe","Regard & désir","Aucune musique","Palme du scénario"], en: ["Feminist cinema","Gaze & desire","No score","Best Screenplay Cannes"] },
+                bio: { fr: "Scénariste avant d'être réalisatrice, Sciamma construit une filmographie d'une cohérence rare autour du genre, du désir et de la jeunesse. Portrait de la Jeune Fille en Feu est une révolution formelle : un film d'amour sans musique extérieure, où le regard remplace entièrement le dialogue amoureux. Sa réflexion sur le « regard » — qui regarde, qui est regardé, qui contrôle l'image — est l'une des plus profondes du cinéma contemporain.", en: "A screenwriter before becoming a director, Sciamma has built a filmography of rare coherence around gender, desire, and youth. Portrait of a Lady on Fire is a formal revolution: a love film with no external score, where the gaze entirely replaces romantic dialogue. Her reflection on the 'gaze' — who looks, who is looked at, who controls the image — is one of the deepest in contemporary cinema." },
+                quote: { fr: "\"Je fais des films pour que les gens se sentent moins seuls.\"", en: "\"I make films so people feel less alone.\"" },
+                imdb: "nm1018753",
+                careerStats: { totalFilms: 5, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix du scénario (2019 — Portrait de la Jeune Fille en Feu)", en: "Best Screenplay (2019 — Portrait of a Lady on Fire)" } }
+            },
+            "Julia Ducournau": {
+                born: "1983, Paris", nationality: "🇫🇷 French", era: "2010s–2020s",
+                tags: { fr: ["Body horror","Transformation identitaire","Genre radical","Double Palme d'Or féminine"], en: ["Body horror","Identity transformation","Radical genre","Palme d'Or solo woman"] },
+                bio: { fr: "Révélée avec Grave — qui a provoqué des évanouissements lors de sa présentation à Toronto — Ducournau est la cinéaste la plus radicalement nouvelle de sa génération. Titane, sa Palme d'Or, est un film de body horror sur la fluidité du genre et de l'identité, dans lequel une femme fusionne littéralement avec une voiture. Elle est la deuxième femme seule à remporter la Palme d'Or, après Jane Campion.", en: "Revealed with Raw — which caused fainting at its Toronto premiere — Ducournau is the most radically new filmmaker of her generation. Titane, her Palme d'Or winner, is a body horror film about gender and identity fluidity, in which a woman literally merges with a car. She is the second woman to win the Palme d'Or solo, after Jane Campion." },
+                quote: { fr: "\"Le corps ne ment jamais.\"", en: "\"The body never lies.\"" },
+                imdb: "nm3716530",
+                careerStats: { totalFilms: 2, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Palme d'Or (2021 — Titane)", en: "Palme d'Or (2021 — Titane)" } }
+            },
+            "Nakache & Toledano": {
+                born: "Collaboration", nationality: "🇫🇷 French", era: "2000s–2020s",
+                tags: { fr: ["Comédie dramatique","Duo comique","Humanisme populaire","Succès mondial"], en: ["Dramatic comedy","Comic duo","Popular humanism","Global success"] },
+                bio: { fr: "Eric Toledano et Olivier Nakache forment le duo le plus populaire du cinéma français contemporain. Intouchables, leur film le plus célèbre, a battu des records d'audience dans le monde entier — y compris en Allemagne, au Japon et en Corée. Basé sur une histoire vraie, il a redéfini la représentation du handicap au cinéma en refusant la pitié au profit de la complicité.", en: "Eric Toledano and Olivier Nakache form the most popular duo in contemporary French cinema. The Intouchables, their most celebrated film, broke audience records worldwide — including in Germany, Japan, and Korea. Based on a true story, it redefined the representation of disability in cinema by rejecting pity in favor of complicity." },
+                quote: { fr: "\"On fait des films sur des gens ordinaires dans des situations extraordinaires.\"", en: "\"We make films about ordinary people in extraordinary situations.\"" },
+                imdb: "nm1503567",
+                careerStats: { totalFilms: 8, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Intouchables — 400M€ au box-office mondial", en: "Intouchables — €400M worldwide box office" } }
+            },
+            "Abdellatif Kechiche": {
+                born: "1960, Tunis", nationality: "🇹🇳 Tunisian-French", era: "2000s–2010s",
+                tags: { fr: ["Naturalisme","Immersion totale","Longs plans","Amour & jeunesse"], en: ["Naturalism","Total immersion","Long takes","Love & youth"] },
+                bio: { fr: "Acteur avant d'être réalisateur, Kechiche filme avec une immersion totale dans le corps et les émotions de ses personnages. La Vie d'Adèle — trois heures de passion, de désir et de rupture — a reçu une Palme d'Or unanime, remise exceptionnellement au réalisateur et aux deux actrices. Son approche — nombreuses prises, improvisation, durée réelle — crée une présence à l'écran unique.", en: "An actor before becoming a director, Kechiche films with total immersion in the bodies and emotions of his characters. Blue Is the Warmest Color — three hours of passion, desire, and heartbreak — received a unanimous Palme d'Or, exceptionally awarded to the director and both actresses. His approach — many takes, improvisation, real duration — creates a unique presence on screen." },
+                quote: { fr: "\"Je ne cherche pas la performance. Je cherche l'être.\"", en: "\"I don't seek performance. I seek being.\"" },
+                imdb: "nm0444508",
+                careerStats: { totalFilms: 6, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Palme d'Or (2013 — La Vie d'Adèle)", en: "Palme d'Or (2013 — Blue Is the Warmest Color)" } }
+            },
+            "Justine Triet": {
+                born: "1978, Le Havre", nationality: "🇫🇷 French", era: "2010s–2020s",
+                tags: { fr: ["Thriller judiciaire","Déconstruction du couple","Palme d'Or & Oscar","Regard politique"], en: ["Legal thriller","Couple deconstruction","Palme d'Or & Oscar","Political gaze"] },
+                bio: { fr: "Réalisatrice indépendante confirmée, Triet a fracassé le plafond de verre avec Anatomie d'une Chute — Palme d'Or à Cannes ET Oscar du meilleur scénario original, une double consécration rarissime. Son film est un thriller judiciaire qui se double d'une réflexion sur la vérité dans le couple, le droit et la langue. Sa déclaration à Cannes — critiquant la réforme des retraites — a fait autant de bruit que le film lui-même.", en: "An established independent filmmaker, Triet shattered the glass ceiling with Anatomy of a Fall — Palme d'Or at Cannes AND Academy Award for Best Original Screenplay, an extremely rare double. Her film is a legal thriller that doubles as a reflection on truth within couples, the law, and language itself. Her speech at Cannes — criticizing pension reforms — made as much noise as the film." },
+                quote: { fr: "\"La vérité n'appartient à personne.\"", en: "\"Truth belongs to no one.\"" },
+                imdb: "nm2296996",
+                careerStats: { totalFilms: 5, oscars: 1, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Palme d'Or (2023 — Anatomie d'une Chute)", en: "Palme d'Or (2023 — Anatomy of a Fall)" } }
+            },
+            "Thomas Cailley": {
+                born: "1982, Lyon", nationality: "🇫🇷 French", era: "2010s–2020s",
+                tags: { fr: ["Science-fiction sociale","Mutation & identité","Effets pratiques","Cinéma de genre français"], en: ["Social sci-fi","Mutation & identity","Practical effects","French genre cinema"] },
+                bio: { fr: "Révélé par Les Combattants (2014), Cailley confirme avec Le Règne Animal qu'il est l'une des voix les plus prometteuses du cinéma de genre français. Son film — dans lequel des humains mutent en animaux — utilise les codes du fantastique pour explorer des questions très contemporaines : la famille, la transgression, l'acceptation de l'autre. Les effets spéciaux, réalisés en maquillage pratique, donnent au film une texture unique.", en: "Revealed by Love at First Fight (2014), Cailley confirms with The Animal Kingdom that he is one of the most promising voices in French genre cinema. His film — in which humans mutate into animals — uses fantasy codes to explore very contemporary questions: family, transgression, acceptance of the other. The special effects, achieved with practical makeup, give the film a unique texture." },
+                quote: { fr: "\"La mutation, c'est une métaphore de tout ce qu'on n'accepte pas chez l'autre.\"", en: "\"Mutation is a metaphor for everything we can't accept in the other.\"" },
+                imdb: "nm3507536",
+                careerStats: { totalFilms: 2, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Un Certain Regard — Les Combattants (2014)", en: "Un Certain Regard — Love at First Fight (2014)" } }
+            },
+            "Audrey Diwan": {
+                born: "1980, Paris", nationality: "🇫🇷 French", era: "2010s–2020s",
+                tags: { fr: ["Cinéma du corps","Droit des femmes","Lion d'Or Venise","Adaption littéraire"], en: ["Cinema of the body","Women's rights","Venice Golden Lion","Literary adaptation"] },
+                bio: { fr: "Scénariste prolifique (Elle, Eiffel), Diwan a prouvé avec L'Événement qu'elle était aussi une réalisatrice de premier plan. Adapté du roman autobiographique d'Annie Ernaux (Prix Nobel 2022), le film suit en temps quasi-réel une étudiante cherchant à avorter en 1963. La mise en scène, résolument physique — la caméra colle au corps de l'héroïne — en fait une expérience suffocante et nécessaire, récompensée par le Lion d'Or à Venise.", en: "A prolific screenwriter (Elle, Eiffel), Diwan proved with Happening that she was also a first-rate director. Adapted from Annie Ernaux's autobiographical novel (Nobel Prize 2022), the film follows in near real-time a student seeking an abortion in 1963. The direction, resolutely physical — the camera adheres to the heroine's body — makes it a suffocating and necessary experience, rewarded with the Venice Golden Lion." },
+                quote: { fr: "\"Je voulais que le spectateur ressente ce que ressent son corps.\"", en: "\"I wanted the viewer to feel what her body feels.\"" },
+                imdb: "nm1469235",
+                careerStats: { totalFilms: 3, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Lion d'Or Venise (2021 — L'Événement)", en: "Venice Golden Lion (2021 — Happening)" } }
+            },
+            "Alice Diop": {
+                born: "1979, Aulnay-sous-Bois", nationality: "🇫🇷 French", era: "2010s–2020s",
+                tags: { fr: ["Documentaire & fiction","Justice & maternité","Identité franco-africaine","Ours d'argent Berlin"], en: ["Documentary & fiction","Justice & motherhood","Franco-African identity","Silver Bear Berlin"] },
+                bio: { fr: "Documentariste primée (Nous, 2021), Diop a signé avec Saint Omer un premier long métrage de fiction d'une maturité stupéfiante. Basé sur le véritable procès d'une femme sénégalaise accusée d'avoir tué son enfant, le film questionne la maternité, la langue, la colonisation et la culpabilité avec une rigueur intellectuelle rare. Récompensé du Grand Prix et du Lion d'Argent à Venise, il a révélé au monde une voix cinématographique unique.", en: "Award-winning documentary filmmaker (We, 2021), Diop delivered with Saint Omer a debut fiction feature of astonishing maturity. Based on the real trial of a Senegalese woman accused of killing her child, the film questions motherhood, language, colonization, and guilt with rare intellectual rigor. Awarded the Grand Prix and Silver Lion at Venice, it revealed to the world a unique cinematic voice." },
+                quote: { fr: "\"Je voulais filmer le langage comme une arme et un refuge.\"", en: "\"I wanted to film language as both a weapon and a refuge.\"" },
+                imdb: "nm4456564",
+                careerStats: { totalFilms: 6, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Lion d'Argent Venise (2022 — Saint Omer)", en: "Venice Silver Lion (2022 — Saint Omer)" } }
+            }
+        };
+
+        function openDirectorSpotlight(dirName, currentLang) {
+            const data = directorData[dirName];
+            const drawer = document.getElementById('dir-spotlight');
+            const scrim  = document.getElementById('dir-scrim');
+
+            // Header
+            document.getElementById('ds-name').textContent = dirName;
+
+            if (data) {
+                // Meta line: nationality · born · era
+                const metaParts = [
+                    data.nationality,
+                    data.born ? (currentLang === 'fr' ? 'Né(e) ' : 'Born ') + data.born : '',
+                    data.died ? (currentLang === 'fr' ? '† ' : '† ') + data.died : ''
+                ].filter(Boolean);
+                document.getElementById('ds-meta').textContent = metaParts.join('  ·  ');
+
+                // Stat pills
+                const statsEl = document.getElementById('ds-stats');
+                statsEl.innerHTML = '';
+                // Count films and awards in collection
+                let filmCount = 0, cannesCount = 0, oscarCount = 0;
+                cinemaData.forEach(decade => decade.movies.forEach(m => {
+                    if (m.dir === dirName) {
+                        filmCount++;
+                        if (m.awards.cannes) cannesCount++;
+                        if (m.awards.oscar) oscarCount++;
+                    }
+                }));
+                const pills = [];
+                if (data.era) pills.push(data.era);
+                pills.push(filmCount + (currentLang === 'fr' ? (filmCount > 1 ? ' films' : ' film') : (filmCount > 1 ? ' films' : ' film')));
+                if (cannesCount) pills.push('🏆 Cannes ×' + cannesCount);
+                if (oscarCount)  pills.push('⭐ Oscar ×' + oscarCount);
+                pills.forEach(p => {
+                    const pill = document.createElement('span');
+                    pill.className = 'dir-stat-pill';
+                    pill.textContent = p;
+                    statsEl.appendChild(pill);
+                });
+
+                // Style tags
+                document.getElementById('ds-style-label').textContent = currentLang === 'fr' ? 'STYLE & SIGNATURE' : 'STYLE & SIGNATURE';
+                const tagsEl = document.getElementById('ds-tags');
+                tagsEl.innerHTML = '';
+                const tagList = data.tags ? data.tags[currentLang] : [];
+                tagList.forEach(t => {
+                    const tag = document.createElement('span');
+                    tag.className = 'dir-style-tag';
+                    tag.textContent = t;
+                    tagsEl.appendChild(tag);
+                });
+
+                // Bio
+                document.getElementById('ds-bio-label').textContent = currentLang === 'fr' ? 'BIOGRAPHIE' : 'BIOGRAPHY';
+                document.getElementById('ds-bio').textContent = data.bio ? data.bio[currentLang] : '';
+
+                // Quote
+                const quoteEl = document.getElementById('ds-quote');
+                if (data.quote && data.quote[currentLang]) {
+                    quoteEl.textContent = data.quote[currentLang];
+                    quoteEl.style.display = 'block';
+                } else {
+                    quoteEl.style.display = 'none';
+                }
+
+                // Career Awards & Stats
+                const careerEl = document.getElementById('ds-career-awards');
+                if (careerEl && data.careerStats) {
+                    const cs = data.careerStats;
+                    const lf = currentLang === 'fr';
+                    careerEl.style.display = 'block';
+                    document.getElementById('ds-career-label').textContent = lf ? 'PALMARÈS & CARRIÈRE' : 'AWARDS & CAREER';
+
+                    const oscarLabel  = lf ? 'Oscar(s) remporté(s)' : 'Oscar(s) Won';
+                    const ggLabel     = lf ? 'Golden Globe(s)' : 'Golden Globe(s)';
+                    const cannesLabel = lf ? 'Palme(s) / Prix Cannes' : 'Palme(s) / Cannes Prize';
+                    const filmsLabel  = lf ? 'Films réalisés (carrière totale)' : 'Films Directed (entire career)';
+                    const noneLabel   = lf ? 'Aucun' : 'None';
+
+                    document.getElementById('ds-career-grid').innerHTML = `
+                        <div class="dir-award-card${cs.oscars > 0 ? ' dir-award-card--gold' : ''}">
+                            <div class="dir-award-icon">🏆</div>
+                            <div class="dir-award-info">
+                                <div class="dir-award-count">${cs.oscars > 0 ? cs.oscars : '—'}</div>
+                                <div class="dir-award-label">${oscarLabel}</div>
+                            </div>
+                        </div>
+                        <div class="dir-award-card${cs.goldenGlobes > 0 ? ' dir-award-card--gold' : ''}">
+                            <div class="dir-award-icon">🌐</div>
+                            <div class="dir-award-info">
+                                <div class="dir-award-count">${cs.goldenGlobes > 0 ? cs.goldenGlobes : '—'}</div>
+                                <div class="dir-award-label">${ggLabel}</div>
+                            </div>
+                        </div>
+                        <div class="dir-award-card${cs.cannesWins > 0 ? ' dir-award-card--gold' : ''}" style="grid-column: 1 / -1;">
+                            <div class="dir-award-icon">🌴</div>
+                            <div class="dir-award-info">
+                                <div class="dir-award-count">${cs.cannesWins > 0 ? cs.cannesWins : '—'}</div>
+                                <div class="dir-award-label">${cannesLabel}${cs.cannesNote ? ' · ' + cs.cannesNote[currentLang] : ''}</div>
+                            </div>
+                        </div>
+                        <div class="dir-award-card" style="grid-column: 1 / -1; background: rgba(230,81,0,0.06); border-color: rgba(230,81,0,0.18);">
+                            <div class="dir-award-icon">🎬</div>
+                            <div class="dir-award-info">
+                                <div class="dir-award-count" style="color: var(--accent);">${cs.totalFilms}</div>
+                                <div class="dir-award-label">${filmsLabel}</div>
+                            </div>
+                        </div>
+                    `;
+                } else if (careerEl) {
+                    careerEl.style.display = 'none';
+                }
+
+            } else {
+                document.getElementById('ds-meta').textContent = '';
+                document.getElementById('ds-stats').innerHTML = '';
+                document.getElementById('ds-tags').innerHTML = '';
+                document.getElementById('ds-bio-label').textContent = currentLang === 'fr' ? 'BIOGRAPHIE' : 'BIOGRAPHY';
+                document.getElementById('ds-bio').textContent = currentLang === 'fr' ? 'Informations non disponibles.' : 'No information available.';
+                document.getElementById('ds-quote').style.display = 'none';
+            }
+
+            // Films list
+            document.getElementById('ds-films-label').textContent = currentLang === 'fr' ? 'FILMS DANS CETTE COLLECTION' : 'FILMS IN THIS COLLECTION';
+            const filmList = document.getElementById('ds-films');
+            filmList.innerHTML = '';
+            const yearLabels = ['1970','1980','1990','2000','2010','2020'];
+            cinemaData.forEach((decade, di) => {
+                decade.movies.forEach((m, mi) => {
+                    if (m.dir === dirName) {
+                        const item = document.createElement('div');
+                        item.className = 'dir-film-item';
+                        let awardsHtml = '<div class="dir-film-awards">';
+                        if (m.awards.cannes) awardsHtml += `<div class="badge-icon" title="Cannes">${icons.cannes}</div>`;
+                        if (m.awards.oscar) awardsHtml += `<div class="badge-icon" title="Oscar">${icons.oscar}</div>`;
+                        awardsHtml += '</div>';
+                        item.innerHTML = `
+                            <div class="dir-film-year">${yearLabels[di]}s</div>
+                            <div class="dir-film-info">
+                                <div class="dir-film-title">${m.title[currentLang]}</div>
+                                <div class="dir-film-cast">${m.cast}</div>
+                            </div>
+                            ${awardsHtml}`;
+                        item.onclick = () => { closeDirectorSpotlight(); setTimeout(() => openModal(di, mi), 300); };
+                        filmList.appendChild(item);
+                    }
+                });
+            });
+
+            // Footer buttons
+            document.getElementById('ds-wiki-label').textContent = currentLang === 'fr' ? 'Wikipédia' : 'Wikipedia';
+            document.getElementById('ds-wiki-btn').onclick = () => {
+                window.open(`https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(dirName)}`, '_blank');
+            };
+
+            drawer.classList.add('open');
+            scrim.classList.add('visible');
+        }
+
+        function closeDirectorSpotlight() {
+            document.getElementById('dir-spotlight').classList.remove('open');
+            document.getElementById('dir-scrim').classList.remove('visible');
+        }
+
+        /* expose globally so dome IIFE can call them */
+        window._openDirectorSpotlight = openDirectorSpotlight;
+        window._getLang = () => lang;
+
+        init();
+
+        /* ================================================
+           DOME GALLERY — faithful vanilla JS port
+           matching the original DomeGallery.jsx logic
+        ================================================= */
+        (function() {
+            const SEGMENTS    = 35;
+            const MAX_V_DEG   = 5;
+            const DRAG_SENS   = 20;        // matches dragSensitivity default
+            const ENLARGE_MS  = 300;       // matches enlargeTransitionMs default
+            const DRAG_DAMP   = 2;
+            const OPENED_W    = '250px';
+            const OPENED_H    = '350px';
+
+            /* ---------- helpers ---------- */
+            const clamp      = (v,a,b) => Math.min(Math.max(v,a),b);
+            const normAngle  = d => ((d % 360) + 360) % 360;
+            const wrapSigned = d => { const a = (((d + 180) % 360) + 360) % 360; return a - 180; };
+
+            /* ---------- build tile pool — director portraits only ---------- */
+            const pool = [];
+            /* cinemaData movies intentionally excluded from dome — portraits only */
+
+            /* ================================================================
+               DOME GALLERY — DIRECTOR PORTRAITS + NAPOLEON
+               ----------------------------------------------------------------
+               HOW TO ADD YOUR OWN IMAGES:
+               Replace each "images/directors/FILENAME.jpg" path below with
+               the actual path to your uploaded image file.
+               For Napoleon, replace "images/napoleon.jpg" with your upload.
+               Image format: any (jpg/png/webp). Recommended size: 400×600px.
+               ================================================================ */
+            const directorPool = [
+                /* 01 */ { src: "images/directors/jean-pierre-melville.jpg",    name: "Jean-Pierre Melville",  era: "1950s–70s" },
+                /* 02 */ { src: "images/directors/francois-truffaut.jpg",       name: "François Truffaut",     era: "1960s–80s" },
+                /* 03 */ { src: "images/directors/chantal-akerman.jpg",         name: "Chantal Akerman",       era: "1970s–2010s" },
+                /* 04 */ { src: "images/directors/roman-polanski.jpg",          name: "Roman Polanski",        era: "1960s–2010s" },
+                /* 05 */ { src: "images/directors/jacques-rivette.jpg",         name: "Jacques Rivette",       era: "1960s–2000s" },
+                /* 06 */ { src: "images/directors/jean-jacques-beineix.jpg",    name: "Jean-Jacques Beineix",  era: "1980s–90s" },
+                /* 07 */ { src: "images/directors/luc-besson.jpg",              name: "Luc Besson",            era: "1980s–2010s" },
+                /* 08 */ { src: "images/directors/leos-carax.jpg",              name: "Leos Carax",            era: "1980s–2020s" },
+                /* 09 */ { src: "images/directors/louis-malle.jpg",             name: "Louis Malle",           era: "1950s–90s" },
+                /* 10 */ { src: "images/directors/mathieu-kassovitz.jpg",       name: "Mathieu Kassovitz",     era: "1990s–2000s" },
+                /* 11 */ { src: "images/directors/caro-jeunet.jpg",             name: "Caro & Jeunet",         era: "1990s" },
+                /* 12 */ { src: "images/directors/claire-denis.jpg",            name: "Claire Denis",          era: "1980s–2020s" },
+                /* 13 */ { src: "images/directors/jean-pierre-jeunet.jpg",      name: "Jean-Pierre Jeunet",    era: "1990s–2000s" },
+                /* 14 */ { src: "images/directors/gaspar-noe.jpg",              name: "Gaspar Noé",            era: "1990s–2020s" },
+                /* 15 */ { src: "images/directors/michael-haneke.jpg",          name: "Michael Haneke",        era: "1990s–2010s" },
+                /* 16 */ { src: "images/directors/christophe-barratier.jpg",    name: "Christophe Barratier",  era: "2000s" },
+                /* 17 */ { src: "images/directors/jacques-audiard.jpg",         name: "Jacques Audiard",       era: "1990s–2020s" },
+                /* 18 */ { src: "images/directors/denis-villeneuve.jpg",        name: "Denis Villeneuve",      era: "2000s–2020s" },
+                /* 19 */ { src: "images/directors/celine-sciamma.jpg",          name: "Céline Sciamma",        era: "2000s–2020s" },
+                /* 20 */ { src: "images/directors/julia-ducournau.jpg",         name: "Julia Ducournau",       era: "2010s–2020s" },
+                /* 21 */ { src: "images/directors/nakache-toledano.jpg",        name: "Nakache & Toledano",    era: "2000s–2020s" },
+                /* 22 */ { src: "images/directors/abdellatif-kechiche.jpg",     name: "Abdellatif Kechiche",   era: "2000s–2010s" },
+                /* 23 */ { src: "images/directors/justine-triet.jpg",           name: "Justine Triet",         era: "2010s–2020s" },
+                /* 24 */ { src: "images/directors/thomas-cailley.jpg",          name: "Thomas Cailley",        era: "2010s–2020s" },
+                /* 25 */ { src: "images/directors/audrey-diwan.jpg",            name: "Audrey Diwan",          era: "2010s–2020s" },
+                /* 26 */ { src: "images/directors/alice-diop.jpg",              name: "Alice Diop",            era: "2010s–2020s" },
+                /* NAPOLEON — clicking this tile opens the Napoleon modal */
+                { src: "images/napoleon.jpg", name: "Napoléon Bonaparte", era: "1769–1821", isNapoleon: true },
+            ];
+
+            /* Build pool from director portraits */
+            directorPool.forEach(d => {
+                pool.push({
+                    src: d.src,
+                    alt: d.name,
+                    title: { fr: d.name, en: d.name },
+                    dir: d.era,
+                    year: { fr: d.era, en: d.era },
+                    isNapoleon: d.isNapoleon || false
+                });
+            });
+
+            /* ---------- buildItems — exact port of JS buildItems() ---------- */
+            function buildItems(pool, seg) {
+                const xCols  = Array.from({ length: seg }, (_, i) => -37 + i * 2);
+                const evenYs = [-4, -2, 0, 2, 4];
+                const oddYs  = [-3, -1, 1, 3, 5];
+
+                const coords = xCols.flatMap((x, c) => {
+                    const ys = c % 2 === 0 ? evenYs : oddYs;
+                    return ys.map(y => ({ x, y, sizeX: 2, sizeY: 2 }));
+                });
+
+                const totalSlots = coords.length;
+                const usedImages = Array.from({ length: totalSlots }, (_, i) => pool[i % pool.length]);
+
+                // avoid adjacent same-src
+                for (let i = 1; i < usedImages.length; i++) {
+                    if (usedImages[i].src === usedImages[i - 1].src) {
+                        for (let j = i + 1; j < usedImages.length; j++) {
+                            if (usedImages[j].src !== usedImages[i].src) {
+                                [usedImages[i], usedImages[j]] = [usedImages[j], usedImages[i]];
+                                break;
+                            }
+                        }
+                    }
+                }
+                return coords.map((c, i) => ({ ...c, ...usedImages[i] }));
+            }
+
+            /* ---------- computeItemBaseRotation — exact port ---------- */
+            function computeItemBaseRotation(offsetX, offsetY, sizeX, sizeY, segments) {
+                const unit    = 360 / segments / 2;
+                const rotateY = unit * (offsetX + (sizeX - 1) / 2);
+                const rotateX = unit * (offsetY - (sizeY - 1) / 2);
+                return { rotateX, rotateY };
+            }
+
+            /* ---------- DOM refs ---------- */
+            const dgRoot   = document.getElementById('dg-root');
+            const dgMain   = document.getElementById('dg-main');
+            const dgScrim  = document.getElementById('dg-scrim');
+            const dgViewer = document.getElementById('dg-viewer');
+            const dgFrame  = document.getElementById('dg-frame');
+            const sphere   = document.getElementById('dg-sphere');
+
+            /* ---------- build DOM tiles ---------- */
+            const tileData = buildItems(pool, SEGMENTS);
+            const tileEls  = [];   // { el, imgDiv, data }
+
+            tileData.forEach(it => {
+                const el = document.createElement('div');
+                el.className = 'dg-item';
+                el.dataset.offsetX = it.x;
+                el.dataset.offsetY = it.y;
+                el.dataset.sizeX   = it.sizeX;
+                el.dataset.sizeY   = it.sizeY;
+                el.style.setProperty('--offset-x',   it.x);
+                el.style.setProperty('--offset-y',   it.y);
+                el.style.setProperty('--item-size-x', it.sizeX);
+                el.style.setProperty('--item-size-y', it.sizeY);
+
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'dg-item__image';
+                imgDiv.setAttribute('role', 'button');
+                imgDiv.setAttribute('tabindex', '0');
+
+                const img = document.createElement('img');
+                img.src       = it.src;
+                img.alt       = it.alt;
+                img.draggable = false;
+                img.onerror   = function() {
+                    this.parentElement.style.background = 'linear-gradient(135deg,#1a1a2e,#16213e)';
+                    this.style.display = 'none';
+                };
+                imgDiv.appendChild(img);
+
+                // Hover label
+                const lbl = document.createElement('div');
+                lbl.className = 'dg-tile-label';
+                lbl.innerHTML =
+                    `<div class="dg-tile-label-year">${it.year?.fr || ''}</div>` +
+                    `<div class="dg-tile-label-title">${it.title?.fr || ''}</div>` +
+                    `<div class="dg-tile-label-dir">${it.dir || ''}</div>`;
+                imgDiv.appendChild(lbl);
+
+                el.appendChild(imgDiv);
+                sphere.appendChild(el);
+                tileEls.push({ el, imgDiv, data: it });
+            });
+
+            /* ---------- rotation state ---------- */
+            const rotRef    = { x: 0, y: 0 };
+            let inertiaRAF  = null;
+            let dragging    = false;
+            let moved       = false;
+            let startRot    = { x: 0, y: 0 };
+            let startPos    = null;
+            let lastDragEnd = 0;
+            let velX = 0, velY = 0;
+            let prevT = 0, prevDx = 0, prevDy = 0;
+
+            let focusedEl         = null;
+            let opening           = false;
+            let openStartAt       = 0;
+            let originalTilePos   = null;
+
+            /* ---------- apply sphere transform ---------- */
+            function applyTransform(x, y) {
+                sphere.style.transform =
+                    `translateZ(calc(var(--radius) * -1)) rotateX(${x}deg) rotateY(${y}deg)`;
+            }
+
+            /* ---------- ResizeObserver — sets radius like original ---------- */
+            const ro = new ResizeObserver(entries => {
+                const { width: w, height: h } = entries[0].contentRect;
+                const minDim  = Math.min(w, h);
+                const basis   = w / h >= 1.3 ? w : minDim;         // fitBasis:'auto' logic
+                let radius    = basis * 0.5;                         // fit=0.5 default
+                radius        = Math.min(radius, h * 1.35);
+                radius        = clamp(Math.round(radius), 600, Infinity);
+                const pad     = Math.max(8, Math.round(minDim * 0.25));
+
+                dgRoot.style.setProperty('--radius', radius + 'px');
+                dgRoot.style.setProperty('--viewer-pad', pad + 'px');
+                applyTransform(rotRef.x, rotRef.y);
+
+                // Reposition open overlay if present
+                const enlargedOverlay = dgViewer.querySelector('.dg-enlarge');
+                if (enlargedOverlay && dgFrame) {
+                    const frameR = dgFrame.getBoundingClientRect();
+                    const mainR  = dgMain.getBoundingClientRect();
+                    enlargedOverlay.style.left   = (frameR.left - mainR.left) + 'px';
+                    enlargedOverlay.style.top    = (frameR.top  - mainR.top)  + 'px';
+                    enlargedOverlay.style.width  = frameR.width  + 'px';
+                    enlargedOverlay.style.height = frameR.height + 'px';
+                }
+            });
+            ro.observe(dgRoot);
+            applyTransform(0, 0);
+
+            /* ---------- inertia — matches startInertia() ---------- */
+            function stopInertia() {
+                if (inertiaRAF) { cancelAnimationFrame(inertiaRAF); inertiaRAF = null; }
+            }
+
+            function startInertia(vx, vy) {
+                const d          = clamp(DRAG_DAMP, 0, 1);
+                const frictionMul = 0.94 + 0.055 * d;
+                const stopThr    = 0.015 - 0.01 * d;
+                const maxFrames  = Math.round(90 + 270 * d);
+                const MAX_V      = 1.4;
+
+                let vX = clamp(vx, -MAX_V, MAX_V) * 80;
+                let vY = clamp(vy, -MAX_V, MAX_V) * 80;
+                let frames = 0;
+
+                stopInertia();
+                function step() {
+                    vX *= frictionMul; vY *= frictionMul;
+                    if (Math.abs(vX) < stopThr && Math.abs(vY) < stopThr) { inertiaRAF = null; return; }
+                    if (++frames > maxFrames) { inertiaRAF = null; return; }
+                    rotRef.x = clamp(rotRef.x - vY / 200, -MAX_V_DEG, MAX_V_DEG);
+                    rotRef.y = wrapSigned(rotRef.y + vX / 200);
+                    applyTransform(rotRef.x, rotRef.y);
+                    inertiaRAF = requestAnimationFrame(step);
+                }
+                inertiaRAF = requestAnimationFrame(step);
+            }
+
+            /* ---------- drag — matches onDragStart/onDrag ---------- */
+            let tapDownX = 0, tapDownY = 0;
+
+            dgMain.addEventListener('pointerdown', e => {
+                if (focusedEl) return;
+                stopInertia();
+                dragging = true; moved = false;
+                startRot = { ...rotRef };
+                startPos = { x: e.clientX, y: e.clientY };
+                tapDownX = e.clientX; tapDownY = e.clientY;
+                prevDx = 0; prevDy = 0; prevT = performance.now();
+                velX = 0; velY = 0;
+                dgMain.setPointerCapture(e.pointerId);
+            });
+
+            dgMain.addEventListener('pointermove', e => {
+                if (!dragging || !startPos || focusedEl) return;
+                const dx = e.clientX - startPos.x;
+                const dy = e.clientY - startPos.y;
+                if (!moved && dx * dx + dy * dy > 16) moved = true;
+
+                rotRef.x = clamp(startRot.x - dy / DRAG_SENS, -MAX_V_DEG, MAX_V_DEG);
+                rotRef.y = wrapSigned(startRot.y + dx / DRAG_SENS);
+                applyTransform(rotRef.x, rotRef.y);
+
+                // Track velocity for inertia
+                const now = performance.now();
+                const dt  = Math.max(now - prevT, 1);
+                velX = (dx - prevDx) / dt;
+                velY = (dy - prevDy) / dt;
+                prevDx = dx; prevDy = dy; prevT = now;
+            });
+
+            dgMain.addEventListener('pointerup', e => {
+                if (!dragging) return;
+                dragging = false;
+                if (Math.abs(velX) > 0.005 || Math.abs(velY) > 0.005) {
+                    startInertia(velX, velY);
+                }
+
+                /* ---- TAP DETECTION ---- */
+                /* pointer capture means imgDiv never gets pointerup,
+                   so we detect taps here on dgMain instead */
+                if (!moved) {
+                    const dx = e.clientX - tapDownX;
+                    const dy = e.clientY - tapDownY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 8) {
+                        /* find which tile was tapped using elementFromPoint */
+                        dgMain.releasePointerCapture(e.pointerId);
+                        const el = document.elementFromPoint(e.clientX, e.clientY);
+                        const imgDiv = el ? el.closest('.dg-item__image') : null;
+                        if (imgDiv) {
+                            const tileEntry = tileEls.find(t => t.imgDiv === imgDiv);
+                            const td = tileEntry ? tileEntry.data : null;
+                            if (td) {
+                                if (td.isNapoleon) {
+                                    const napoleonModal = document.getElementById('napoleon-modal');
+                                    if (napoleonModal) {
+                                        napoleonModal.style.display = 'flex';
+                                        document.body.style.overflow = 'hidden';
+                                    }
+                                    moved = false;
+                                    return;
+                                }
+                                const dirName = td.title?.fr || td.alt || '';
+                                if (dirName && window._openDirectorSpotlight) {
+                                    window._openDirectorSpotlight(dirName, window._getLang ? window._getLang() : 'fr');
+                                    moved = false;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (moved) lastDragEnd = performance.now();
+                moved = false;
+            });
+
+            /* ---------- openTile — matches openItemFromElement() ---------- */
+            function openTile(imgDiv) {
+                if (opening) return;
+                opening    = true;
+                openStartAt = performance.now();
+
+                const parent = imgDiv.parentElement;
+                focusedEl    = imgDiv;
+
+                const offsetX = parseFloat(parent.dataset.offsetX);
+                const offsetY = parseFloat(parent.dataset.offsetY);
+                const sizeX   = parseFloat(parent.dataset.sizeX);
+                const sizeY   = parseFloat(parent.dataset.sizeY);
+
+                const base   = computeItemBaseRotation(offsetX, offsetY, sizeX, sizeY, SEGMENTS);
+                const parentY = normAngle(base.rotateY);
+                const globalY = normAngle(rotRef.y);
+                let rotY = -(parentY + globalY) % 360;
+                if (rotY < -180) rotY += 360;
+                const rotX = -base.rotateX - rotRef.x;
+
+                parent.style.setProperty('--rot-y-delta', rotY + 'deg');
+                parent.style.setProperty('--rot-x-delta', rotX + 'deg');
+
+                // reference div — matches original refDiv logic
+                const refDiv = document.createElement('div');
+                refDiv.className = 'dg-item__image dg-item__image--reference';
+                refDiv.style.opacity   = '0';
+                refDiv.style.transform = `rotateX(${-base.rotateX}deg) rotateY(${-base.rotateY}deg)`;
+                parent.appendChild(refDiv);
+                void refDiv.offsetHeight;
+
+                const tileR  = refDiv.getBoundingClientRect();
+                const mainR  = dgMain.getBoundingClientRect();
+                const frameR = dgFrame.getBoundingClientRect();
+
+                if (!mainR || !frameR || tileR.width <= 0 || tileR.height <= 0) {
+                    opening = false; focusedEl = null; refDiv.remove(); return;
+                }
+
+                originalTilePos = { left: tileR.left, top: tileR.top, width: tileR.width, height: tileR.height };
+                imgDiv.style.visibility = 'hidden';
+                imgDiv.style.zIndex     = 0;
+
+                // Create overlay exactly as original
+                const overlay = document.createElement('div');
+                overlay.className = 'dg-enlarge';
+                Object.assign(overlay.style, {
+                    position:       'absolute',
+                    left:           (frameR.left - mainR.left) + 'px',
+                    top:            (frameR.top  - mainR.top)  + 'px',
+                    width:          frameR.width  + 'px',
+                    height:         frameR.height + 'px',
+                    opacity:        '0',
+                    zIndex:         '30',
+                    willChange:     'transform, opacity',
+                    transformOrigin:'top left',
+                    transition:     `transform ${ENLARGE_MS}ms ease, opacity ${ENLARGE_MS}ms ease`
+                });
+
+                const oImg = document.createElement('img');
+                oImg.src = imgDiv.querySelector('img')?.src || '';
+                Object.assign(oImg.style, { width:'100%', height:'100%', objectFit:'cover' });
+                overlay.appendChild(oImg);
+
+                // enlarge-label
+                const found = tileEls.find(t => t.imgDiv === imgDiv);
+                if (found) {
+                    const t   = found.data;
+                    const lbl = document.createElement('div');
+                    lbl.className = 'dg-enlarge-label';
+                    lbl.innerHTML =
+                        `<div class="dg-el-year">${t.year?.fr||''}</div>` +
+                        `<div class="dg-el-title">${t.title?.[lang]||t.title?.fr||''}</div>` +
+                        `<div class="dg-el-dir">${t.dir||''}</div>`;
+                    overlay.appendChild(lbl);
+                }
+
+                dgViewer.appendChild(overlay);
+
+                // Start position = tile position relative to frame
+                const sx0 = tileR.width  / frameR.width;
+                const sy0 = tileR.height / frameR.height;
+                const tx0 = tileR.left   - frameR.left;
+                const ty0 = tileR.top    - frameR.top;
+                overlay.style.transform = `translate(${tx0}px,${ty0}px) scale(${sx0||1},${sy0||1})`;
+
+                // Animate to center
+                setTimeout(() => {
+                    overlay.style.opacity   = '1';
+                    overlay.style.transform = 'translate(0,0) scale(1,1)';
+                    dgRoot.setAttribute('data-enlarging', 'true');
+                }, 16);
+
+                // After first transition ends, resize to openedImageWidth/Height
+                overlay.addEventListener('transitionend', function onFirst(ev) {
+                    if (ev.propertyName !== 'transform') return;
+                    overlay.removeEventListener('transitionend', onFirst);
+
+                    const prevTrans = overlay.style.transition;
+                    overlay.style.transition = 'none';
+
+                    // measure target size
+                    const tmp = document.createElement('div');
+                    tmp.style.cssText = `position:absolute;width:${OPENED_W};height:${OPENED_H};visibility:hidden;`;
+                    document.body.appendChild(tmp);
+                    const tmpR = tmp.getBoundingClientRect();
+                    document.body.removeChild(tmp);
+
+                    const freshFrame = dgFrame.getBoundingClientRect();
+                    const freshMain  = dgMain.getBoundingClientRect();
+                    overlay.style.width  = freshFrame.width  + 'px';
+                    overlay.style.height = freshFrame.height + 'px';
+                    void overlay.offsetWidth;
+
+                    overlay.style.transition =
+                        `left ${ENLARGE_MS}ms ease, top ${ENLARGE_MS}ms ease, width ${ENLARGE_MS}ms ease, height ${ENLARGE_MS}ms ease`;
+
+                    const centeredLeft = (freshFrame.left - freshMain.left) + (freshFrame.width  - tmpR.width)  / 2;
+                    const centeredTop  = (freshFrame.top  - freshMain.top)  + (freshFrame.height - tmpR.height) / 2;
+
+                    requestAnimationFrame(() => {
+                        overlay.style.left   = centeredLeft + 'px';
+                        overlay.style.top    = centeredTop  + 'px';
+                        overlay.style.width  = OPENED_W;
+                        overlay.style.height = OPENED_H;
+                    });
+
+                    overlay.addEventListener('transitionend', function cleanup() {
+                        overlay.removeEventListener('transitionend', cleanup);
+                        overlay.style.transition = prevTrans;
+                    }, { once: true });
+                });
+            }
+
+            /* ---------- closeTile — matches close() on scrim ---------- */
+            function closeTile() {
+                if (performance.now() - openStartAt < 250) return;
+                const imgDiv = focusedEl;
+                if (!imgDiv) return;
+
+                const parent  = imgDiv.parentElement;
+                const overlay = dgViewer.querySelector('.dg-enlarge');
+                if (!overlay) return;
+
+                const refDiv  = parent.querySelector('.dg-item__image--reference');
+                const origPos = originalTilePos;
+
+                if (!origPos) {
+                    overlay.remove();
+                    if (refDiv) refDiv.remove();
+                    parent.style.setProperty('--rot-y-delta', '0deg');
+                    parent.style.setProperty('--rot-x-delta', '0deg');
+                    imgDiv.style.visibility = '';
+                    imgDiv.style.zIndex     = 0;
+                    focusedEl = null;
+                    dgRoot.removeAttribute('data-enlarging');
+                    opening = false;
+                    return;
+                }
+
+                // Animate closing — matches animatingOverlay logic in original
+                const curR   = overlay.getBoundingClientRect();
+                const rootR  = dgRoot.getBoundingClientRect();
+
+                const animDiv = document.createElement('div');
+                animDiv.className = 'dg-enlarge-closing';
+                animDiv.style.cssText =
+                    `position:absolute;` +
+                    `left:${curR.left - rootR.left}px;top:${curR.top - rootR.top}px;` +
+                    `width:${curR.width}px;height:${curR.height}px;` +
+                    `z-index:9999;border-radius:var(--enlarge-radius,20px);` +
+                    `overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35);` +
+                    `transition:all ${ENLARGE_MS}ms ease-out;pointer-events:none;`;
+
+                const aImg = overlay.querySelector('img')?.cloneNode();
+                if (aImg) { Object.assign(aImg.style, { width:'100%', height:'100%', objectFit:'cover' }); animDiv.appendChild(aImg); }
+
+                overlay.remove();
+                dgRoot.appendChild(animDiv);
+                void animDiv.getBoundingClientRect();
+
+                requestAnimationFrame(() => {
+                    animDiv.style.left    = (origPos.left - rootR.left) + 'px';
+                    animDiv.style.top     = (origPos.top  - rootR.top)  + 'px';
+                    animDiv.style.width   = origPos.width  + 'px';
+                    animDiv.style.height  = origPos.height + 'px';
+                    animDiv.style.opacity = '0';
+                });
+
+                animDiv.addEventListener('transitionend', () => {
+                    animDiv.remove();
+                    if (refDiv) refDiv.remove();
+                    parent.style.transition = 'none';
+                    imgDiv.style.transition = 'none';
+                    parent.style.setProperty('--rot-y-delta', '0deg');
+                    parent.style.setProperty('--rot-x-delta', '0deg');
+
+                    requestAnimationFrame(() => {
+                        imgDiv.style.visibility = '';
+                        imgDiv.style.opacity    = '0';
+                        imgDiv.style.zIndex     = 0;
+                        focusedEl = null;
+                        dgRoot.removeAttribute('data-enlarging');
+                        originalTilePos = null;
+
+                        requestAnimationFrame(() => {
+                            parent.style.transition = '';
+                            imgDiv.style.transition = 'opacity 300ms ease-out';
+                            requestAnimationFrame(() => {
+                                imgDiv.style.opacity = '1';
+                                setTimeout(() => {
+                                    imgDiv.style.transition = '';
+                                    imgDiv.style.opacity    = '';
+                                    opening = false;
+                                }, 300);
+                            });
+                        });
+                    });
+                }, { once: true });
+            }
+
+            dgScrim.addEventListener('click', closeTile);
+            window.addEventListener('keydown', e => { if (e.key === 'Escape') closeTile(); });
+
+        })();
+    </script>
+
+    <!-- ================================================
+         LIPS TRAIL + EASTER EGG — runs after DOM is ready
+    ================================================= -->
+    <script>
+    (function() {
+        /* ---- LIPS TRAIL EFFECT ---- */
+        var lastX = 0, lastY = 0, lastSpawn = 0;
+        var minDist = 18; // px moved before spawning a new lips
+
+        document.addEventListener('mousemove', function(e) {
+            var dx = e.clientX - lastX;
+            var dy = e.clientY - lastY;
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            var now = Date.now();
+
+            if (dist < minDist || now - lastSpawn < 60) return;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            lastSpawn = now;
+
+            var el = document.createElement('span');
+            el.className = 'lips-trail';
+            el.textContent = '💋';
+            el.style.left = e.clientX + 'px';
+            el.style.top  = e.clientY + 'px';
+            // slight random rotation & size variation
+            var rot = (Math.random() - 0.5) * 40;
+            var scale = 0.7 + Math.random() * 0.6;
+            el.style.transform = 'translate(-50%, -50%) rotate(' + rot + 'deg) scale(' + scale + ')';
+            document.body.appendChild(el);
+
+            // trigger fade after a tiny delay so transition fires
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    el.classList.add('fading');
+                });
+            });
+
+            // remove from DOM after fade completes
+            setTimeout(function() { el.remove(); }, 750);
+        });
+
+        /* ---- NAPOLEON EASTER EGG ---- */
+        const napoleonModal  = document.getElementById('napoleon-modal');
+        const napoleonClose  = document.getElementById('napoleon-close');
+        const croissantEgg   = document.getElementById('croissant-easter-egg');
+        const easterHint     = document.getElementById('easter-hint');
+
+        if (!napoleonModal || !napoleonClose || !croissantEgg || !easterHint) return;
+
+        function openNapoleon() {
+            napoleonModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeNapoleon() {
+            napoleonModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Hint toast after 5s
+        setTimeout(function() {
+            easterHint.classList.add('visible');
+            setTimeout(function() { easterHint.classList.remove('visible'); }, 4500);
+        }, 5000);
+
+        croissantEgg.addEventListener('click', function(e) {
+            e.stopPropagation();
+            croissantEgg.classList.add('activated');
+            setTimeout(function() { croissantEgg.classList.remove('activated'); }, 600);
+            openNapoleon();
+        });
+
+        napoleonClose.addEventListener('click', closeNapoleon);
+
+        napoleonModal.addEventListener('click', function(e) {
+            if (e.target === napoleonModal) closeNapoleon();
+        });
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeNapoleon();
+        });
+    })();
+    </script>
+</body>
+</html>
