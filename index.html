@@ -28,7 +28,7 @@
             color: var(--text-main);
             transition: background-color 0.8s ease, color 0.8s ease;
             overflow-x: hidden;
-            height: 100vh; 
+            min-height: 100vh; 
             display: flex;
             flex-direction: column;
         }
@@ -171,6 +171,132 @@
         }
         .lang-toggle-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
 
+        /* --- SEARCH BAR --- */
+        .search-bar-wrap {
+            padding: 0 3rem 0.6rem;
+            position: relative;
+            z-index: 5000;
+        }
+        .search-inner {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .search-icon {
+            position: absolute; left: 1rem; top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            opacity: 0.4;
+            width: 16px; height: 16px;
+            fill: var(--text-main);
+        }
+        #search-input {
+            width: 100%;
+            background: rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.12);
+            border-radius: 50px;
+            padding: 0.6rem 2.8rem 0.6rem 2.6rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+        }
+        #search-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+        #search-input:focus {
+            border-color: var(--accent);
+            background: rgba(0,0,0,0.03);
+            box-shadow: 0 0 0 3px rgba(230,81,0,0.12);
+        }
+        #search-clear {
+            position: absolute; right: 0.9rem; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none;
+            color: var(--text-muted); font-size: 1rem;
+            cursor: pointer; line-height: 1; padding: 2px 4px;
+            border-radius: 50%; display: none;
+            transition: color 0.2s;
+        }
+        #search-clear:hover { color: var(--accent); }
+
+        /* Search results overlay */
+        #search-results-panel {
+            display: none;
+            position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+            background: color-mix(in srgb, var(--bg-color) 72%, transparent);
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.13), 0 1px 0 color-mix(in srgb, var(--accent) 10%, transparent) inset;
+            z-index: 5000;
+            max-height: 420px;
+            overflow-y: auto;
+            padding: 0.5rem 0;
+        }
+        #search-results-panel::-webkit-scrollbar { width: 4px; }
+        #search-results-panel::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 2px; }
+
+        .sr-section-label {
+            font-size: 0.6rem; font-weight: 800; letter-spacing: 2.5px;
+            text-transform: uppercase; color: var(--accent);
+            padding: 0.7rem 1.2rem 0.3rem;
+            opacity: 0.7;
+        }
+        .sr-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .sr-item:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+        .sr-poster {
+            width: 32px; height: 46px; border-radius: 4px;
+            object-fit: cover; flex-shrink: 0;
+            background: rgba(0,0,0,0.08);
+        }
+        .sr-poster-fallback {
+            width: 32px; height: 46px; border-radius: 4px;
+            background: linear-gradient(135deg, var(--accent), #222);
+            flex-shrink: 0; display: flex; align-items: center;
+            justify-content: center; font-size: 0.55rem;
+            color: white; font-weight: 800; text-align: center;
+            padding: 2px;
+        }
+        .sr-info { flex: 1; min-width: 0; }
+        .sr-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.88rem; font-weight: 700; font-style: italic;
+            color: var(--text-main);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .sr-title mark {
+            background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent);
+            border-radius: 2px; padding: 0 2px;
+        }
+        .sr-meta {
+            font-size: 0.68rem; color: var(--text-muted);
+            margin-top: 1px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .sr-decade-tag {
+            font-size: 0.6rem; font-weight: 800; letter-spacing: 1px;
+            background: rgba(230,81,0,0.1); color: var(--accent);
+            border-radius: 20px; padding: 2px 8px; white-space: nowrap;
+        }
+        .sr-no-results {
+            padding: 1.5rem 1.2rem;
+            text-align: center; color: var(--text-muted);
+            font-size: 0.85rem; font-style: italic;
+        }
+        .sr-divider {
+            height: 1px; background: color-mix(in srgb, var(--accent) 12%, transparent);
+            margin: 0.3rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .search-bar-wrap { padding: 0 1rem 0.5rem; }
+        }
+
         .decade-nav {
             display: flex;
             justify-content: center;
@@ -217,6 +343,117 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 1.5rem;
+        }
+
+        /* ================================================
+           À DÉCOUVRIR — secondary section
+        ================================================= */
+        .decouvrir-section {
+            margin-top: 2.5rem;
+        }
+
+        .decouvrir-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 1.2rem;
+            width: fit-content;
+        }
+
+        .decouvrir-toggle h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            font-style: italic;
+            color: var(--accent);
+            letter-spacing: 0.5px;
+        }
+
+        .decouvrir-toggle .toggle-line {
+            flex: 1;
+            height: 1px;
+            background: var(--accent);
+            opacity: 0.3;
+            min-width: 60px;
+        }
+
+        .decouvrir-toggle .toggle-arrow {
+            font-size: 0.75rem;
+            color: var(--accent);
+            opacity: 0.7;
+            transition: transform 0.35s ease;
+            display: inline-block;
+        }
+
+        .decouvrir-toggle.open .toggle-arrow {
+            transform: rotate(180deg);
+        }
+
+        .decouvrir-grid-wrap {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease;
+            opacity: 0;
+        }
+
+        .decouvrir-grid-wrap.open {
+            max-height: 2000px;
+            opacity: 1;
+        }
+
+        /* Découvrir cards — same grid, subtle differentiation */
+        .decouvrir-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+        }
+
+        /* Hover zoom + glow effect for découvrir cards */
+        .decouvrir-grid .movie-box-tilt-inner {
+            transition: box-shadow 0.3s ease;
+        }
+
+        .decouvrir-grid .movie-box:hover .movie-box-tilt-inner {
+            box-shadow: 0 0 22px 6px var(--card-shadow);
+        }
+
+        /* Year badge shown on hover */
+        .movie-year-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            color: var(--gold, #D4AF37);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(212,175,55,0.35);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .movie-box:hover .movie-year-badge { opacity: 1; }
+
+        @media (max-width: 768px) {
+            .decouvrir-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .decouvrir-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.7rem;
+            }
         }
 
         .movie-box {
@@ -667,6 +904,235 @@
             background: #000;
         }
 
+        /* ================================================
+           WATCHLIST DRAWER
+        ================================================= */
+
+        /* FAB launcher */
+        #wl-fab {
+            position: fixed; bottom: 5.5rem; right: 1.5rem;
+            width: 54px; height: 54px; border-radius: 50%;
+            background: #1a0e00; border: 2px solid var(--gold);
+            color: var(--gold); font-size: 1.4rem; cursor: pointer;
+            z-index: 1001; box-shadow: 0 0 0 0 rgba(212,175,55,0.6);
+            animation: wlPulse 2.5s infinite;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s;
+        }
+        #wl-fab:hover { transform: scale(1.12) rotate(-10deg); }
+        @keyframes wlPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.5); }
+            50%      { box-shadow: 0 0 0 10px rgba(212,175,55,0); }
+        }
+        #wl-count-badge {
+            position: absolute; top: -4px; right: -4px;
+            background: var(--accent); color: white;
+            border-radius: 50%; width: 20px; height: 20px;
+            font-size: 0.65rem; font-weight: 800;
+            display: none; align-items: center; justify-content: center;
+            border: 2px solid #1a0e00;
+        }
+
+        /* Scrim */
+        #wl-scrim {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 3999; opacity: 0; pointer-events: none;
+            transition: opacity 0.35s; backdrop-filter: blur(3px);
+        }
+        #wl-scrim.open { opacity: 1; pointer-events: all; }
+
+        /* Drawer */
+        #wl-drawer {
+            position: fixed; top: 0; left: 0;
+            width: 420px; max-width: 95vw; height: 100vh;
+            z-index: 4001;
+            background: #0d0700;
+            transform: translateX(-110%);
+            transition: transform 0.42s cubic-bezier(0.4,0,0.2,1);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            border-right: 1px solid rgba(212,175,55,0.25);
+        }
+        #wl-drawer.open { transform: translateX(0); }
+
+        /* Drawer header */
+        .wl-header {
+            padding: 2rem 1.8rem 1.4rem;
+            border-bottom: 1px solid rgba(212,175,55,0.15);
+            flex-shrink: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(212,175,55,0.03) 10px,
+                rgba(212,175,55,0.03) 11px
+            );
+            position: relative;
+        }
+        .wl-header-eyebrow {
+            font-size: 0.58rem; letter-spacing: 4px; text-transform: uppercase;
+            color: var(--gold); opacity: 0.7; font-family: 'Outfit', sans-serif;
+            margin-bottom: 0.4rem;
+        }
+        .wl-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem; font-weight: 900; color: #fff;
+            line-height: 1; margin-bottom: 0.3rem;
+        }
+        .wl-header h2 span { color: var(--gold); font-style: italic; }
+        .wl-stats-line {
+            font-size: 0.75rem; color: rgba(255,255,255,0.4);
+            font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;
+        }
+        .wl-close {
+            position: absolute; top: 1.2rem; right: 1.2rem;
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.6); width: 32px; height: 32px;
+            border-radius: 50%; cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        .wl-close:hover { background: rgba(230,81,0,0.3); color: white; border-color: var(--accent); }
+
+        /* Add bar */
+        .wl-add-bar {
+            padding: 1rem 1.8rem;
+            border-bottom: 1px solid rgba(212,175,55,0.1);
+            display: flex; gap: 8px; flex-shrink: 0;
+        }
+        .wl-input {
+            flex: 1; background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 8px; padding: 0.6rem 1rem;
+            color: white; font-family: 'Outfit', sans-serif; font-size: 0.85rem;
+            outline: none; transition: border-color 0.2s;
+        }
+        .wl-input::placeholder { color: rgba(255,255,255,0.25); }
+        .wl-input:focus { border-color: var(--gold); }
+        .wl-add-btn {
+            background: var(--gold); color: #1a0e00;
+            border: none; border-radius: 8px;
+            padding: 0 1.2rem; font-weight: 800; font-size: 0.8rem;
+            cursor: pointer; white-space: nowrap; letter-spacing: 0.5px;
+            transition: 0.2s; font-family: 'Outfit', sans-serif;
+        }
+        .wl-add-btn:hover { background: #f5e27a; }
+
+        /* List area */
+        .wl-list-area {
+            flex: 1; overflow-y: auto; padding: 1rem 1.8rem;
+        }
+        .wl-list-area::-webkit-scrollbar { width: 4px; }
+        .wl-list-area::-webkit-scrollbar-track { background: transparent; }
+        .wl-list-area::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
+
+        /* Empty state */
+        .wl-empty {
+            text-align: center; padding: 3rem 1rem;
+            color: rgba(255,255,255,0.2);
+            font-family: 'Playfair Display', serif;
+            font-style: italic; font-size: 1rem;
+        }
+        .wl-empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.3; }
+
+        /* Movie items */
+        .wl-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 0.85rem 1rem;
+            border: 1px solid rgba(212,175,55,0.12);
+            border-radius: 10px; margin-bottom: 8px;
+            background: rgba(255,255,255,0.03);
+            transition: all 0.2s; position: relative;
+            overflow: hidden;
+        }
+        .wl-item::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: var(--gold); opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .wl-item:hover { border-color: rgba(212,175,55,0.35); background: rgba(212,175,55,0.05); }
+        .wl-item:hover::before { opacity: 1; }
+        .wl-item.wl-watched { opacity: 0.45; }
+        .wl-item.wl-watched .wl-item-title { text-decoration: line-through; }
+        .wl-item.wl-watched::before { background: #4caf50; opacity: 1; }
+
+        .wl-check {
+            width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+            border: 1.5px solid rgba(212,175,55,0.4);
+            background: transparent; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; color: transparent;
+            font-size: 0.7rem; font-weight: 900;
+        }
+        .wl-check:hover { border-color: var(--gold); background: rgba(212,175,55,0.15); }
+        .wl-item.wl-watched .wl-check {
+            background: #4caf50; border-color: #4caf50; color: white;
+        }
+
+        .wl-item-info { flex: 1; min-width: 0; }
+        .wl-item-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.92rem; font-weight: 700; font-style: italic;
+            color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .wl-item-meta {
+            font-size: 0.65rem; color: rgba(255,255,255,0.35);
+            font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .wl-del {
+            background: none; border: none; cursor: pointer;
+            color: rgba(255,255,255,0.2); font-size: 0.9rem;
+            padding: 4px 6px; border-radius: 6px;
+            transition: 0.2s; line-height: 1;
+        }
+        .wl-del:hover { color: #ef5350; background: rgba(239,83,80,0.12); }
+
+        /* Drawer footer */
+        .wl-footer {
+            padding: 1rem 1.8rem;
+            border-top: 1px solid rgba(212,175,55,0.1);
+            flex-shrink: 0;
+        }
+        .wl-clear-btn {
+            width: 100%; background: transparent;
+            border: 1px solid rgba(239,83,80,0.25); color: rgba(239,83,80,0.6);
+            border-radius: 8px; padding: 0.6rem; font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase; cursor: pointer; transition: 0.2s;
+        }
+        .wl-clear-btn:hover { border-color: #ef5350; color: #ef5350; background: rgba(239,83,80,0.08); }
+
+        /* Add-to-watchlist button inside movie modal */
+        .wl-modal-btn {
+            margin-top: 1.2rem; width: 100%;
+            background: #1a0e00; border: 1.5px solid var(--gold);
+            color: var(--gold); border-radius: 10px;
+            padding: 0.75rem 1rem; font-family: 'Outfit', sans-serif;
+            font-size: 0.82rem; font-weight: 800; letter-spacing: 1.5px;
+            text-transform: uppercase; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.25s; position: relative; overflow: hidden;
+        }
+        .wl-modal-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: var(--gold); opacity: 0; transition: opacity 0.25s;
+        }
+        .wl-modal-btn:hover { color: #1a0e00; }
+        .wl-modal-btn:hover::before { opacity: 1; }
+        .wl-modal-btn span { position: relative; z-index: 1; }
+        .wl-modal-btn.wl-already { border-color: #4caf50; color: #4caf50; }
+        .wl-modal-btn.wl-already:hover::before { background: #4caf50; }
+        .wl-modal-btn.wl-already:hover { color: #1a0e00; }
+
+        /* Item pop-in animation */
+        @keyframes wlSlideIn {
+            from { opacity: 0; transform: translateX(-16px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        .wl-item { animation: wlSlideIn 0.3s ease; }
+
         /* --- QUIZ --- */
         .quiz-launcher {
             position: fixed; bottom: 1.5rem; right: 1.5rem; width: 50px; height: 50px;
@@ -925,7 +1391,7 @@
             width: 36px; height: 36px;
             border-radius: 50%;
             font-size: 1.2rem;
-            
+            cursor: pointer;
             transition: 0.3s;
             display: flex; align-items: center; justify-content: center;
         }
@@ -1578,6 +2044,15 @@
         <button class="lang-toggle-btn" onclick="toggleLang()">FR / EN</button>
     </header>
 
+    <div class="search-bar-wrap">
+        <div class="search-inner">
+            <svg class="search-icon" viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/></svg>
+            <input type="text" id="search-input" placeholder="Rechercher parmi 90 films… / Search all 90 films…" autocomplete="off" />
+            <button id="search-clear" onclick="clearSearch()">✕</button>
+            <div id="search-results-panel"></div>
+        </div>
+    </div>
+
     <nav class="decade-nav" id="nav"></nav>
 
     <main class="gallery-container" id="gallery"></main>
@@ -1615,6 +2090,416 @@
     </div>
 
     <!-- ================================================
+         TOP 5 DE TOUS LES TEMPS
+    ================================================= -->
+    <style>
+        /* ================================================
+           TOP 5 SECTION
+        ================================================= */
+        #top5-section {
+            position: relative;
+            padding: 6rem 2rem 7rem;
+            background: #0a0005;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Ambient glow background */
+        #top5-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 50%, rgba(212,175,55,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 60% at 80% 50%, rgba(180,0,80,0.06) 0%, transparent 60%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 80px,
+                    rgba(212,175,55,0.02) 80px,
+                    rgba(212,175,55,0.02) 81px
+                );
+            pointer-events: none;
+        }
+
+        /* Grain overlay */
+        #top5-section::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .top5-header {
+            text-align: center;
+            margin-bottom: 4.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .top5-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: #D4AF37;
+            opacity: 0.75;
+            margin-bottom: 1rem;
+        }
+        .top5-eyebrow::before,
+        .top5-eyebrow::after {
+            content: '';
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #D4AF37);
+            opacity: 0.5;
+        }
+        .top5-eyebrow::after { transform: scaleX(-1); }
+
+        .top5-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+        }
+        .top5-title em {
+            font-style: italic;
+            color: #D4AF37;
+            display: block;
+        }
+        .top5-subtitle {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 0.8rem;
+        }
+
+        /* ---- THE CARDS ---- */
+        .top5-track {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: flex-end;
+            position: relative;
+            z-index: 2;
+            flex-wrap: wrap;
+        }
+
+        .top5-card {
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        /* Center card (#1) is biggest */
+        .top5-card:nth-child(1) { --card-w: 200px; --card-h: 300px; --rank-size: 5rem; order: 3; animation-delay: 0.05s; }
+        .top5-card:nth-child(2) { --card-w: 172px; --card-h: 258px; --rank-size: 4rem; order: 2; margin-bottom: 1.5rem; animation-delay: 0.15s; }
+        .top5-card:nth-child(3) { --card-w: 148px; --card-h: 222px; --rank-size: 3.4rem; order: 1; margin-bottom: 3rem; animation-delay: 0.25s; }
+        .top5-card:nth-child(4) { --card-w: 172px; --card-h: 258px; --rank-size: 4rem; order: 4; margin-bottom: 1.5rem; animation-delay: 0.1s; }
+        .top5-card:nth-child(5) { --card-w: 148px; --card-h: 222px; --rank-size: 3.4rem; order: 5; margin-bottom: 3rem; animation-delay: 0.2s; }
+
+        .top5-card:hover {
+            transform: translateY(-18px) scale(1.04);
+            z-index: 10;
+        }
+
+        /* The poster frame */
+        .top5-poster-frame {
+            width: var(--card-w);
+            height: var(--card-h);
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
+            box-shadow:
+                0 0 0 1px rgba(212,175,55,0.25),
+                0 20px 60px rgba(0,0,0,0.7),
+                0 4px 12px rgba(0,0,0,0.4);
+            transition: box-shadow 0.5s ease;
+        }
+
+        .top5-card:nth-child(1) .top5-poster-frame {
+            box-shadow:
+                0 0 0 2px rgba(212,175,55,0.6),
+                0 0 40px rgba(212,175,55,0.25),
+                0 30px 80px rgba(0,0,0,0.8),
+                0 4px 16px rgba(0,0,0,0.5);
+        }
+
+        .top5-card:hover .top5-poster-frame {
+            box-shadow:
+                0 0 0 2px rgba(212,175,55,0.7),
+                0 0 50px rgba(212,175,55,0.3),
+                0 30px 70px rgba(0,0,0,0.8);
+        }
+
+        .top5-poster-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s ease, filter 0.4s ease;
+            filter: brightness(0.88) contrast(1.05);
+        }
+        .top5-card:hover .top5-poster-frame img {
+            transform: scale(1.07);
+            filter: brightness(1) contrast(1.05);
+        }
+
+        /* Gradient overlay on poster */
+        .top5-poster-frame::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                transparent 45%,
+                rgba(0,0,0,0.5) 75%,
+                rgba(0,0,0,0.9) 100%
+            );
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Rank number — giant, ghosted behind poster */
+        .top5-rank {
+            position: absolute;
+            bottom: -18px;
+            left: -12px;
+            font-family: 'Playfair Display', serif;
+            font-size: var(--rank-size);
+            font-weight: 900;
+            font-style: italic;
+            color: transparent;
+            -webkit-text-stroke: 1.5px rgba(212,175,55,0.5);
+            line-height: 1;
+            z-index: 0;
+            pointer-events: none;
+            transition: -webkit-text-stroke 0.4s ease;
+            user-select: none;
+        }
+        .top5-card:nth-child(1) .top5-rank {
+            -webkit-text-stroke: 2px rgba(212,175,55,0.85);
+            font-size: 6rem;
+        }
+        .top5-card:hover .top5-rank {
+            -webkit-text-stroke-color: rgba(212,175,55,0.9);
+        }
+
+        /* Title below poster */
+        .top5-card-info {
+            margin-top: 1.2rem;
+            text-align: center;
+            padding: 0 4px;
+        }
+        .top5-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            font-style: italic;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .top5-card-dir {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.62rem;
+            color: rgba(255,255,255,0.35);
+            margin-top: 3px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Gold crown on #1 */
+        .top5-crown {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.4rem;
+            filter: drop-shadow(0 2px 8px rgba(212,175,55,0.7));
+            animation: crownFloat 3s ease-in-out infinite;
+            z-index: 5;
+        }
+        @keyframes crownFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* Gold shimmer line on #1 */
+        .top5-card:nth-child(1) .top5-poster-frame::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212,175,55,0.12), transparent);
+            animation: shimmerSlide 4s ease-in-out infinite 1s;
+            z-index: 3;
+            pointer-events: none;
+        }
+        @keyframes shimmerSlide {
+            0% { left: -60%; }
+            40%, 100% { left: 160%; }
+        }
+
+        /* Fallback poster for missing images */
+        .top5-fallback {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 1rem;
+            background: linear-gradient(135deg, #1a0a00, #3d1a00);
+            color: rgba(212,175,55,0.8);
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem; font-weight: 700; font-style: italic;
+            line-height: 1.3;
+        }
+
+        /* Entry animation */
+        .top5-card {
+            opacity: 0;
+            animation: top5Rise 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        @keyframes top5Rise {
+            from { opacity: 0; transform: translateY(40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Divider between sections */
+        .top5-divider {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 120px;
+            background: linear-gradient(to bottom, transparent, var(--bg-color, #f5e6d3));
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            #top5-section { padding: 4rem 1rem 5rem; }
+            .top5-track { gap: 1rem; }
+            .top5-card:nth-child(1) { --card-w: 150px; --card-h: 225px; }
+            .top5-card:nth-child(2),
+            .top5-card:nth-child(4) { --card-w: 125px; --card-h: 188px; }
+            .top5-card:nth-child(3),
+            .top5-card:nth-child(5) { --card-w: 108px; --card-h: 162px; }
+        }
+
+        @media (max-width: 480px) {
+            .top5-track {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.2rem;
+                align-items: start;
+            }
+            .top5-card { order: unset !important; margin-bottom: 0 !important; --card-w: 100% !important; --card-h: 210px !important; }
+            .top5-card:nth-child(1) { grid-column: 1 / -1; }
+            .top5-poster-frame { width: 100% !important; }
+        }
+    </style>
+
+    <section id="top5-section">
+        <div class="top5-header">
+            <div class="top5-eyebrow">Panthéon · Intouchables · Absolus</div>
+            <h2 class="top5-title">
+                Top 5 du Cinéma Français
+                <em>de Tous les Temps</em>
+            </h2>
+            <p class="top5-subtitle">Les œuvres qui ont défini une nation</p>
+        </div>
+
+        <div class="top5-track" id="top5-track">
+
+            <!-- #1 Amélie — center, biggest, crowned -->
+            <div class="top5-card" onclick="top5Open(0)">
+                <div class="top5-crown">👑</div>
+                <div class="top5-rank">1</div>
+                <div class="top5-poster-frame">
+                    <img src="images/amelie-poulain.png"
+                         onerror="this.outerHTML='<div class=\'top5-fallback\'>Le Fabuleux Destin d\'Amélie Poulain</div>'"
+                         alt="Amélie Poulain">
+                </div>
+                <div class="top5-card-info">
+                    <div class="top5-card-title">Le Fabuleux Destin d'Amélie Poulain</div>
+                    <div class="top5-card-dir">Jean-Pierre Jeunet · 2001</div>
+                </div>
+            </div>
+
+            <!-- #2 La Haine -->
+            <div class="top5-card" onclick="top5Open(1)">
+                <div class="top5-rank">2</div>
+                <div class="top5-poster-frame">
+                    <img src="images/la-haine.png"
+                         onerror="this.outerHTML='<div class=\'top5-fallback\'>La Haine</div>'"
+                         alt="La Haine">
+                </div>
+                <div class="top5-card-info">
+                    <div class="top5-card-title">La Haine</div>
+                    <div class="top5-card-dir">Mathieu Kassovitz · 1995</div>
+                </div>
+            </div>
+
+            <!-- #3 Intouchables -->
+            <div class="top5-card" onclick="top5Open(2)">
+                <div class="top5-rank">3</div>
+                <div class="top5-poster-frame">
+                    <img src="images/intouchables.png"
+                         onerror="this.outerHTML='<div class=\'top5-fallback\'>Intouchables</div>'"
+                         alt="Intouchables">
+                </div>
+                <div class="top5-card-info">
+                    <div class="top5-card-title">Intouchables</div>
+                    <div class="top5-card-dir">Nakache & Toledano · 2011</div>
+                </div>
+            </div>
+
+            <!-- #4 Portrait de la jeune fille en feu -->
+            <div class="top5-card" onclick="top5Open(3)">
+                <div class="top5-rank">4</div>
+                <div class="top5-poster-frame">
+                    <img src="images/portrait-jeune-fille.png"
+                         onerror="this.outerHTML='<div class=\'top5-fallback\'>Portrait de la Jeune Fille en Feu</div>'"
+                         alt="Portrait de la jeune fille en feu">
+                </div>
+                <div class="top5-card-info">
+                    <div class="top5-card-title">Portrait de la Jeune Fille en Feu</div>
+                    <div class="top5-card-dir">Céline Sciamma · 2019</div>
+                </div>
+            </div>
+
+            <!-- #5 The Artist -->
+            <div class="top5-card" onclick="top5Open(4)">
+                <div class="top5-rank">5</div>
+                <div class="top5-poster-frame">
+                    <img src="images/the-artist-2011.jpg"
+                         onerror="this.outerHTML='<div class=\'top5-fallback\'>The Artist</div>'"
+                         alt="The Artist">
+                </div>
+                <div class="top5-card-info">
+                    <div class="top5-card-title">The Artist</div>
+                    <div class="top5-card-dir">Michel Hazanavicius · 2011</div>
+                </div>
+            </div>
+
+        </div>
+        <div class="top5-divider"></div>
+    </section>
+
+
+    <!-- ================================================
          DOME GALLERY SECTION
     ================================================= -->
     <section id="dome-section">
@@ -1640,6 +2525,38 @@
         <p class="dome-hint" id="dome-hint">Drag to rotate &nbsp;·&nbsp; Click any poster to zoom</p>
     </section>
 
+    <!-- WATCHLIST FAB -->
+    <button id="wl-fab" onclick="openWatchlist()" title="Ma Watchlist / My Watchlist">
+        🎬
+        <span id="wl-count-badge">0</span>
+    </button>
+
+    <!-- WATCHLIST SCRIM -->
+    <div id="wl-scrim" onclick="closeWatchlist()"></div>
+
+    <!-- WATCHLIST DRAWER -->
+    <div id="wl-drawer">
+        <div class="wl-header">
+            <button class="wl-close" onclick="closeWatchlist()">✕</button>
+            <div class="wl-header-eyebrow">✦ Ma Liste</div>
+            <h2>Watch<span>list</span></h2>
+            <div class="wl-stats-line" id="wl-stats-line">0 film · 0 vu</div>
+        </div>
+        <div class="wl-add-bar">
+            <input class="wl-input" id="wl-manual-input" placeholder="Ajouter un film manuellement…" maxlength="100" />
+            <button class="wl-add-btn" onclick="wlAddManual()">+ Ajouter</button>
+        </div>
+        <div class="wl-list-area" id="wl-list-area">
+            <div class="wl-empty">
+                <div class="wl-empty-icon">🎞️</div>
+                Ta liste est vide.<br>Ouvre un film et clique <em>+ Watchlist</em>.
+            </div>
+        </div>
+        <div class="wl-footer">
+            <button class="wl-clear-btn" onclick="wlClearWatched()">Effacer les films vus</button>
+        </div>
+    </div>
+
     <button class="quiz-launcher" onclick="startQuiz()" title="Film Recommender">?</button>
 
     <div id="quiz-modal">
@@ -1664,6 +2581,9 @@
                         <p class="synopsis-body" id="m-syn"></p>
                     </div>
                     <div class="trivia-tag" id="m-trivia"></div>
+                    <button class="wl-modal-btn" id="wl-modal-btn" onclick="wlToggleFromModal()">
+                        <span id="wl-modal-btn-text">＋ Ajouter à la Watchlist</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1686,6 +2606,18 @@
                     { title: {fr:"Jeanne Dielman", en:"Jeanne Dielman"}, dir:"Chantal Akerman", cast:"Delphine Seyrig", syn:{fr:"Le portrait hypnotique d'une veuve dont la routine cache une faille tragique.", en:"The hypnotic portrait of a widow whose routine hides a tragic flaw."}, awards:{}, trivia:{fr:"Élu meilleur film de l'histoire par Sight & Sound en 2022.", en:"Voted greatest film of all time by Sight & Sound in 2022."}, img:"images/jeanne-dielman.png", trailer: "iuP1MN6RNJU" },
                     { title: {fr:"Le Locataire", en:"The Tenant"}, dir:"Roman Polanski", cast:"Roman Polanski, Isabelle Adjani", syn:{fr:"Un homme s'installe dans un appartement et sombre dans une paranoïa mortelle.", en:"A man moves into an apartment and descends into deadly paranoia."}, awards:{cannes:"Nominated"}, trivia:{fr:"Polanski a filmé dans un véritable immeuble parisien.", en:"Polanski filmed in a real Paris building."}, img:"images/le-locataire.png", trailer: "88Y9ViLIDL8" },
                     { title: {fr:"Céline et Julie", en:"Celine & Julie"}, dir:"Jacques Rivette", cast:"Juliet Berto, Dominique Labourier", syn:{fr:"Deux amies s'immergent dans une énigme magique à l'intérieur d'une villa.", en:"Two friends immerse themselves in a magical enigma inside a mysterious villa."}, awards:{}, trivia:{fr:"Le film explore le concept de méta-fiction sur plus de 3 heures.", en:"The film explores meta-fiction over 3 hours."}, img:"images/celine-et-julie.png", trailer: "CcVuBjWpIEI" }
+                ],
+                decouvrir: [
+                    { title: {fr:"Le Boucher", en:"The Butcher"}, year:"1970", dir:"Claude Chabrol", cast:"Stéphane Audran, Jean Yanne", syn:{fr:"Dans un village paisible, une institutrice noue une amitié étrange avec le boucher local, soupçonné de meurtres.", en:"In a quiet village, a schoolteacher forms an uneasy friendship with the local butcher suspected of murders."}, awards:{cannes:"Nominated"}, trivia:{fr:"Chabrol s'inspire d'un fait divers réel du Périgord.", en:"Chabrol drew from a real criminal case in the Périgord."}, img:"images/le-boucher-1970.jpg", trailer:"Vbx_xjY8cpc" },
+                    { title: {fr:"Max et les Ferrailleurs", en:"Max and the Junkmen"}, year:"1971", dir:"Claude Sautet", cast:"Michel Piccoli, Romy Schneider", syn:{fr:"Un flic obsessionnel tend un piège à une bande de petits malfrats en utilisant une prostituée.", en:"An obsessive cop sets a trap for a gang of small-time crooks using a prostitute he knows."}, awards:{}, trivia:{fr:"Piccoli et Schneider forment un duo inoubliable que Sautet retrouvera souvent.", en:"Piccoli and Schneider form an unforgettable pair that Sautet would reunite many times."}, img:"images/max-et-les-ferrailleurs-1971.jpg", trailer:"aJKQKwJPVjQ" },
+                    { title: {fr:"Lacombe Lucien", en:"Lacombe Lucien"}, year:"1974", dir:"Louis Malle", cast:"Pierre Blaise, Aurore Clément", syn:{fr:"Un jeune paysan rejoint la milice française par hasard et collabore avec les nazis.", en:"A young peasant accidentally joins the French Milice and becomes a Nazi collaborator."}, awards:{oscar:"Nominated"}, trivia:{fr:"Le film fit scandale en France pour sa démarche morale ambiguë.", en:"The film caused an uproar in France for its morally ambiguous stance."}, img:"images/lacombe-lucien-1974.jpg", trailer:"4p8QMfoAlQc" },
+                    { title: {fr:"India Song", en:"India Song"}, year:"1975", dir:"Marguerite Duras", cast:"Delphine Seyrig, Michael Lonsdale", syn:{fr:"Dans l'ambassade de France aux Indes, l'amour et la mélancolie se dissolvent dans une chaleur écrasante.", en:"At the French embassy in India, love and melancholy dissolve in oppressive heat."}, awards:{}, trivia:{fr:"Les voix sont dissociées des corps — les acteurs ne prononcent jamais leurs répliques.", en:"Voices are detached from bodies — the actors never speak their own lines."}, img:"images/india-song-1975.jpg", trailer:"HqAINfHHm-o" },
+                    { title: {fr:"L'Argent de Poche", en:"Small Change"}, year:"1976", dir:"François Truffaut", cast:"Geory Desmouceaux, Philippe Goldmann", syn:{fr:"La vie quotidienne d'enfants dans une ville de province, entre jeux, premières amours et moments douloureux.", en:"The everyday lives of children in a provincial town, with games, first loves, and painful moments."}, awards:{}, trivia:{fr:"Truffaut a utilisé de vrais enfants non-acteurs pour capturer l'authenticité.", en:"Truffaut used real non-actor children to capture authenticity."}, img:"images/l-argent-de-poche-1976.jpg", trailer:"kHEuPqgTohw" },
+                    { title: {fr:"Le Juge et l'Assassin", en:"The Judge and the Assassin"}, year:"1976", dir:"Bertrand Tavernier", cast:"Philippe Noiret, Michel Galabru", syn:{fr:"Un juge ambitieux instrsuit le procès d'un tueur en série pour servir sa propre carrière.", en:"An ambitious judge exploits the trial of a serial killer for his own advancement."}, awards:{}, trivia:{fr:"Galabru, connu pour la comédie, obtient ici un rôle dramatique saisissant.", en:"Galabru, known for comedy, delivers a stunning dramatic performance here."}, img:"images/le-juge-et-l-assassin-1976.jpg", trailer:"Y0F_2Jo8Rx8" },
+                    { title: {fr:"Préparez vos Mouchoirs", en:"Get Out Your Handkerchiefs"}, year:"1978", dir:"Bertrand Blier", cast:"Gérard Depardieu, Patrick Dewaere", syn:{fr:"Un mari désespéré cherche tous les moyens pour rendre sa femme heureuse, même les plus absurdes.", en:"A desperate husband tries everything to make his wife happy, even the most absurd solutions."}, awards:{oscar:"Winner"}, trivia:{fr:"Le film remporta l'Oscar du meilleur film étranger en 1979.", en:"The film won the Academy Award for Best Foreign Language Film in 1979."}, img:"images/preparez-vos-mouchoirs-1978.jpg", trailer:"T1k8LzJM8Ms" },
+                    { title: {fr:"Perceval le Gallois", en:"Perceval le Gallois"}, year:"1978", dir:"Éric Rohmer", cast:"Fabrice Luchini, André Dussollier", syn:{fr:"La quête médiévale du chevalier Perceval vers le Graal, adaptée du roman de Chrétien de Troyes.", en:"The medieval quest of knight Perceval for the Holy Grail, adapted from Chrétien de Troyes."}, awards:{}, trivia:{fr:"Rohmer a reconstitué le théâtre médiéval avec des décors entièrement stylisés.", en:"Rohmer reconstructed medieval theatre with fully stylized, artificial sets."}, img:"images/perceval-le-gallois-1978.jpg", trailer:"hnf2-YjBLRA" },
+                    { title: {fr:"La Cage aux Folles", en:"La Cage aux Folles"}, year:"1978", dir:"Édouard Molinaro", cast:"Ugo Tognazzi, Michel Serrault", syn:{fr:"Un couple homosexuel doit se faire passer pour hétéro lorsque le fils annonce ses fiançailles.", en:"A gay couple must pretend to be straight when the son announces his engagement."}, awards:{oscar:"Nominated"}, trivia:{fr:"Succès mondial inattendu, il fut l'un des films étrangers les plus vus aux USA.", en:"An unexpected worldwide hit, it became one of the most-watched foreign films in the US."}, img:"images/la-cage-aux-folles-1978.jpg", trailer:"MKZkZr_ke_o" },
+                    { title: {fr:"La Maman et la Putain", en:"The Mother and the Whore"}, year:"1973", dir:"Jean Eustache", cast:"Jean-Pierre Léaud, Bernadette Lafont", syn:{fr:"Un jeune oisif parisien partage sa vie entre deux femmes, dans un vertige existentiel de 3h40.", en:"A young Parisian idler shares his life between two women in a 3h40 existential whirlwind."}, awards:{cannes:"Grand Prix"}, trivia:{fr:"Jean Eustache s'est suicidé en 1981, laissant une œuvre rare et culte.", en:"Jean Eustache died by suicide in 1981, leaving behind a rare and revered body of work."}, img:"images/la-maman-et-la-putain-1973.jpg", trailer:"4taaEWrw-IY" }
                 ]
             },
             {
@@ -1697,6 +2629,18 @@
                     { title: {fr:"Mauvais Sang", en:"Bad Blood"}, dir:"Leos Carax", cast:"Denis Lavant, Juliette Binoche", syn:{fr:"Un jeune homme doit voler le vaccin d'une MST mortelle.", en:"A young man must steal the vaccine for a deadly STD."}, awards:{}, trivia:{fr:"La scène de course sur 'Modern Love' est légendaire.", en:"The running scene set to 'Modern Love' is legendary."}, img:"images/mauvais-sang.png", trailer: "r_nJz2KTKIk" },
                     { title: {fr:"Au Revoir les Enfants", en:"Goodbye Children"}, dir:"Louis Malle", cast:"Gaspard Manesse", syn:{fr:"L'amitié entre un pensionnaire et un élève juif caché en 1944.", en:"Friendship between a student and a hidden Jewish pupil in 1944."}, awards:{oscar:"Nominated"}, trivia:{fr:"Inspiré d'un souvenir traumatisant de Malle.", en:"Inspired by a traumatic memory of Malle."}, img:"images/au-revoir-les-enfants.png", trailer: "zXmvdKtMQcI" },
                     { title: {fr:"Le Grand Bleu", en:"The Big Blue"}, dir:"Luc Besson", cast:"Jean-Marc Barr, Jean Reno", syn:{fr:"La rivalité mystique entre deux plongeurs en apnée.", en:"The mystical rivalry between two free-divers."}, awards:{}, trivia:{fr:"Le film est resté à l'affiche plus d'un an.", en:"The film stayed in theaters for over a year."}, img:"images/le-grand-bleu.png", trailer: "WNkIjVyf3UQ" }
+                ],
+                decouvrir: [
+                    { title: {fr:"37°2 le Matin", en:"Betty Blue"}, year:"1986", dir:"Jean-Jacques Beineix", cast:"Jean-Hugues Anglade, Béatrice Dalle", syn:{fr:"La passion dévorante entre un écrivain raté et une femme électrique et instable.", en:"The all-consuming passion between a failed writer and an electric, unstable woman."}, awards:{oscar:"Nominated"}, trivia:{fr:"Béatrice Dalle est devenue une icône du cinéma français dès son premier rôle.", en:"Béatrice Dalle became a French cinema icon with her very first role."}, img:"images/37-degres-le-matin-1986.jpg", trailer:"KSSL-oFzUMw" },
+                    { title: {fr:"Thérèse", en:"Thérèse"}, year:"1986", dir:"Alain Cavalier", cast:"Catherine Mouchet", syn:{fr:"La vie intérieure de Thérèse de Lisieux, de son enfance à sa mort à 24 ans.", en:"The inner life of Thérèse of Lisieux, from childhood to her death at 24."}, awards:{cannes:"Jury Prize"}, trivia:{fr:"Le film est tourné dans des espaces épurés, sans décors naturalistes.", en:"Shot in stripped-bare spaces with no naturalistic sets whatsoever."}, img:"images/therese-1986.jpg", trailer:"YUieEdXgyXI" },
+                    { title: {fr:"Police", en:"Police"}, year:"1985", dir:"Maurice Pialat", cast:"Gérard Depardieu, Sophie Marceau", syn:{fr:"Un flic brutal et séduisant s'entiche d'une jeune femme mêlée à un trafic de drogue.", en:"A brutal, seductive cop becomes entangled with a young woman involved in drug trafficking."}, awards:{}, trivia:{fr:"Pialat et Depardieu forment l'un des grands duos du cinéma français des 80s.", en:"Pialat and Depardieu form one of the great duos of 1980s French cinema."}, img:"images/police-1985.jpg", trailer:"_6V756cazpM" },
+                    { title: {fr:"Camille Claudel", en:"Camille Claudel"}, year:"1988", dir:"Bruno Nuytten", cast:"Isabelle Adjani, Gérard Depardieu", syn:{fr:"La vie et la folie de la sculptrice Camille Claudel, élève et amante de Rodin.", en:"The life and madness of sculptor Camille Claudel, student and lover of Rodin."}, awards:{oscar:"Nominated"}, trivia:{fr:"Adjani a remporté le César de la meilleure actrice et fut nominée aux Oscars.", en:"Adjani won the César for Best Actress and received an Oscar nomination."}, img:"images/camille-claudel-1988.jpg", trailer:"o0hApbf8_Ek" },
+                    { title: {fr:"Monsieur Hire", en:"Monsieur Hire"}, year:"1989", dir:"Patrice Leconte", cast:"Michel Blanc, Sandrine Bonnaire", syn:{fr:"Un homme solitaire et voyeur est soupçonné de meurtre et épie sa voisine dont il est amoureux.", en:"A lonely, voyeuristic man suspected of murder secretly watches his neighbour, whom he loves."}, awards:{}, trivia:{fr:"Adapté du roman de Simenon, le film joue sur le malaise et la compassion simultanés.", en:"Adapted from Simenon, the film cultivates simultaneous unease and compassion."}, img:"images/monsieur-hire-1989.jpg", trailer:"elNCMX8EzAM" },
+                    { title: {fr:"Trop Belle pour Toi", en:"Too Beautiful for You"}, year:"1989", dir:"Bertrand Blier", cast:"Gérard Depardieu, Josiane Balasko", syn:{fr:"Un homme marié à une femme magnifique tombe amoureux de sa secrétaire ordinaire.", en:"A man married to a beautiful woman falls for his plain secretary."}, awards:{cannes:"Jury Prize"}, trivia:{fr:"Le film inverse les codes de la séduction pour interroger le désir réel.", en:"The film inverts seduction codes to interrogate authentic desire."}, img:"images/trop-belle-pour-toi-1989.jpg", trailer:"HblzguQpZp8" },
+                    { title: {fr:"Sans Toit ni Loi", en:"Vagabond"}, year:"1985", dir:"Agnès Varda", cast:"Sandrine Bonnaire", syn:{fr:"Une jeune vagabonde est retrouvée morte. Des témoins racontent qui elle était.", en:"A young drifter is found dead. Witnesses piece together who she was."}, awards:{}, trivia:{fr:"Bonnaire remporta le César de la meilleure actrice pour ce rôle sauvage et bouleversant.", en:"Bonnaire won the César for Best Actress for this raw and devastating performance."}, img:"images/sans-toit-ni-loi-1985.jpg", trailer:"hiKdeQQMg7I" },
+                    { title: {fr:"Jean de Florette", en:"Jean de Florette"}, year:"1986", dir:"Claude Berri", cast:"Yves Montand, Gérard Depardieu, Daniel Auteuil", syn:{fr:"Un paysan bossu hérite d'une terre en Provence, mais ses voisins veulent le voir échouer.", en:"A hunchbacked city man inherits Provençal land while his neighbours scheme against him."}, awards:{}, trivia:{fr:"Le film fit l'objet d'un double tournage avec sa suite Manon des Sources.", en:"Shot back-to-back with its sequel Manon des Sources in a single production."}, img:"images/jean-de-florette-1986.jpg", trailer:"rDJXPiyvQfg" },
+                    { title: {fr:"Manon des Sources", en:"Manon of the Spring"}, year:"1986", dir:"Claude Berri", cast:"Emmanuelle Béart, Daniel Auteuil", syn:{fr:"La fille de Jean de Florette découvre la vérité et prépare sa vengeance.", en:"Jean de Florette's daughter discovers the truth and plans her revenge."}, awards:{}, trivia:{fr:"Auteuil remporta le César du meilleur acteur pour son personnage d'Ugolin.", en:"Auteuil won the César for Best Actor for his portrayal of the tragic Ugolin."}, img:"images/manon-des-sources-1986.jpg", trailer:"IEQwM4zEb-U" },
+                    { title: {fr:"La Vie est un Long Fleuve Tranquille", en:"Life is a Long Quiet River"}, year:"1988", dir:"Étienne Chatiliez", cast:"Hélène Vincent, André Wilms", syn:{fr:"Deux familles aux antipodes sociaux découvrent que leurs enfants ont été échangés à la naissance.", en:"Two families at opposite ends of society discover their babies were swapped at birth."}, awards:{}, trivia:{fr:"Succès populaire immense, le film lança le genre de la comédie sociale satirique française.", en:"A massive popular success, it launched the French satirical social comedy genre."}, img:"images/la-vie-est-un-long-fleuve-tranquille-1988.jpg", trailer:"ARwye6Q_98s" }
                 ]
             },
             {
@@ -1708,6 +2652,18 @@
                     { title: {fr:"Nikita", en:"Nikita"}, dir:"Luc Besson", cast:"Anne Parillaud", syn:{fr:"Une délinquante est forcée de devenir tueuse d'élite.", en:"A delinquent is forced to become an elite assassin."}, awards:{}, trivia:{fr:"Jean Reno y joue un 'nettoyeur'.", en:"Jean Reno plays a 'cleaner'."}, img:"images/nikita.png", trailer: "JRfo_bNco6M" },
                     { title: {fr:"La Cité des Enfants Perdus", en:"City of Lost Children"}, dir:"Caro & Jeunet", cast:"Ron Perlman", syn:{fr:"Un colosse part sauver son frère d'un voleur de rêves.", en:"A giant saves his brother from a dream thief."}, awards:{cannes:"Nominated"}, trivia:{fr:"Ron Perlman a appris ses répliques phonétiquement.", en:"Ron Perlman learned his lines phonetically."}, img:"images/la-cite.png", trailer: "n1_YX8mHAwY" },
                     { title: {fr:"Beau Travail", en:"Beau Travail"}, dir:"Claire Denis", cast:"Denis Lavant", syn:{fr:"Un officier se remémore sa haine envers une jeune recrue.", en:"An officer recalls his hatred for a recruit."}, awards:{}, trivia:{fr:"Le film utilise la danse comme langage militaire.", en:"The film uses dance as a military language."}, img:"images/beau-travail.png", trailer: "Hh4HzACZOOQ" }
+                ],
+                decouvrir: [
+                    { title: {fr:"Indochine", en:"Indochine"}, year:"1992", dir:"Régis Wargnier", cast:"Catherine Deneuve, Vincent Perez", syn:{fr:"Une plantation de caoutchouc, une mère et sa fille adoptive aiment le même homme dans l'Indochine coloniale.", en:"A rubber plantation, a mother and her adopted daughter love the same man in colonial Indochina."}, awards:{oscar:"Winner"}, trivia:{fr:"L'Oscar du meilleur film étranger 1993 consacra Deneuve à l'international.", en:"The 1993 Oscar for Best Foreign Film cemented Deneuve's international status."}, img:"images/indochine-1992.jpg", trailer:"udT20h68rYM" },
+                    { title: {fr:"La Belle Noiseuse", en:"La Belle Noiseuse"}, year:"1991", dir:"Jacques Rivette", cast:"Michel Piccoli, Emmanuelle Béart", syn:{fr:"Un peintre vieillissant reprend un tableau inachevé en faisant poser la compagne de son élève.", en:"An ageing painter resumes an unfinished canvas using his student's girlfriend as his model."}, awards:{cannes:"Grand Prix"}, trivia:{fr:"La version longue dure 4 heures — le processus de création y est filmé en temps réel.", en:"The full version runs 4 hours — the creative process is filmed in near real-time."}, img:"images/la-belle-noiseuse-1991.jpg", trailer:"XLf8kYdqo7w" },
+                    { title: {fr:"Ridicule", en:"Ridicule"}, year:"1996", dir:"Patrice Leconte", cast:"Charles Berling, Fanny Ardant", syn:{fr:"À Versailles sous Louis XVI, un noble de province comprend que l'esprit est la seule monnaie valable.", en:"At Versailles under Louis XVI, a provincial noble learns that wit is the only currency that matters."}, awards:{}, trivia:{fr:"Le film fut nommé aux Oscars et remporta quatre Césars dont meilleur film.", en:"The film was Oscar-nominated and won four Césars including Best Film."}, img:"images/ridicule-1996.jpg", trailer:"R3sp4pX481g" },
+                    { title: {fr:"Le Huitième Jour", en:"The Eighth Day"}, year:"1996", dir:"Jaco Van Dormael", cast:"Daniel Auteuil, Pascal Duquenne", syn:{fr:"Un cadre stressé et un homme atteint de trisomie deviennent amis et se transforment mutuellement.", en:"A stressed executive and a man with Down syndrome become friends and transform each other."}, awards:{cannes:"Best Actor"}, trivia:{fr:"Pascal Duquenne et Daniel Auteuil ont partagé le Prix d'interprétation à Cannes.", en:"Pascal Duquenne and Daniel Auteuil shared the Best Actor prize at Cannes."}, img:"images/le-huitieme-jour-1996.jpg", trailer:"Q0qrryCHlZo" },
+                    { title: {fr:"On Connaît la Chanson", en:"Same Old Song"}, year:"1997", dir:"Alain Resnais", cast:"Sabine Azéma, Pierre Arditi", syn:{fr:"Les personnages expriment leurs émotions en lip-sync sur des extraits de chansons françaises célèbres.", en:"Characters express their emotions by lip-syncing to excerpts of famous French songs."}, awards:{}, trivia:{fr:"Le procédé comique des playbacks fut inspiré de la comédie musicale britannique Pennies from Heaven.", en:"The comic lip-sync device was inspired by the British musical Pennies from Heaven."}, img:"images/on-connait-la-chanson-1997.jpg", trailer:"JzxhfXXAFys" },
+                    { title: {fr:"Le Dîner de Cons", en:"The Dinner Game"}, year:"1998", dir:"Francis Veber", cast:"Thierry Lhermitte, Jacques Villeret", syn:{fr:"Un éditeur parisien invite un idiot au dîner de cons, mais la soirée tourne à son propre désastre.", en:"A Paris publisher invites an idiot to a cruel dinner game, only to have the evening collapse around him."}, awards:{}, trivia:{fr:"Villeret avait d'abord joué le rôle sur scène pendant trois ans.", en:"Villeret had first played the role on stage for three years before the film."}, img:"images/le-diner-de-cons-1998.jpg", trailer:"4FANGIUNbiA" },
+                    { title: {fr:"Rosetta", en:"Rosetta"}, year:"1999", dir:"Jean-Pierre & Luc Dardenne", cast:"Émilie Dequenne", syn:{fr:"Une adolescente lutte sauvagement pour trouver un emploi et sortir de la misère.", en:"A teenager fights desperately to find a job and escape poverty."}, awards:{cannes:"Palme d'Or"}, trivia:{fr:"La caméra portée colle littéralement à Rosetta — on ressent son souffle, sa tension.", en:"The handheld camera literally clings to Rosetta — you feel her breath and tension."}, img:"images/rosetta-1999.jpg", trailer:"woN2P4r65oA" },
+                    { title: {fr:"La Reine Margot", en:"Queen Margot"}, year:"1994", dir:"Patrice Chéreau", cast:"Isabelle Adjani, Daniel Auteuil", syn:{fr:"Le mariage forcé de Margot de Valois et le massacre de la Saint-Barthélemy dans la France déchirée.", en:"Margot de Valois's forced marriage and the St Bartholomew's Day massacre in a torn France."}, awards:{cannes:"Jury Prize"}, trivia:{fr:"Adjani remporta son quatrième César de la meilleure actrice pour ce rôle.", en:"Adjani won her fourth César for Best Actress for this role."}, img:"images/la-reine-margot-1994.jpg", trailer:"AcCPByEp3KI" },
+                    { title: {fr:"Western", en:"Western"}, year:"1997", dir:"Manuel Poirier", cast:"Sergi López, Sacha Bourdo", syn:{fr:"Deux hommes se rencontrent après une bagarre et traversent la Bretagne à pied à la recherche de l'amour.", en:"Two men meet after a brawl and walk across Brittany together in search of love."}, awards:{cannes:"Jury Prize"}, trivia:{fr:"Film doux-amer et lumineux sur l'amitié masculine, primé à Cannes.", en:"A bittersweet, luminous film on male friendship, awarded at Cannes."}, img:"images/western-1997.jpg", trailer:"IbWtvgw5ydY" },
+                    { title: {fr:"Les Enfants du Siècle", en:"Children of the Century"}, year:"1999", dir:"Diane Kurys", cast:"Juliette Binoche, Benoît Magimel", syn:{fr:"La passion tumultueuse entre George Sand et Alfred de Musset au XIXe siècle.", en:"The tumultuous passion between George Sand and Alfred de Musset in 19th-century France."}, awards:{}, trivia:{fr:"Binoche et Magimel ont eu une vraie relation pendant le tournage.", en:"Binoche and Magimel had a real-life relationship during the shoot."}, img:"images/les-enfants-du-siecle-1999.jpg", trailer:"guilbeDpZqg" }
                 ]
             },
             {
@@ -1719,6 +2675,18 @@
                     { title: {fr:"Caché", en:"Hidden"}, dir:"Michael Haneke", cast:"Juliette Binoche, Daniel Auteuil", syn:{fr:"Une famille est terrorisée par des vidéos anonymes de sa maison.", en:"A family is terrorized by anonymous surveillance videos."}, awards:{cannes:"Best Director"}, trivia:{fr:"Haneke a utilisé des plans fixes extrêmement longs.", en:"Haneke used extremely long static shots."}, img:"images/cache.png", trailer: "pvT_9TqIEtM" },
                     { title: {fr:"Les Choristes", en:"The Chorus"}, dir:"Christophe Barratier", cast:"Gérard Jugnot", syn:{fr:"Un surveillant crée une chorale pour enfants en difficulté.", en:"A teacher creates a choir for troubled children."}, awards:{oscar:"Nominated"}, trivia:{fr:"Le jeune J.B. Maunier chantait réellement ses parties.", en:"Young J.B. Maunier actually sang all his parts."}, img:"images/les-choristes.png", trailer: "qhYtVMoWFNQ" },
                     { title: {fr:"Un Prophète", en:"A Prophet"}, dir:"Jacques Audiard", cast:"Tahar Rahim", syn:{fr:"Un jeune gravit les échelons de la mafia corse en prison.", en:"A young man climbs the ranks of the mafia in prison."}, awards:{cannes:"Grand Prix", oscar:"Nominated"}, trivia:{fr:"Tahar Rahim était inconnu avant ce rôle.", en:"Tahar Rahim was unknown before this role."}, img:"images/un-prophete.png", trailer: "l69ARbQt-Ko" }
+                ],
+                decouvrir: [
+                    { title: {fr:"8 Femmes", en:"8 Women"}, year:"2002", dir:"François Ozon", cast:"Catherine Deneuve, Isabelle Huppert, Fanny Ardant", syn:{fr:"Huit femmes se retrouvent enfermées avec un cadavre dans une maison bourgeoise sous la neige.", en:"Eight women are snowed in with a corpse in a bourgeois country house."}, awards:{}, trivia:{fr:"Ozon réunit huit des plus grandes actrices françaises dans un huis-clos musical assassin.", en:"Ozon assembled eight of France's greatest actresses in a murderous musical locked-room mystery."}, img:"images/8-femmes-2002.jpg", trailer:"N3PXi6m0UTw" },
+                    { title: {fr:"Un Long Dimanche de Fiançailles", en:"A Very Long Engagement"}, year:"2004", dir:"Jean-Pierre Jeunet", cast:"Audrey Tautou, Gaspard Ulliel", syn:{fr:"Une jeune femme refuse de croire à la mort de son fiancé disparu sur le front de la Grande Guerre.", en:"A young woman refuses to believe her fiancé died in the trenches of World War I."}, awards:{oscar:"Nominated"}, trivia:{fr:"Jeunet retrouve Tautou après Amélie dans une œuvre bien plus sombre et romanesque.", en:"Jeunet reunites with Tautou after Amélie in a far darker, more romantic work."}, img:"images/un-long-dimanche-de-fiancailles-2004.jpg", trailer:"1OlX6W4sQic" },
+                    { title: {fr:"La Môme", en:"La Vie en Rose"}, year:"2007", dir:"Olivier Dahan", cast:"Marion Cotillard", syn:{fr:"La vie brisée et flamboyante d'Édith Piaf, de la rue à la gloire mondiale.", en:"The shattered and blazing life of Édith Piaf, from the streets to worldwide fame."}, awards:{oscar:"Winner"}, trivia:{fr:"Cotillard remporta l'Oscar de la meilleure actrice — une première pour un rôle en français.", en:"Cotillard won the Oscar for Best Actress — the first ever for a role performed in French."}, img:"images/la-mome-2007.jpg", trailer:"3opXXK8Udw8" },
+                    { title: {fr:"Entre les Murs", en:"The Class"}, year:"2008", dir:"Laurent Cantet", cast:"François Bégaudeau", syn:{fr:"Un professeur de français fait face à ses élèves d'un collège parisien difficile pendant une année scolaire.", en:"A French teacher navigates a turbulent school year with his students in a tough Paris middle school."}, awards:{cannes:"Palme d'Or"}, trivia:{fr:"Tourné avec de vrais élèves du 20e arrondissement jouant leurs propres personnages.", en:"Shot with real students from the 20th arrondissement playing versions of themselves."}, img:"images/entre-les-murs-2008.jpg", trailer:"VfmKiH3ZuMM" },
+                    { title: {fr:"Persepolis", en:"Persepolis"}, year:"2007", dir:"Marjane Satrapi, Vincent Paronnaud", cast:"Chiara Mastroianni, Catherine Deneuve", syn:{fr:"L'enfance et l'exil d'une jeune Iranienne à travers la révolution islamique — en animation.", en:"The childhood and exile of a young Iranian woman through the Islamic revolution — in animation."}, awards:{cannes:"Jury Prize", oscar:"Nominated"}, trivia:{fr:"Le film est dessiné en noir et blanc, fidèle à l'esthétique de la BD originale.", en:"Drawn in black and white, faithful to the aesthetic of the original graphic novel."}, img:"images/persepolis-2007.jpg", trailer:"NZ22VyjJ6n8" },
+                    { title: {fr:"Mesrine: L'Instinct de Mort", en:"Mesrine: Killer Instinct"}, year:"2008", dir:"Jean-François Richet", cast:"Vincent Cassel", syn:{fr:"La première partie de la vie criminelle de Jacques Mesrine, l'ennemi public numéro un français.", en:"The first part of Jacques Mesrine's criminal life as France's most wanted public enemy."}, awards:{}, trivia:{fr:"Cassel a gagné 20 kilos pour jouer le gangster dans la deuxième partie.", en:"Cassel gained 20 kilos to play the gangster in the second part of the diptych."}, img:"images/mesrine-l-instinct-de-mort-2008.jpg", trailer:"2FIx161gnH0" },
+                    { title: {fr:"Le Scaphandre et le Papillon", en:"The Diving Bell and the Butterfly"}, year:"2007", dir:"Julian Schnabel", cast:"Mathieu Amalric", syn:{fr:"Condamné au locked-in syndrome, Jean-Dominique Bauby dicte ses mémoires par clignement d'œil.", en:"Trapped by locked-in syndrome, Jean-Dominique Bauby dictates his memoirs by blinking one eye."}, awards:{}, trivia:{fr:"Schnabel filma largement en caméra subjective pour immerger le spectateur dans l'immobilité.", en:"Schnabel shot largely from a subjective POV to immerse viewers in total immobility."}, img:"images/le-scaphandre-et-le-papillon-2007.jpg", trailer:"lF43oDkuwJA" },
+                    { title: {fr:"Ne le Dis à Personne", en:"Tell No One"}, year:"2006", dir:"Guillaume Canet", cast:"François Cluzet, Marie-Josée Croze", syn:{fr:"Huit ans après la mort de sa femme, un médecin reçoit un email qui suggère qu'elle est encore en vie.", en:"Eight years after his wife's murder, a doctor receives an email suggesting she may still be alive."}, awards:{}, trivia:{fr:"Adapté du thriller américain de Harlan Coben, c'est un des polars français les plus vus du siècle.", en:"Adapted from Harlan Coben's American thriller, it's one of France's most-watched crime films."}, img:"images/ne-le-dis-a-personne-2006.jpg", trailer:"IAjthZhHc2o" },
+                    { title: {fr:"Paris", en:"Paris"}, year:"2008", dir:"Cédric Klapisch", cast:"Romain Duris, Juliette Binoche", syn:{fr:"Un danseur malade contemple Paris depuis sa fenêtre. Une série de destins croisés dans la capitale.", en:"A sick dancer watches Paris from his window as a web of intertwined fates plays out below."}, awards:{}, trivia:{fr:"Klapisch filme Paris comme un personnage à part entière, dans sa diversité humaine.", en:"Klapisch films Paris itself as a full character, capturing its full human diversity."}, img:"images/paris-2008.jpg", trailer:"rcSOD06HbUA" },
+                    { title: {fr:"Le Temps qui Reste", en:"Time to Leave"}, year:"2005", dir:"François Ozon", cast:"Melvil Poupaud, Jeanne Moreau", syn:{fr:"Un jeune photographe apprend qu'il est condamné et choisit de n'en parler qu'à sa grand-mère.", en:"A young photographer learns he is dying and tells only his grandmother."}, awards:{}, trivia:{fr:"Ozon signe une méditation sur l'acceptation de la mort et le refus de la pitié.", en:"Ozon delivers a meditation on accepting death and refusing pity."}, img:"images/le-temps-qui-reste-2005.jpg", trailer:"9u1jPJQ0dro" }
                 ]
             },
             {
@@ -1730,6 +2698,18 @@
                     { title: {fr:"Grave", en:"Raw"}, dir:"Julia Ducournau", cast:"Garance Marillier", syn:{fr:"Une végétarienne subit un bizutage déclenchant une faim cannibale.", en:"A vegetarian hazing triggers a cannibalistic hunger."}, awards:{cannes:"Winner"}, trivia:{fr:"Le film a causé des évanouissements à Toronto.", en:"The film caused faints during its Toronto premiere."}, img:"images/grave.png", trailer: "NFIvI3ajjN8" },
                     { title: {fr:"Intouchables", en:"The Intouchables"}, dir:"Nakache & Toledano", cast:"Omar Sy, François Cluzet", syn:{fr:"L'amitié entre un aristocrate tétraplégique et son aide à domicile.", en:"Friendship between a quadriplegic aristocrat and his caregiver."}, awards:{}, trivia:{fr:"Film français le plus vu au monde (hors France).", en:"Most-watched French film in the world (outside France)."}, img:"images/intouchables.png", trailer: "34WIbmXkewU" },
                     { title: {fr:"La Vie d'Adèle", en:"Blue Warmest Color"}, dir:"Abdellatif Kechiche", cast:"Léa Seydoux", syn:{fr:"L'histoire d'amour foudroyante entre deux jeunes femmes.", en:"The striking love story between two young women."}, awards:{cannes:"Palme d'Or"}, trivia:{fr:"Palme d'Or remise au réalisateur ET aux actrices.", en:"Palme d'Or given to the director AND actresses."}, img:"images/la-vie-dadele.png", trailer: "7yvanLYFzWw" }
+                ],
+                decouvrir: [
+                    { title: {fr:"The Artist", en:"The Artist"}, year:"2011", dir:"Michel Hazanavicius", cast:"Jean Dujardin, Bérénice Bejo", syn:{fr:"Un acteur du muet refuse de s'adapter au cinéma parlant et sombre tandis qu'une jeune star monte.", en:"A silent film actor refuses to adapt to talking pictures and falls as a young star rises."}, awards:{oscar:"Winner", cannes:"Best Actor"}, trivia:{fr:"Premier film muet en noir et blanc à remporter l'Oscar du meilleur film depuis 1927.", en:"First silent black-and-white film to win the Best Picture Oscar since 1927."}, img:"images/the-artist-2011.jpg", trailer:"YB9Oq0hn5KY" },
+                    { title: {fr:"De Rouille et d'Os", en:"Rust and Bone"}, year:"2012", dir:"Jacques Audiard", cast:"Marion Cotillard, Matthias Schoenaerts", syn:{fr:"Une dresseuse d'orques perd ses jambes. Un garde du corps taiseux entre dans sa vie.", en:"An orca trainer loses her legs. A taciturn bodyguard enters her life."}, awards:{cannes:"Nominated"}, trivia:{fr:"Audiard et Cotillard donnent au film une intensité physique et émotionnelle rare.", en:"Audiard and Cotillard bring rare physical and emotional intensity to the film."}, img:"images/de-rouille-et-d-os-2012.jpg", trailer:"3uwwJWgD6J8" },
+                    { title: {fr:"Amour", en:"Amour"}, year:"2012", dir:"Michael Haneke", cast:"Jean-Louis Trintignant, Emmanuelle Riva", syn:{fr:"Un vieux couple d'enseignants à la retraite fait face au déclin soudain de la femme après un AVC.", en:"A retired couple of music teachers face the sudden decline of the wife after a stroke."}, awards:{cannes:"Palme d'Or", oscar:"Winner"}, trivia:{fr:"Riva, à 85 ans, fut la plus âgée des nominées aux Oscars de la meilleure actrice.", en:"Riva, at 85, was the oldest-ever Best Actress Oscar nominee."}, img:"images/amour-2012.jpg", trailer:"F7D-Y3T0XFA" },
+                    { title: {fr:"Mommy", en:"Mommy"}, year:"2014", dir:"Xavier Dolan", cast:"Anne Dorval, Antoine-Olivier Pilon", syn:{fr:"Une mère récupère son fils violent et instable après son expulsion d'un centre éducatif.", en:"A mother takes back her violent, unstable son after he is expelled from a care facility."}, awards:{cannes:"Jury Prize"}, trivia:{fr:"Dolan tourne dans un format carré 1:1 — quand le film s'élargit, c'est bouleversant.", en:"Dolan shoots in square 1:1 format — the moment it expands is genuinely moving."}, img:"images/mommy-2014.jpg", trailer:"Q9LVLCYvqSI" },
+                    { title: {fr:"Mustang", en:"Mustang"}, year:"2015", dir:"Deniz Gamze Ergüven", cast:"Güneş Şensoy, Doğa Doğuşlu", syn:{fr:"Cinq sœurs en Turquie voient leur liberté progressivement confisquée par la famille.", en:"Five sisters in rural Turkey watch their freedom progressively confiscated by family."}, awards:{oscar:"Nominated"}, trivia:{fr:"Première coproduction franco-turque nominée aux Oscars pour la France.", en:"France's first Franco-Turkish co-production to receive an Oscar nomination."}, img:"images/mustang-2015.jpg", trailer:"rU9JAN8LtIk" },
+                    { title: {fr:"Elle", en:"Elle"}, year:"2016", dir:"Paul Verhoeven", cast:"Isabelle Huppert", syn:{fr:"Une PDG est violée chez elle et décide de retrouver son agresseur par ses propres moyens.", en:"A CEO is raped in her own home and decides to track down her attacker herself."}, awards:{oscar:"Nominated"}, trivia:{fr:"Huppert remporta le Golden Globe de la meilleure actrice — une surprise mondiale.", en:"Huppert won the Golden Globe for Best Actress — a worldwide surprise."}, img:"images/elle-2016.jpg", trailer:"gM96ne-XiH0" },
+                    { title: {fr:"120 Battements par Minute", en:"BPM (Beats per Minute)"}, year:"2017", dir:"Robin Campillo", cast:"Nahuel Pérez Biscayart, Arnaud Valois", syn:{fr:"Dans le Paris des années 90, des militants d'Act Up luttent contre l'indifférence face au SIDA.", en:"In 1990s Paris, Act Up activists fight against indifference towards the AIDS epidemic."}, awards:{cannes:"Grand Prix"}, trivia:{fr:"Grand Prix à Cannes, le film honore les anonymes morts du SIDA avec une rage et une tendresse rares.", en:"Winner of Cannes Grand Prix, the film honours the anonymous AIDS dead with rare rage and tenderness."}, img:"images/120-battements-par-minute-2017.jpg", trailer:"UVAw7JfTqBU" },
+                    { title: {fr:"Visages Villages", en:"Faces Places"}, year:"2017", dir:"Agnès Varda, JR", cast:"Agnès Varda, JR", syn:{fr:"La cinéaste Agnès Varda et l'artiste JR parcourent la France et photographient ses habitants.", en:"Filmmaker Agnès Varda and artist JR travel France photographing and celebrating its people."}, awards:{oscar:"Nominated"}, trivia:{fr:"À 89 ans, Varda signait l'un des documentaires les plus touchants de la décennie.", en:"At 89, Varda delivered one of the most touching documentaries of the decade."}, img:"images/visages-villages-2017.jpg", trailer:"KKbjnLpxv70" },
+                    { title: {fr:"La Famille Bélier", en:"The Bélier Family"}, year:"2014", dir:"Éric Lartigau", cast:"Louane Emera, Karin Viard", syn:{fr:"Paula, seule entendante d'une famille sourde, doit choisir entre son destin de chanteuse et sa famille.", en:"Paula, the only hearing member of a deaf family, must choose between a singing career and her family."}, awards:{}, trivia:{fr:"Louane Emera, alors inconnue, est devenue une star de la chanson française après le film.", en:"Louane Emera, then unknown, became a French pop star following the film's release."}, img:"images/la-famille-belier-2014.jpg", trailer:"S5ta3eA83F0" },
+                    { title: {fr:"Holy Motors", en:"Holy Motors"}, year:"2012", dir:"Leos Carax", cast:"Denis Lavant, Édith Scob", syn:{fr:"Un mystérieux passager traverse Paris en limousine et endosse plusieurs vies en une seule journée.", en:"A mysterious passenger crosses Paris by limousine, inhabiting many lives within a single day."}, awards:{}, trivia:{fr:"Carax et Lavant signent ensemble un film-monstre sur le jeu, l'identité et le cinéma lui-même.", en:"Carax and Lavant deliver a monster film about performance, identity, and cinema itself."}, img:"images/holy-motors-2012.jpg", trailer:"NWu9WjEcdbk" }
                 ]
             },
             {
@@ -1741,6 +2721,18 @@
                     { title: {fr:"Le Règne Animal", en:"The Animal Kingdom"}, dir:"Thomas Cailley", cast:"Romain Duris", syn:{fr:"Des humains mutent en animaux, un père cherche sa femme.", en:"Humans mutate into animals, a father searches for his wife."}, awards:{}, trivia:{fr:"Utilise des effets spéciaux pratiques.", en:"Uses practical makeup effects."}, img:"images/le-regne-animal.png", trailer: "K1pfR_IC7pU" },
                     { title: {fr:"L'Événement", en:"Happening"}, dir:"Audrey Diwan", cast:"Anamaria Vartolomei", syn:{fr:"En 1963, une étudiante décide d'avorter clandestinement.", en:"In 1963, a student seeks a clandestine abortion."}, awards:{}, trivia:{fr:"Inspiré du roman d'Annie Ernaux, Prix Nobel.", en:"Based on the novel by Nobel winner Annie Ernaux."}, img:"images/levenement.png", trailer: "eKvA9DORGOA" },
                     { title: {fr:"Saint Omer", en:"Saint Omer"}, dir:"Alice Diop", cast:"Guslagie Malanda", syn:{fr:"Une romancière suit le procès d'une mère infanticide.", en:"A novelist follows the trial of a mother."}, awards:{oscar:"Shortlisted"}, trivia:{fr:"Basé sur un véritable procès.", en:"Based on a real trial the director attended."}, img:"images/saint-omer.png", trailer: "iWw-EyrG5Sw" }
+                ],
+                decouvrir: [
+                    { title: {fr:"Annette", en:"Annette"}, year:"2021", dir:"Leos Carax", cast:"Adam Driver, Marion Cotillard", syn:{fr:"Un comédien de stand-up et une soprano ont une fille extraordinaire — un bébé de bois qui chante.", en:"A stand-up comedian and an opera singer have an extraordinary daughter — a wooden singing baby."}, awards:{cannes:"Best Director"}, trivia:{fr:"Carax est le premier réalisateur français à ouvrir le Festival de Cannes depuis la Nouvelle Vague.", en:"Carax became the first French director to open Cannes since the French New Wave."}, img:"images/annette-2021.jpg", trailer:"l_EaNpL16SU" },
+                    { title: {fr:"Athena", en:"Athena"}, year:"2022", dir:"Romain Gavras", cast:"Dali Benssalah, Sami Slimane", syn:{fr:"Après la mort de leur frère, trois frères déchirent une cité de banlieue par leurs choix opposés.", en:"After their brother's death, three brothers tear apart a housing estate with their opposing choices."}, awards:{}, trivia:{fr:"Le plan-séquence d'ouverture de 10 minutes est parmi les plus spectaculaires du cinéma récent.", en:"The 10-minute opening single shot is among the most spectacular in recent cinema."}, img:"images/athena-2022.jpg", trailer:"vRunUkdkK8s" },
+                    { title: {fr:"Pacifiction", en:"Pacifiction"}, year:"2022", dir:"Albert Serra", cast:"Benoît Magimel", syn:{fr:"Un haut-commissaire flotte entre représentation et réalité dans la Polynésie française menacée.", en:"A French high commissioner drifts between power and reality in a Polynesia threatened by nuclear tests."}, awards:{}, trivia:{fr:"Magimel incarne un personnage ambigu et solaire dans un film hypnotique de presque 3 heures.", en:"Magimel embodies an ambiguous, sun-drenched character in a hypnotic near-3-hour film."}, img:"images/pacifiction-2022.jpg", trailer:"nhElrq_XNxU" },
+                    { title: {fr:"Je Verrai Toujours Vos Visages", en:"I'll Always See Your Faces"}, year:"2023", dir:"Jeanne Herry", cast:"Adèle Exarchopoulos, Dali Benssalah", syn:{fr:"Des victimes et des auteurs de crimes participent à des cercles de justice restaurative.", en:"Victims and perpetrators of crimes participate in restorative justice circles."}, awards:{}, trivia:{fr:"Le film a relancé le débat sur la justice restaurative en France.", en:"The film reignited the debate about restorative justice in France."}, img:"images/je-verrai-toujours-vos-visages-2023.jpg", trailer:"YecNA3DW334" },
+                    { title: {fr:"Les Trois Mousquetaires: D'Artagnan", en:"The Three Musketeers: D'Artagnan"}, year:"2023", dir:"Martin Bourboulon", cast:"François Civil, Vincent Cassel", syn:{fr:"Le jeune Gascon D'Artagnan arrive à Paris et se lie aux trois mousquetaires pour servir le roi.", en:"Young Gascon D'Artagnan arrives in Paris and joins the three musketeers in service to the king."}, awards:{}, trivia:{fr:"Premier grand film de cape et d'épée français depuis des décennies, avec un budget de 72 millions.", en:"The first major French swashbuckler in decades, with a €72 million budget."}, img:"images/les-trois-mousquetaires-d-artagnan-2023.jpg", trailer:"a_OUHJziaoE" },
+                    { title: {fr:"Novembre", en:"November"}, year:"2022", dir:"Cédric Jimenez", cast:"Jean Dujardin, Anaïs Demoustier", syn:{fr:"Les cinq jours qui ont suivi les attentats du 13 novembre 2015 vus par les enquêteurs de la DGSI.", en:"The five days following the November 13, 2015 Paris attacks, seen through DGSI investigators."}, awards:{}, trivia:{fr:"Jimenez reconstitue avec précision la course contre la montre qui mena au raid de Saint-Denis.", en:"Jimenez precisely reconstructs the race against time that led to the Saint-Denis raid."}, img:"images/novembre-2022.jpg", trailer:"ZSgBlWSlu_8" },
+                    { title: {fr:"Illusions Perdues", en:"Lost Illusions"}, year:"2021", dir:"Xavier Giannoli", cast:"Benjamin Voisin, Cécile de France", syn:{fr:"Un jeune poète de province monte à Paris et se noie dans le monde corrompu de la presse et du spectacle.", en:"A young provincial poet arrives in Paris and drowns in the corrupt world of press and theatre."}, awards:{}, trivia:{fr:"Six Césars dont meilleur film — une adaptation spectaculaire de Balzac.", en:"Six Césars including Best Film — a spectacular adaptation of Balzac."}, img:"images/illusions-perdues-2021.jpg", trailer:"umiWu_sjRhg" },
+                    { title: {fr:"Petite Maman", en:"Petite Maman"}, year:"2021", dir:"Céline Sciamma", cast:"Joséphine Sanz, Gabrielle Sanz", syn:{fr:"Après la mort de sa grand-mère, une petite fille rencontre dans les bois une enfant de son âge — sa mère à 8 ans.", en:"After her grandmother's death, a little girl meets a child in the woods — her mother at age 8."}, awards:{}, trivia:{fr:"Sciamma tourne avec de vraies jumelles et signe un conte doux sur le deuil et la transmission.", en:"Sciamma shoots with real twins and delivers a gentle fairy tale about grief and inheritance."}, img:"images/petite-maman-2021.jpg", trailer:"mdORAHCydyY" },
+                    { title: {fr:"De Gaulle", en:"De Gaulle"}, year:"2020", dir:"Gabriel Le Bomin", cast:"Lambert Wilson, Isabelle Carré", syn:{fr:"Mai-juin 1940 : Charles de Gaulle refuse la défaite et part pour Londres préparer l'appel du 18 juin.", en:"May-June 1940: Charles de Gaulle refuses defeat and leaves for London to prepare his historic call."}, awards:{}, trivia:{fr:"Lambert Wilson incarne de Gaulle avec une rigueur physique et une stature saisissantes.", en:"Lambert Wilson embodies de Gaulle with striking physical rigour and commanding stature."}, img:"images/de-gaulle-2020.jpg", trailer:"7vdeUNEwbR4" },
+                    { title: {fr:"Fumer Fait Tousser", en:"Smoking Causes Coughing"}, year:"2022", dir:"Quentin Dupieux", cast:"Gilles Lellouche, Vincent Lacoste", syn:{fr:"L'équipe de Tabac Force part en retraite pour renforcer sa cohésion avant d'affronter le terrible Maëstro.", en:"The Tobacco Force team retreats to strengthen their bonds before facing the terrible villain Maestro."}, awards:{}, trivia:{fr:"Dupieux livre une comédie absurde et gore, hommage et parodie des Super Sentai.", en:"Dupieux delivers an absurdist, gory comedy that is both homage and parody of Super Sentai."}, img:"images/fumer-fait-tousser-2022.jpg", trailer:"pC9uHlEHnRo" }
                 ]
             }
         ];
@@ -1804,10 +2796,81 @@
                 </div>`;
             });
             html += `</div>`;
+
+            // --- À DÉCOUVRIR section ---
+            if (data.decouvrir && data.decouvrir.length) {
+                const toggleLabel = lang === 'fr' ? 'À découvrir' : 'Discover More';
+                html += `<div class="decouvrir-section">
+                    <div class="decouvrir-toggle" id="decouvrir-toggle-${idx}" onclick="toggleDecouvrir(${idx})">
+                        <h3>${toggleLabel}</h3>
+                        <span class="toggle-line"></span>
+                        <span class="toggle-arrow">▼</span>
+                    </div>
+                    <div class="decouvrir-grid-wrap" id="decouvrir-wrap-${idx}">
+                        <div class="decouvrir-grid">`;
+
+                data.decouvrir.forEach((m, di) => {
+                    const safeTitle = m.title[lang].replace(/'/g, "\\'");
+                    const fallbackHtml = `<div class='fallback-poster' style='background: linear-gradient(135deg, var(--accent), #222);'>${safeTitle}</div>`;
+                    html += `
+                    <div class="movie-box" onclick="openModalDecouvrir(${idx}, ${di})">
+                        <div class="movie-box-tilt-inner">
+                            <div class="movie-year-badge">${m.year}</div>
+                            <div class="img-wrapper">
+                                <img src="${m.img}" onerror="this.outerHTML=\`${fallbackHtml}\`">
+                            </div>
+                            <div class="movie-box-overlay"><h3>${m.title[lang]}</h3></div>
+                            <div class="movie-box-sheen"></div>
+                        </div>
+                        <div class="movie-box-caption">${m.title[lang]} · ${m.year}</div>
+                    </div>`;
+                });
+
+                html += `</div></div></div>`;
+            }
+
             document.getElementById('gallery').innerHTML = html;
 
             // Attach tilt effect to each newly rendered movie-box
             attachTiltCards();
+        }
+
+        function toggleDecouvrir(idx) {
+            const wrap   = document.getElementById(`decouvrir-wrap-${idx}`);
+            const toggle = document.getElementById(`decouvrir-toggle-${idx}`);
+            if (!wrap) return;
+            const isOpen = wrap.classList.contains('open');
+            wrap.classList.toggle('open', !isOpen);
+            toggle.classList.toggle('open', !isOpen);
+        }
+
+        function openModalDecouvrir(decadeIdx, movieIdx) {
+            const m = cinemaData[decadeIdx].decouvrir[movieIdx];
+            const safeTitle = m.title[lang].replace(/'/g, "\\'");
+            const fallbackHtml = `<div class='fallback-poster' style='background: linear-gradient(135deg, var(--accent), #222); font-size: 2.5rem; padding: 2rem;'>${safeTitle}</div>`;
+
+            const trailerId = m.trailer;
+            document.getElementById('m-img-container').innerHTML =
+                `<img src="${m.img}" onerror="this.outerHTML=\`${fallbackHtml}\`">
+                ${trailerId ? `<button class="play-btn-overlay" onclick="playTrailer('${trailerId}')" title="Voir la bande-annonce / Watch Trailer">
+                    <svg viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+                </button>` : ''}`;
+
+            const dirEl = document.getElementById('m-director');
+            dirEl.innerHTML = m.dir ? `${m.dir} ${icons.externalLink}` : '—';
+            dirEl.onclick   = m.dir ? () => openDirectorSpotlight(m.dir, lang) : null;
+
+            document.getElementById('m-title').innerText  = m.title[lang];
+            document.getElementById('m-cast').innerText   = m.cast   || '—';
+            document.getElementById('m-syn').innerText    = m.syn    ? m.syn[lang]    : '';
+            document.getElementById('m-trivia').innerText = m.trivia ? m.trivia[lang] : '';
+
+            document.getElementById('m-dir-label').innerText  = lang === 'fr' ? 'RÉALISATEUR' : 'DIRECTOR';
+            document.getElementById('m-cast-label').innerText = lang === 'fr' ? 'ACTEURS PRINCIPAUX' : 'STARRING';
+            document.getElementById('m-syn-label').innerText  = lang === 'fr' ? "L'HISTOIRE" : 'THE STORY';
+
+            document.getElementById('modal').style.display = 'flex';
+            wlUpdateModalBtn(m.title[lang]);
         }
 
         /* ============================================
@@ -1958,6 +3021,7 @@
             document.getElementById('m-syn-label').innerText = lang === 'fr' ? "L'HISTOIRE" : 'THE STORY';
 
             document.getElementById('modal').style.display = 'flex';
+            wlUpdateModalBtn(m.title[lang]);
         }
 
         // NEW FUNCTION: Swaps the image and button for a playing YouTube Iframe
@@ -2276,6 +3340,374 @@
                 quote: { fr: "\"Je voulais filmer le langage comme une arme et un refuge.\"", en: "\"I wanted to film language as both a weapon and a refuge.\"" },
                 imdb: "nm4456564",
                 careerStats: { totalFilms: 6, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Lion d'Argent Venise (2022 — Saint Omer)", en: "Venice Silver Lion (2022 — Saint Omer)" } }
+            },
+            "Agnès Varda": {
+                born: "1928, Ixelles", died: "2019", nationality: "🇫🇷 French-Belgian", era: "1960s–2010s",
+                tags: { fr: ["Nouvelle Vague féministe","Documentaire poétique","Regard humaniste","Cinéma artisanal"], en: ["Feminist New Wave","Poetic documentary","Humanist gaze","Handcrafted cinema"] },
+                bio: { fr: "Pionnière absolue, Varda a précédé la Nouvelle Vague avec La Pointe Courte (1955) et ne s'est jamais arrêtée. Photographe de formation, elle invente un cinéma entre documentaire et fiction, toujours du côté de l'humain et de la marge. Ses derniers films — Les Glaneurs et la Glaneuse, Visages Villages avec JR — prouvent qu'à 80 ans passés, elle était encore la plus curieuse et la plus vivante des cinéastes français.", en: "An absolute pioneer, Varda preceded the New Wave with La Pointe Courte (1955) and never stopped. Trained as a photographer, she invented a cinema between documentary and fiction, always on the side of the human and the marginal. Her later films — The Gleaners and I, Faces Places with JR — prove that past 80, she was still the most curious and alive of all French filmmakers." },
+                quote: { fr: "\"Je suis toujours entre deux, entre documentaire et fiction, entre passé et présent.\"", en: "\"I am always in between — between documentary and fiction, between past and present.\"" },
+                imdb: "nm0889513",
+                careerStats: { totalFilms: 40, oscars: 1, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Palme d'honneur Cannes (2015)", en: "Honorary Palme d'Or (2015)" } }
+            },
+            "Agnès Varda, JR": {
+                born: "Collaboration", nationality: "🇫🇷 French", era: "2010s",
+                tags: { fr: ["Road-trip humaniste","Portrait de la France","Art & cinéma","Documentaire intergénérationnel"], en: ["Humanist road trip","Portrait of France","Art & cinema","Intergenerational documentary"] },
+                bio: { fr: "Rencontre improbable entre la doyenne de la Nouvelle Vague (89 ans) et le street-artist masqué JR, Visages Villages est un road-movie documentaire à travers la France rurale et ouvrière. Les deux artistes photographient et agrandissent les visages de gens ordinaires pour les coller sur des façades et des silos. Nommé aux Oscars, le film est avant tout un poème visuel sur la rencontre, la mémoire et le temps qui passe.", en: "An improbable meeting between the doyen of the New Wave (age 89) and the masked street-artist JR, Faces Places is a documentary road-movie through rural and working-class France. The two artists photograph and enlarge the faces of ordinary people to paste onto facades and silos. Oscar-nominated, the film is above all a visual poem about encounter, memory, and time." },
+                quote: { fr: "\"On photographie ce qu'on aime.\"", en: "\"We photograph what we love.\"" },
+                imdb: "nm0889513",
+                careerStats: { totalFilms: 1, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Nommé aux Oscars du meilleur documentaire (2018)", en: "Oscar nominated for Best Documentary (2018)" } }
+            },
+            "Alain Cavalier": {
+                born: "1931, Vendôme", nationality: "🇫🇷 French", era: "1960s–2000s",
+                tags: { fr: ["Cinéma intime","Journal filmé","Minimalisme radical","Caméra DV"], en: ["Intimate cinema","Filmed diary","Radical minimalism","DV camera"] },
+                bio: { fr: "Après une carrière classique, Cavalier a tout réinventé dans les années 80 en filmant seul, avec une caméra légère, des sujets intimes et spirituels. Thérèse (1986) — film sur la vie de sainte Thérèse de Lisieux, tourné en huis clos total avec une lumière naturelle — est un chef-d'œuvre du minimalisme sacré, récompensé du Prix du jury à Cannes. Son œuvre tardive, entièrement en DV, préfigure le cinéma du réel contemporain.", en: "After a conventional career, Cavalier reinvented himself in the 1980s, filming alone with a light camera on intimate and spiritual subjects. Thérèse (1986) — a film on the life of Saint Thérèse of Lisieux, shot entirely in confined space with natural light — is a masterpiece of sacred minimalism, awarded the Jury Prize at Cannes. His later DV work anticipated contemporary observational cinema." },
+                quote: { fr: "\"Je filme pour ne pas oublier.\"", en: "\"I film so as not to forget.\"" },
+                imdb: "nm0146116",
+                careerStats: { totalFilms: 20, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix du jury (1986 — Thérèse)", en: "Jury Prize (1986 — Thérèse)" } }
+            },
+            "Alain Resnais": {
+                born: "1922, Vannes", died: "2014", nationality: "🇫🇷 French", era: "1950s–2010s",
+                tags: { fr: ["Mémoire & temps","Montage expérimental","Rive gauche","Deuil & identité"], en: ["Memory & time","Experimental editing","Left Bank","Grief & identity"] },
+                bio: { fr: "Avec Hiroshima mon amour (1959) et L'Année dernière à Marienbad (1961), Resnais a révolutionné la notion de temps au cinéma. Collaborateur de grands écrivains (Duras, Robbe-Grillet, Semprun), il explore inlassablement la mémoire traumatique, le deuil et l'oubli. Nuit et Brouillard, son court-métrage sur les camps de concentration, reste l'un des documents audiovisuels les plus bouleversants jamais réalisés.", en: "With Hiroshima mon amour (1959) and Last Year at Marienbad (1961), Resnais revolutionized the cinematic treatment of time. Working with great writers (Duras, Robbe-Grillet, Semprun), he relentlessly explored traumatic memory, grief, and forgetting. Night and Fog, his short film on the concentration camps, remains one of the most devastating audiovisual documents ever made." },
+                quote: { fr: "\"Le passé ne disparaît pas, il se superpose au présent.\"", en: "\"The past does not disappear — it overlaps the present.\"" },
+                imdb: "nm0722636",
+                careerStats: { totalFilms: 20, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Lion d'Or Venise (1961 — L'Année dernière à Marienbad)", en: "Venice Golden Lion (1961 — Last Year at Marienbad)" } }
+            },
+            "Albert Serra": {
+                born: "1975, Banyoles", nationality: "🇪🇸 Spanish", era: "2000s–2020s",
+                tags: { fr: ["Cinéma de contemplation","Durée extrême","Récit déconstruit","Caméra numérique"], en: ["Contemplative cinema","Extreme duration","Deconstructed narrative","Digital camera"] },
+                bio: { fr: "Catalan iconoclaste, Serra est l'un des cinéastes les plus singuliers de sa génération. Ses films — longs, hypnotiques, souvent sans récit classique — explorent la puissance rituelle de l'image. Pacifiction, son œuvre la plus accessible, est un film de pouvoir et de menace diffuse en Polynésie française, porté par Benoît Magimel dans un rôle de haute représentation ambigu et solaire.", en: "An iconoclastic Catalan, Serra is one of the most singular filmmakers of his generation. His films — long, hypnotic, often without conventional narrative — explore the ritual power of the image. Pacifiction, his most accessible work, is a film of power and diffuse menace in French Polynesia, carried by Benoît Magimel in an ambiguous, sun-drenched role of high representation." },
+                quote: { fr: "\"Le temps est mon seul outil.\"", en: "\"Time is my only tool.\"" },
+                imdb: "nm1603580",
+                careerStats: { totalFilms: 8, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Un Certain Regard, Cannes 2022 (Pacifiction)", en: "Un Certain Regard, Cannes 2022 (Pacifiction)" } }
+            },
+            "Bertrand Blier": {
+                born: "1939, Paris", nationality: "🇫🇷 French", era: "1970s–2000s",
+                tags: { fr: ["Provocation","Dialogue culte","Cinéma de rupture","Depardieu & Dewaere"], en: ["Provocation","Cult dialogue","Rupture cinema","Depardieu & Dewaere"] },
+                bio: { fr: "Fils du comédien Bernard Blier, Bertrand a construit une œuvre scandaleuse et jouissive. Les Valseuses (1974) — avec Depardieu et Dewaere en liberté totale — a choqué la France entière et lancé une génération d'acteurs. Son cinéma, cru et transgressif, joue avec les conventions pour mieux les dynamiter. Trop Belle pour Toi, son film le plus touchant, est une déclaration d'amour aussi absurde que sincère.", en: "Son of actor Bernard Blier, Bertrand built a scandalous and joyful body of work. Going Places (1974) — with Depardieu and Dewaere in total freedom — shocked all of France and launched a generation of actors. His raw, transgressive cinema plays with conventions in order to blow them up. Too Beautiful for You, his most touching film, is a love declaration as absurd as it is sincere." },
+                quote: { fr: "\"Je ne cherche pas à plaire. Je cherche à déranger.\"", en: "\"I don't seek to please. I seek to unsettle.\"" },
+                imdb: "nm0000955",
+                careerStats: { totalFilms: 18, oscars: 1, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "César du meilleur film (1990 — Trop Belle pour Toi)", en: "César Best Film (1990 — Too Beautiful for You)" } }
+            },
+            "Bertrand Tavernier": {
+                born: "1941, Lyon", died: "2021", nationality: "🇫🇷 French", era: "1970s–2010s",
+                tags: { fr: ["Cinéma humaniste","Histoire de France","Critique sociale","Adaptations littéraires"], en: ["Humanist cinema","French history","Social critique","Literary adaptations"] },
+                bio: { fr: "Cinéphile et historien du cinéma avant d'être réalisateur, Tavernier a construit une œuvre dense ancrée dans l'histoire et les fractures sociales de la France. L'Horloger de Saint-Paul, Que la Fête Commence, Un Dimanche à la Campagne — autant de films qui mêlent précision documentaire et humanisme chaleureux. Son monumental Voyage à travers le Cinéma Français (2016) est un testament d'amour.", en: "A cinephile and film historian before being a director, Tavernier built a dense body of work rooted in French history and social fractures. The Clockmaker of Saint-Paul, Let Joy Reign Supreme, Sunday in the Country — films that blend documentary precision and warm humanism. His monumental My Journey Through French Cinema (2016) is a love testament." },
+                quote: { fr: "\"Le cinéma, c'est une façon de regarder le monde avec les yeux grands ouverts.\"", en: "\"Cinema is a way of looking at the world with wide-open eyes.\"" },
+                imdb: "nm0851720",
+                careerStats: { totalFilms: 25, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix du jury (1984 — Un Dimanche à la Campagne)", en: "Jury Prize (1984 — Sunday in the Country)" } }
+            },
+            "Bruno Nuytten": {
+                born: "1945, Paris", nationality: "🇫🇷 French", era: "1980s",
+                tags: { fr: ["Directeur de la photo devenu réalisateur","Portrait de femme","Drame biographique","Intimité et folie"], en: ["Cinematographer turned director","Female portrait","Biographical drama","Intimacy and madness"] },
+                bio: { fr: "Directeur de la photographie de génie (Diva, Possession), Nuytten n'a réalisé qu'un seul long métrage — Camille Claudel (1988) — et c'est un chef-d'œuvre. Avec Isabelle Adjani dans un rôle habité et douloureux, il reconstitue la vie et la lente destruction de la sculptrice par sa passion pour Rodin et le milieu artistique. Un film unique, d'une puissance rare.", en: "A genius cinematographer (Diva, Possession), Nuytten directed only one feature film — Camille Claudel (1988) — and it is a masterpiece. With Isabelle Adjani in a haunted, painful role, he reconstructs the life and slow destruction of the sculptor by her passion for Rodin and the art world. A singular film of rare power." },
+                quote: { fr: "\"Je voulais filmer la sculpture comme on filme un corps vivant.\"", en: "\"I wanted to film sculpture the way you film a living body.\"" },
+                imdb: "nm0638518",
+                careerStats: { totalFilms: 1, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Nommé aux Oscars (1989 — Camille Claudel)", en: "Oscar nominated (1989 — Camille Claudel)" } }
+            },
+            "Claude Berri": {
+                born: "1934, Paris", died: "2009", nationality: "🇫🇷 French", era: "1970s–2000s",
+                tags: { fr: ["Cinéma populaire","Adaptations de Pagnol","Fresque provençale","Producteur majeur"], en: ["Popular cinema","Pagnol adaptations","Provençal fresco","Major producer"] },
+                bio: { fr: "Acteur, réalisateur et producteur, Berri est une figure centrale du cinéma français. Jean de Florette et Manon des Sources (1986) — adaptation magistrale de Pagnol, avec Montand, Auteuil et Béart — constituent l'une des fresques les plus populaires et les plus accomplies du cinéma français. Comme producteur, il a soutenu des auteurs exigeants (Polanski, Blier) tout en touchant des millions de spectateurs.", en: "Actor, director, and producer, Berri is a central figure in French cinema. Jean de Florette and Manon of the Spring (1986) — a masterful Pagnol adaptation with Montand, Auteuil, and Béart — form one of the most popular and accomplished frescoes in French cinema. As a producer, he supported demanding auteurs (Polanski, Blier) while reaching millions of viewers." },
+                quote: { fr: "\"Je fais des films pour le plus grand nombre, sans jamais trahir l'auteur.\"", en: "\"I make films for the widest audience without ever betraying the author.\"" },
+                imdb: "nm0000938",
+                careerStats: { totalFilms: 16, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "César du meilleur film (1987 — Jean de Florette)", en: "César Best Film (1987 — Jean de Florette)" } }
+            },
+            "Claude Chabrol": {
+                born: "1930, Paris", died: "2010", nationality: "🇫🇷 French", era: "1960s–2000s",
+                tags: { fr: ["Thriller bourgeois","Ironie grinçante","Province française","Hitchcock français"], en: ["Bourgeois thriller","Biting irony","French province","French Hitchcock"] },
+                bio: { fr: "Cofondateur de la Nouvelle Vague avec Les Cousins (1959), Chabrol a développé un genre à lui seul : le thriller de mœurs bourgeois, glacial et ironique. Ses films — Le Boucher, La Cérémonie, Violette Nozière — dissèquent la respectabilité provinciale pour en révéler la violence cachée. Surnommé le Hitchcock français, il a livré plus de 50 films avec une régularité et une maîtrise absolues.", en: "Co-founder of the New Wave with Les Cousins (1959), Chabrol developed a genre entirely his own: the icy, ironic bourgeois thriller. His films — The Butcher, La Cérémonie, Violette Nozière — dissect provincial respectability to reveal its hidden violence. Nicknamed the 'French Hitchcock', he delivered over 50 films with absolute consistency and mastery." },
+                quote: { fr: "\"Le public veut être surpris par ce qu'il attend.\"", en: "\"The audience wants to be surprised by what it expects.\"" },
+                imdb: "nm0001009",
+                careerStats: { totalFilms: 54, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Ours d'or Berlin (1959 — Les Cousins)", en: "Berlin Golden Bear (1959 — Les Cousins)" } }
+            },
+            "Claude Sautet": {
+                born: "1924, Montrouge", died: "2000", nationality: "🇫🇷 French", era: "1970s–90s",
+                tags: { fr: ["Chronique du quotidien","Amitié virile","Mélancolie douce","Michel Piccoli & Romy Schneider"], en: ["Chronicle of the everyday","Virile friendship","Gentle melancholy","Michel Piccoli & Romy Schneider"] },
+                bio: { fr: "Discret et attachant, Sautet est le portraitiste par excellence de la bourgeoisie française des années 70. Ses films — Les Choses de la Vie, César et Rosalie, Un Cœur en Hiver — filment les dilemmes du désir et de l'amitié avec une tendresse sobre et une précision d'orfèvre. Ses duos d'acteurs (Piccoli/Schneider, Montand/Deneuve) sont parmi les plus beaux de l'histoire du cinéma français.", en: "Discreet and endearing, Sautet is the supreme portraitist of the French bourgeoisie of the 1970s. His films — The Things of Life, César and Rosalie, A Heart in Winter — depict the dilemmas of desire and friendship with sober tenderness and goldsmith's precision. His actor duos (Piccoli/Schneider, Montand/Deneuve) are among the finest in French cinema history." },
+                quote: { fr: "\"Ce qui m'intéresse, c'est la vibration des gens ordinaires.\"", en: "\"What interests me is the vibration of ordinary people.\"" },
+                imdb: "nm0769128",
+                careerStats: { totalFilms: 12, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "César d'honneur (1997)", en: "Honorary César (1997)" } }
+            },
+            "Cédric Jimenez": {
+                born: "1976, Marseille", nationality: "🇫🇷 French", era: "2010s–2020s",
+                tags: { fr: ["Thriller policier","Reconstitution historique","Marseille","Cinéma de genre exigeant"], en: ["Police thriller","Historical reconstruction","Marseille","Demanding genre cinema"] },
+                bio: { fr: "Spécialiste du polar français ancré dans des faits réels, Jimenez s'est imposé avec La French (2014) et Bac Nord (2020). Novembre, son film sur les cinq jours qui ont suivi les attentats du 13 novembre 2015, est une reconstitution précise et haletante de la traque des terroristes par la DGSI, portée par Jean Dujardin dans un rôle sobre et tendu.", en: "A specialist in French crime films rooted in real events, Jimenez established himself with The Connection (2014) and BAC Nord (2020). November, his film on the five days following the November 13, 2015 attacks, is a precise, breathless reconstruction of the hunt for the terrorists by France's DGSI, carried by Jean Dujardin in a sober, tense performance." },
+                quote: { fr: "\"Je veux faire des films qui respectent ceux qui ont vécu ces événements.\"", en: "\"I want to make films that respect those who lived through these events.\"" },
+                imdb: "nm1803781",
+                careerStats: { totalFilms: 5, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Sélection Cannes Midnight Screenings (2021)", en: "Cannes Midnight Screenings selection (2021)" } }
+            },
+            "Cédric Klapisch": {
+                born: "1961, Neuilly-sur-Seine", nationality: "🇫🇷 French", era: "1990s–2020s",
+                tags: { fr: ["Comédie chorale","Jeunesse & errance","Paris & Europe","Chaleur humaine"], en: ["Choral comedy","Youth & wandering","Paris & Europe","Human warmth"] },
+                bio: { fr: "Auteur populaire et attachant, Klapisch est le spécialiste du film choral sur la jeunesse et l'amitié. L'Auberge Espagnole (2002) et ses suites ont capturé l'esprit d'une génération Erasmus, européenne et nomade. Chacun Cherche son Chat, son film de quartier parisien, reste une petite merveille de tendresse documentaire sur la communauté urbaine.", en: "A popular and endearing filmmaker, Klapisch specializes in choral films about youth and friendship. The Spanish Apartment (2002) and its sequels captured the spirit of an Erasmus generation — European and nomadic. When the Cat's Away, his Parisian neighbourhood film, remains a small marvel of documentary tenderness about urban community." },
+                quote: { fr: "\"Je fais des films pour ceux qui cherchent leur place dans le monde.\"", en: "\"I make films for those who are searching for their place in the world.\"" },
+                imdb: "nm0459429",
+                careerStats: { totalFilms: 14, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "César du meilleur scénario (1997 — Chacun Cherche son Chat)", en: "César Best Screenplay (1997 — When the Cat's Away)" } }
+            },
+            "Deniz Gamze Ergüven": {
+                born: "1978, Ankara", nationality: "🇹🇷🇫🇷 Turkish-French", era: "2010s",
+                tags: { fr: ["Condition féminine","Turquie contemporaine","Sororité","Premier film fulgurant"], en: ["Women's condition","Contemporary Turkey","Sisterhood","Blazing debut"] },
+                bio: { fr: "Diplômée de la Fémis à Paris, Ergüven a réalisé avec Mustang (2015) l'un des premiers films les plus remarqués de la décennie. L'histoire de cinq sœurs turques dont la liberté est progressivement confisquée est une fable à la fois douce et furieuse, nommée aux Oscars pour la France. Son regard empathique sur ces jeunes femmes prisonnières de leur propre maison est d'une justesse bouleversante.", en: "A graduate of La Fémis in Paris, Ergüven made with Mustang (2015) one of the most acclaimed debut features of the decade. The story of five Turkish sisters whose freedom is progressively confiscated is a fable at once gentle and furious, Oscar-nominated for France. Her empathetic gaze on these young women imprisoned in their own home is devastatingly precise." },
+                quote: { fr: "\"Ces filles, c'est toutes les femmes qui ont dû se battre pour exister.\"", en: "\"These girls are every woman who had to fight just to exist.\"" },
+                imdb: "nm3430231",
+                careerStats: { totalFilms: 2, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Nommé aux Oscars du meilleur film étranger (2016)", en: "Oscar nominated Best Foreign Film (2016)" } }
+            },
+            "Diane Kurys": {
+                born: "1948, Lyon", nationality: "🇫🇷 French", era: "1970s–90s",
+                tags: { fr: ["Cinéma autobiographique","Enfance féminine","Années 50-60","Regard intime"], en: ["Autobiographical cinema","Female childhood","1950s–60s","Intimate gaze"] },
+                bio: { fr: "Actrice reconvertie en cinéaste, Kurys a ouvert la voie au cinéma autobiographique féminin en France avec Diabolo Menthe (1977) — chronique tendre et précise de l'adolescence féminine dans le Paris des années 60. Elle a été parmi les premières femmes à s'imposer comme auteure dans le paysage cinématographique français, avec une sincérité désarmante.", en: "An actress turned filmmaker, Kurys pioneered autobiographical women's cinema in France with Peppermint Soda (1977) — a tender, precise chronicle of female adolescence in 1960s Paris. She was among the first women to establish herself as an auteur in the French cinematic landscape, with disarming sincerity." },
+                quote: { fr: "\"Je filme ce dont je me souviens, pour ne pas l'oublier.\"", en: "\"I film what I remember, so as not to forget it.\"" },
+                imdb: "nm0477032",
+                careerStats: { totalFilms: 10, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Prix Louis-Delluc (1977 — Diabolo Menthe)", en: "Louis-Delluc Prize (1977 — Peppermint Soda)" } }
+            },
+            "Francis Veber": {
+                born: "1937, Neuilly-sur-Seine", nationality: "🇫🇷 French", era: "1970s–2000s",
+                tags: { fr: ["Comédie de boulevard","Duos comiques","Quiproquos","Humour universel"], en: ["Boulevard comedy","Comic duos","Mix-ups","Universal humour"] },
+                bio: { fr: "Scénariste d'exception avant d'être réalisateur, Veber est le maître de la comédie française basée sur le duo comique en conflit. Le Dîner de Cons (1998) — adaptation de sa propre pièce — est l'un des plus grands succès du cinéma comique français, adapté dans une dizaine de pays. Son sens du timing, de la chute et du personnage pathétique-attachant est incomparable.", en: "An exceptional screenwriter before becoming a director, Veber is the master of French comedy based on the conflicted comic duo. The Dinner Game (1998) — adapted from his own play — is one of the greatest successes of French comedy, remade in over a dozen countries. His sense of timing, punchline, and pathetically likeable character is unmatched." },
+                quote: { fr: "\"Un personnage comique réussi, c'est quelqu'un qu'on plaint autant qu'on en rit.\"", en: "\"A successful comic character is someone you pity as much as you laugh at.\"" },
+                imdb: "nm0892379",
+                careerStats: { totalFilms: 11, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "César du meilleur scénario original (1999 — Le Dîner de Cons)", en: "César Best Original Screenplay (1999 — The Dinner Game)" } }
+            },
+            "François Ozon": {
+                born: "1967, Paris", nationality: "🇫🇷 French", era: "1990s–2020s",
+                tags: { fr: ["Cinéma du désir","Identité & genre","Thriller psychologique","Provocation élégante"], en: ["Cinema of desire","Identity & gender","Psychological thriller","Elegant provocation"] },
+                bio: { fr: "Prolificité et polyvalence : Ozon est l'un des cinéastes français les plus actifs de sa génération, capable de passer du thriller érotique (Swimming Pool) à la comédie musicale (8 Femmes) en passant par le drame intime. Son regard sur les corps, le désir et les secrets de famille est à la fois troublant et jouissif. Avec Grâce à Dieu (2018), il a affronté la pédophilie dans l'Église avec une rigueur documentaire exemplaire.", en: "Prolific and versatile, Ozon is one of the most active French filmmakers of his generation, capable of moving from erotic thriller (Swimming Pool) to musical comedy (8 Women) to intimate drama. His gaze on bodies, desire, and family secrets is both troubling and pleasurable. With By the Grace of God (2018), he tackled Church paedophilia with exemplary documentary rigor." },
+                quote: { fr: "\"Le cinéma m'a permis de comprendre le désir avant même de le vivre.\"", en: "\"Cinema allowed me to understand desire before I even lived it.\"" },
+                imdb: "nm0654030",
+                careerStats: { totalFilms: 24, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Ours d'argent Berlin (2019 — Grâce à Dieu)", en: "Berlin Silver Bear (2019 — By the Grace of God)" } }
+            },
+            "Gabriel Le Bomin": {
+                born: "1972, France", nationality: "🇫🇷 French", era: "2010s–2020s",
+                tags: { fr: ["Drame historique","Reconstitution rigoureuse","Figures françaises","Lambert Wilson"], en: ["Historical drama","Rigorous reconstruction","French figures","Lambert Wilson"] },
+                bio: { fr: "Réalisateur rigoureux spécialisé dans le drame historique français, Le Bomin a signé avec De Gaulle (2020) une œuvre d'une sobriété et d'une intensité rares. Lambert Wilson, dans une ressemblance saisissante, incarne le général dans les journées décisives de mai-juin 1940 où il a refusé la capitulation et préparé son appel historique de Londres.", en: "A rigorous director specializing in French historical drama, Le Bomin made with De Gaulle (2020) a work of rare sobriety and intensity. Lambert Wilson, in striking resemblance, plays the general during the decisive days of May-June 1940 when he refused capitulation and prepared his historic call from London." },
+                quote: { fr: "\"Je voulais filmer un homme face à l'histoire, pas l'histoire face à un homme.\"", en: "\"I wanted to film a man facing history, not history facing a man.\"" },
+                imdb: "nm0493561",
+                careerStats: { totalFilms: 4, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Sélection officielle Unifrance", en: "Official Unifrance selection" } }
+            },
+            "Guillaume Canet": {
+                born: "1973, Boulogne-Billancourt", nationality: "🇫🇷 French", era: "2000s–2020s",
+                tags: { fr: ["Thriller haletant","Cinéma populaire ambitieux","Acteur-réalisateur","Amitié masculine"], en: ["Gripping thriller","Ambitious popular cinema","Actor-director","Male friendship"] },
+                bio: { fr: "Acteur parmi les plus bankables du cinéma français, Canet est aussi un réalisateur populaire de talent. Ne le Dis à Personne (2006) — adaptation du thriller d'Harlan Coben — est l'un des thrillers les plus efficaces de la décennie, cumulant 4 millions d'entrées. Les Petits Mouchoirs (2010), chronique estivale sur l'amitié et le deuil, a touché un public encore plus large.", en: "One of the most bankable actors in French cinema, Canet is also a talented popular director. Tell No One (2006) — adapting Harlan Coben's thriller — is one of the most effective thrillers of the decade, drawing 4 million viewers. The Little White Lies (2010), a summer chronicle about friendship and grief, reached an even wider audience." },
+                quote: { fr: "\"Je fais des films que j'aurais envie de voir en tant que spectateur.\"", en: "\"I make films I would want to see as a viewer.\"" },
+                imdb: "nm0132430",
+                careerStats: { totalFilms: 6, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "César du meilleur réalisateur (2007 — Ne le Dis à Personne)", en: "César Best Director (2007 — Tell No One)" } }
+            },
+            "Jaco Van Dormael": {
+                born: "1957, Ixelles", nationality: "🇧🇪 Belgian", era: "1990s–2010s",
+                tags: { fr: ["Fantaisie mélancolique","Récit non-linéaire","Identité & mémoire","Cinéma du merveilleux"], en: ["Melancholic fantasy","Non-linear narrative","Identity & memory","Cinema of the marvellous"] },
+                bio: { fr: "Auteur belge rare et précieux, Van Dormael construit des films-monde à la poésie visuelle unique. Toto le Héros (1991) a révélé un regard d'une originalité absolue sur l'enfance, la jalousie et le destin. Mr. Nobody (2009), fresque temporelle avec Jared Leto sur les vies possibles, est l'un des films de science-fiction les plus ambitieux et les plus émouvants de sa décennie.", en: "A rare and precious Belgian filmmaker, Van Dormael builds world-films with unique visual poetry. Toto the Hero (1991) revealed an absolutely original perspective on childhood, jealousy, and fate. Mr. Nobody (2009), a temporal epic with Jared Leto on possible lives, is one of the most ambitious and moving science-fiction films of its decade." },
+                quote: { fr: "\"Je crois aux histoires qui n'auraient pas pu être racontées autrement.\"", en: "\"I believe in stories that couldn't have been told any other way.\"" },
+                imdb: "nm0889758",
+                careerStats: { totalFilms: 5, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Caméra d'or Cannes (1991 — Toto le Héros)", en: "Cannes Caméra d'Or (1991 — Toto the Hero)" } }
+            },
+            "Jean Eustache": {
+                born: "1938, Pessac", died: "1981", nationality: "🇫🇷 French", era: "1970s",
+                tags: { fr: ["Cinéma vérité","Autobiographie brute","La Maman et la Putain","Nouvelle Vague tardive"], en: ["Cinéma vérité","Raw autobiography","The Mother and the Whore","Late New Wave"] },
+                bio: { fr: "Auteur maudit et génial, Eustache a laissé une œuvre infime mais écrasante. La Maman et la Putain (1973) — 3h40 de dialogues filmés en noir et blanc dans les cafés de Saint-Germain — est considéré comme l'un des chefs-d'œuvre absolus du cinéma mondial. Portrait d'une génération post-68 désenchantée, d'une liberté et d'une cruauté rares. Eustache mourra à 42 ans, laissant derrière lui un mythe.", en: "A cursed and brilliant auteur, Eustache left a tiny but overwhelming body of work. The Mother and the Whore (1973) — 3h40 of dialogue filmed in black-and-white in Saint-Germain cafés — is considered one of the absolute masterpieces of world cinema. A portrait of a disillusioned post-68 generation, possessing rare freedom and cruelty. Eustache died at 42, leaving behind a myth." },
+                quote: { fr: "\"Je ne filme pas la réalité. Je filme ce qui ressemble à la réalité.\"", en: "\"I don't film reality. I film what resembles reality.\"" },
+                imdb: "nm0263751",
+                careerStats: { totalFilms: 6, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Grand Prix spécial du jury Cannes (1973)", en: "Cannes Special Grand Jury Prize (1973)" } }
+            },
+            "Jean-François Richet": {
+                born: "1966, Clichy-sous-Bois", nationality: "🇫🇷 French", era: "1990s–2010s",
+                tags: { fr: ["Cinéma de banlieue","Action engagée","Biopic criminel","Regard des marges"], en: ["Suburban cinema","Committed action","Criminal biopic","View from the margins"] },
+                bio: { fr: "Né en banlieue parisienne, Richet filme avec une authenticité rare le monde des marges et de la violence sociale. Ma 6-T Va Crack-er (1997) — tourné avec des non-professionnels dans les cités — est un document brut et politique. L'Ennemi Public N°1, son diptyque sur Jacques Mesrine avec Vincent Cassel, est un tour de force du cinéma de genre français, à la fois spectaculaire et psychologiquement dense.", en: "Born in the Parisian suburbs, Richet films the world of the margins and social violence with rare authenticity. My 6-T Gonna Crack (1997) — shot with non-professionals in housing projects — is a raw political document. The two-part Public Enemy No.1, on Jacques Mesrine with Vincent Cassel, is a tour de force of French genre cinema: spectacular and psychologically dense." },
+                quote: { fr: "\"Je filme les invisibles pour qu'on les voie.\"", en: "\"I film the invisible so they may be seen.\"" },
+                imdb: "nm0726765",
+                careerStats: { totalFilms: 8, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Sélection Un Certain Regard (1997)", en: "Un Certain Regard selection (1997)" } }
+            },
+            "Jean-Pierre & Luc Dardenne": {
+                born: "Liège, Belgique", nationality: "🇧🇪 Belgian", era: "1990s–2020s",
+                tags: { fr: ["Réalisme social","Caméra à l'épaule","Belgique industrielle","Double Palme d'Or"], en: ["Social realism","Handheld camera","Industrial Belgium","Double Palme d'Or"] },
+                bio: { fr: "Les frères Dardenne sont les seuls cinéastes à avoir remporté la Palme d'Or à deux reprises (Rosetta, 1999 ; L'Enfant, 2005). Leur méthode — caméra portée, acteurs inconnus, situations limites sans musique extérieure — plonge le spectateur dans une immédiateté morale rarement atteinte. Leurs héros sont toujours des gens ordinaires confrontés à des choix impossibles, dans une Belgique industrielle oubliée.", en: "The Dardenne brothers are the only filmmakers to have won the Palme d'Or twice (Rosetta, 1999; The Child, 2005). Their method — handheld camera, unknown actors, extreme situations without external music — plunges the viewer into a moral immediacy rarely achieved. Their heroes are always ordinary people confronted with impossible choices, in a forgotten industrial Belgium." },
+                quote: { fr: "\"Nous ne jugeons pas nos personnages. Nous les accompagnons.\"", en: "\"We don't judge our characters. We accompany them.\"" },
+                imdb: "nm0200076",
+                careerStats: { totalFilms: 10, oscars: 0, goldenGlobes: 0, cannesWins: 2, cannesNote: { fr: "Double Palme d'Or (1999, 2005)", en: "Double Palme d'Or (1999, 2005)" } }
+            },
+            "Jeanne Herry": {
+                born: "1978, Paris", nationality: "🇫🇷 French", era: "2010s–2020s",
+                tags: { fr: ["Cinéma social humaniste","Adoption & famille","Justice restaurative","Films choraux"], en: ["Humanist social cinema","Adoption & family","Restorative justice","Choral films"] },
+                bio: { fr: "Fille de la comédienne Miou-Miou, Herry s'est imposée comme une voix singulière du cinéma social français. Pupille (2018) — sur l'adoption d'un nouveau-né — est un film choral d'une précision documentaire et d'une générosité rare. Je Verrai Toujours Vos Visages (2023) a abordé avec la même rigueur la justice restaurative, en réunissant victimes et auteurs de crimes dans un dispositif aussi courageux qu'émouvant.", en: "Daughter of actress Miou-Miou, Herry has established herself as a singular voice in French social cinema. Pupille (2018) — about a newborn adoption — is a choral film of documentary precision and rare generosity. I'll Always See Your Faces (2023) addressed restorative justice with the same rigor, bringing together crime victims and perpetrators in a device as courageous as it is moving." },
+                quote: { fr: "\"Le cinéma, c'est la possibilité de comprendre ce qu'on ne pourrait pas vivre.\"", en: "\"Cinema is the possibility of understanding what we couldn't live ourselves.\"" },
+                imdb: "nm1469233",
+                careerStats: { totalFilms: 3, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "César du meilleur film (2019 — Pupille)", en: "César Best Film (2019 — Pupille)" } }
+            },
+            "Julian Schnabel": {
+                born: "1951, New York", nationality: "🇺🇸 American", era: "1990s–2000s",
+                tags: { fr: ["Biopics d'artistes","Cinéma sensoriel","Subjectivité radicale","Peintre cinéaste"], en: ["Artist biopics","Sensory cinema","Radical subjectivity","Painter-filmmaker"] },
+                bio: { fr: "Peintre néo-expressionniste de renommée mondiale, Schnabel est aussi un cinéaste d'exception. Le Scaphandre et le Papillon (2007) — adapté du livre de Jean-Dominique Bauby, qui l'avait dicté en clignant d'un œil — est un tour de force technique et émotionnel tourné en grande partie en France. La mise en scène subjective — tout vu depuis l'œil valide de Bauby — crée une expérience de cinéma unique.", en: "A world-renowned neo-expressionist painter, Schnabel is also an exceptional filmmaker. The Diving Bell and the Butterfly (2007) — adapted from Jean-Dominique Bauby's book, dictated by blinking one eye — is a technical and emotional tour de force shot largely in France. The subjective direction — everything seen from Bauby's one functioning eye — creates a unique cinematic experience." },
+                quote: { fr: "\"Je peins et je filme pour les mêmes raisons : pour sentir que je vis.\"", en: "\"I paint and film for the same reason: to feel that I'm alive.\"" },
+                imdb: "nm0772109",
+                careerStats: { totalFilms: 6, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix de la mise en scène Cannes (2007 — Le Scaphandre et le Papillon)", en: "Cannes Best Director (2007 — The Diving Bell and the Butterfly)" } }
+            },
+            "Laurent Cantet": {
+                born: "1961, Melle", died: "2024", nationality: "🇫🇷 French", era: "2000s–2010s",
+                tags: { fr: ["Cinéma du travail","École & société","Palme d'Or","Humanisme engagé"], en: ["Cinema of labour","School & society","Palme d'Or","Committed humanism"] },
+                bio: { fr: "Spécialiste du cinéma social ancré dans le monde du travail, Cantet a remporté la Palme d'Or avec Entre les Murs (2008) — film sur un professeur de français dans un collège difficile de Paris, tourné avec de vrais élèves pendant un an. Ce documentaire-fiction sur l'école comme microcosme de la société française est d'une justesse et d'une honnêteté rares.", en: "A specialist in social cinema rooted in the world of work, Cantet won the Palme d'Or with The Class (2008) — a film about a French teacher in a difficult Paris middle school, shot with real students over a year. This documentary-fiction about school as microcosm of French society is rare in its precision and honesty." },
+                quote: { fr: "\"L'école, c'est le seul endroit où on peut encore parler de tout.\"", en: "\"School is the only place where you can still talk about everything.\"" },
+                imdb: "nm0134412",
+                careerStats: { totalFilms: 8, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Palme d'Or (2008 — Entre les Murs)", en: "Palme d'Or (2008 — The Class)" } }
+            },
+            "Manuel Poirier": {
+                born: "1953, Lima", nationality: "🇵🇪🇫🇷 Peruvian-French", era: "1990s–2000s",
+                tags: { fr: ["Road-movie breton","Cinéma des sans-voix","Duo d'errants","Naturalisme doux"], en: ["Breton road movie","Cinema of the voiceless","Duo of wanderers","Gentle naturalism"] },
+                bio: { fr: "Né au Pérou et installé en France, Poirier filme avec douceur et empathie les laissés-pour-compte de la société française. Western (1997) — Prix du jury à Cannes — est un road-movie atypique dans la Bretagne profonde, où un immigré espagnol et un routard slovaque traversent paysages et rencontres. Film modeste et lumineux, c'est une ode à la fraternité entre étrangers.", en: "Born in Peru and based in France, Poirier films with gentleness and empathy the outcasts of French society. Western (1997) — Cannes Jury Prize — is an atypical road movie through rural Brittany, where a Spanish immigrant and a Slovak drifter cross landscapes and encounters. A modest, luminous film, it is an ode to fraternity between strangers." },
+                quote: { fr: "\"Je fais des films avec des gens que le cinéma oublie d'habitude.\"", en: "\"I make films with people cinema usually forgets.\"" },
+                imdb: "nm0687994",
+                careerStats: { totalFilms: 7, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix du jury (1997 — Western)", en: "Jury Prize (1997 — Western)" } }
+            },
+            "Marguerite Duras": {
+                born: "1914, Gia Dinh", died: "1996", nationality: "🇫🇷 French", era: "1970s–80s",
+                tags: { fr: ["Cinéma de la parole","Voix off & silence","Écriture & image","Avant-garde radicale"], en: ["Cinema of voice","Voice-over & silence","Writing & image","Radical avant-garde"] },
+                bio: { fr: "Romancière et dramaturge célébrissime, Duras a également réalisé une vingtaine de films expérimentaux d'une radicalité absolue. India Song (1975) sépare complètement image et son : les voix parlent d'une réception diplomatique pendant que la caméra flotte dans un palais en ruine. Ce divorce entre ce qu'on voit et ce qu'on entend crée une expérience hypnotique unique, à la frontière du cinéma et de la littérature.", en: "A celebrated novelist and playwright, Duras also directed around twenty experimental films of absolute radicalism. India Song (1975) completely separates image from sound: voices discuss a diplomatic reception while the camera drifts through a ruined palace. This divorce between what is seen and what is heard creates a unique hypnotic experience on the border of cinema and literature." },
+                quote: { fr: "\"J'écris pour que les lecteurs entendent. Je filme pour que les spectateurs voient ce qu'ils entendent déjà.\"", en: "\"I write so readers may hear. I film so viewers may see what they already hear.\"" },
+                imdb: "nm0243139",
+                careerStats: { totalFilms: 19, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Figure majeure du cinéma littéraire mondial", en: "Major figure of world literary cinema" } }
+            },
+            "Marjane Satrapi, Vincent Paronnaud": {
+                born: "Collaboration", nationality: "🇫🇷🇮🇷 French-Iranian", era: "2000s",
+                tags: { fr: ["Animation autobiographique","Iran & exil","Bande dessinée adaptée","Noir & blanc expressif"], en: ["Autobiographical animation","Iran & exile","Comics adaptation","Expressive black & white"] },
+                bio: { fr: "Auteure de la bande dessinée autobiographique Persepolis, Marjane Satrapi a co-réalisé avec Vincent Paronnaud l'adaptation animée. Film en noir et blanc aux influences expressionnistes et underground, Persepolis (2007) raconte l'enfance en Iran révolutionnaire, l'exil en Europe et le retour impossible avec une liberté de ton et une émotion rares. Nommé aux Oscars, il a touché des millions de spectateurs.", en: "Author of the autobiographical comic Persepolis, Marjane Satrapi co-directed with Vincent Paronnaud its animated adaptation. A black-and-white film with expressionist and underground influences, Persepolis (2007) recounts childhood in revolutionary Iran, exile in Europe, and an impossible return with rare tonal freedom and emotion. Oscar-nominated, it reached millions of viewers worldwide." },
+                quote: { fr: "\"J'ai fait ce film pour que les gens comprennent que les Iraniens sont des êtres humains.\"", en: "\"I made this film so people would understand that Iranians are human beings.\"" },
+                imdb: "nm0765787",
+                careerStats: { totalFilms: 1, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix du jury Cannes (2007 — Persepolis)", en: "Cannes Jury Prize (2007 — Persepolis)" } }
+            },
+            "Martin Bourboulon": {
+                born: "1979, France", nationality: "🇫🇷 French", era: "2010s–2020s",
+                tags: { fr: ["Film de cape et d'épée","Blockbuster français","Adaptation classique","Spectacle populaire"], en: ["Swashbuckler","French blockbuster","Classic adaptation","Popular spectacle"] },
+                bio: { fr: "Réalisateur de comédies populaires (L'Arnacoeur, Eiffel), Bourboulon a réalisé avec Les Trois Mousquetaires son film le plus ambitieux. Avec un budget de 72 millions d'euros, il ressuscite le genre du film de cape et d'épée français dans une version moderne, spectaculaire et fidèle à Dumas. François Civil, Vincent Cassel et Romain Duris forment un trio inoubliable.", en: "Director of popular comedies (Heartbreaker, Eiffel), Bourboulon made with The Three Musketeers his most ambitious film. With a 72 million euro budget, he resurrects the French swashbuckler genre in a modern, spectacular, and Dumas-faithful version. François Civil, Vincent Cassel, and Romain Duris form an unforgettable trio." },
+                quote: { fr: "\"Je voulais que les Français soient fiers de voir leurs héros littéraires sur grand écran.\"", en: "\"I wanted the French to be proud seeing their literary heroes on the big screen.\"" },
+                imdb: "nm1691505",
+                careerStats: { totalFilms: 5, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Plus grand succès français au box-office (2023)", en: "Biggest French box office success (2023)" } }
+            },
+            "Maurice Pialat": {
+                born: "1925, Cunlhat", died: "2003", nationality: "🇫🇷 French", era: "1960s–90s",
+                tags: { fr: ["Réalisme brutal","Improvisation & friction","Palme d'Or controversée","Cinéma de l'imperfection"], en: ["Brutal realism","Improvisation & friction","Controversial Palme d'Or","Cinema of imperfection"] },
+                bio: { fr: "Cinéaste difficile et exigeant, Pialat filme avec une brutalité émotionnelle qui met les acteurs et le spectateur à vif. Sa Palme d'Or pour Sous le Soleil de Satan (1987) fut huée à Cannes — il répondit : Si vous ne m'aimez pas, je peux vous dire que je ne vous aime pas non plus. À Nos Amours, avec Sandrine Bonnaire débutante, est un portrait déchirant d'une adolescence en rupture.", en: "A difficult and demanding filmmaker, Pialat films with emotional brutality that exposes both actors and viewers. His Palme d'Or for Under Satan's Sun (1987) was booed at Cannes — he replied: 'If you don't like me, I can tell you I don't like you either.' To Our Loves, with a debut Sandrine Bonnaire, is a harrowing portrait of adolescence in breakdown." },
+                quote: { fr: "\"Si vous ne m'aimez pas, je peux vous dire que je ne vous aime pas non plus.\"", en: "\"If you don't like me, I can tell you I don't like you either.\"" },
+                imdb: "nm0682553",
+                careerStats: { totalFilms: 11, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Palme d'Or (1987 — Sous le Soleil de Satan)", en: "Palme d'Or (1987 — Under Satan's Sun)" } }
+            },
+            "Michel Hazanavicius": {
+                born: "1967, Paris", nationality: "🇫🇷 French", era: "2000s–2010s",
+                tags: { fr: ["Cinéma muet ressuscité","Hommage Hollywood","Oscar du meilleur film","Comédie nostalgique"], en: ["Resurrected silent cinema","Hollywood homage","Best Picture Oscar","Nostalgic comedy"] },
+                bio: { fr: "Spécialiste de la parodie et du pastiche, Hazanavicius a réalisé avec The Artist (2011) le coup de maître de sa carrière : un film muet en noir et blanc sur Hollywood des années 30, tourné en 2011, qui a remporté 5 Oscars dont Meilleur Film. L'exercice de style devient déclaration d'amour au cinéma des origines, porté par Jean Dujardin en star parfaite.", en: "A parody and pastiche specialist, Hazanavicius made with The Artist (2011) the masterwork of his career: a black-and-white silent film set in 1930s Hollywood, shot in 2011, which won 5 Oscars including Best Picture. The stylistic exercise becomes a love letter to early cinema, carried by Jean Dujardin as the perfect star." },
+                quote: { fr: "\"Le cinéma muet n'est pas mort. Il attendait juste qu'on lui revienne.\"", en: "\"Silent cinema is not dead. It was just waiting for us to return.\"" },
+                imdb: "nm0372504",
+                careerStats: { totalFilms: 8, oscars: 5, goldenGlobes: 2, cannesWins: 0, cannesNote: { fr: "5 Oscars (2012 — The Artist)", en: "5 Oscars (2012 — The Artist)" } }
+            },
+            "Olivier Dahan": {
+                born: "1967, Paris", nationality: "🇫🇷 French", era: "2000s–2010s",
+                tags: { fr: ["Biopic musical","Figures féminines","Marion Cotillard","Mise en scène fragmentée"], en: ["Musical biopic","Female figures","Marion Cotillard","Fragmented direction"] },
+                bio: { fr: "Dahan a signé avec La Môme (2007) l'un des plus grands succès internationaux du cinéma français. La performance de Marion Cotillard en Édith Piaf — transformée physiquement, habitée vocalement — lui a valu l'Oscar de la meilleure actrice. Le film entremêle les époques de la vie de Piaf avec une liberté formelle assumée et a révélé la chanteuse à des générations de spectateurs du monde entier.", en: "Dahan made with La Vie en Rose (2007) one of the greatest international successes of French cinema. Marion Cotillard's performance as Édith Piaf — physically transformed, vocally inhabited — earned her the Oscar for Best Actress. The film interweaves periods of Piaf's life with deliberate formal freedom and introduced the singer to generations of viewers worldwide." },
+                quote: { fr: "\"Je voulais filmer Piaf de l'intérieur, pas d'en haut.\"", en: "\"I wanted to film Piaf from the inside, not from above.\"" },
+                imdb: "nm0195681",
+                careerStats: { totalFilms: 8, oscars: 0, goldenGlobes: 1, cannesWins: 0, cannesNote: { fr: "César du meilleur film (2008 — La Môme)", en: "César Best Film (2008 — La Vie en Rose)" } }
+            },
+            "Patrice Chéreau": {
+                born: "1944, Lézigné", died: "2013", nationality: "🇫🇷 French", era: "1970s–2000s",
+                tags: { fr: ["Théâtre & cinéma","Corps & violence","Histoire de France","Puissance tragique"], en: ["Theatre & cinema","Body & violence","French history","Tragic power"] },
+                bio: { fr: "Metteur en scène de théâtre et d'opéra de génie, Chéreau a apporté au cinéma une puissance tragique et une précision corporelle rares. La Reine Margot (1994) — reconstitution somptueuse des guerres de religion, avec Adjani, Auteuil et Anglade — est un film de chair, de sang et de politique d'une violence et d'une beauté uniques. Intimité et Son Frère prouvent qu'il excellait aussi dans le film intime et dépouillé.", en: "A genius theatre and opera director, Chéreau brought to cinema rare tragic power and physical precision. Queen Margot (1994) — a sumptuous reconstruction of the Wars of Religion, with Adjani, Auteuil, and Anglade — is a film of flesh, blood, and politics with unique violence and beauty. Intimacy and His Brother prove he excelled equally in intimate, stripped-down film." },
+                quote: { fr: "\"Au théâtre ou au cinéma, ce que je cherche, c'est toujours le corps comme vérité.\"", en: "\"In theatre or cinema, what I seek is always the body as truth.\"" },
+                imdb: "nm0155949",
+                careerStats: { totalFilms: 9, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix du jury (1994 — La Reine Margot)", en: "Jury Prize (1994 — Queen Margot)" } }
+            },
+            "Patrice Leconte": {
+                born: "1947, Paris", nationality: "🇫🇷 French", era: "1970s–2010s",
+                tags: { fr: ["Comédie populaire","Drame romanesque","Duo d'acteurs","Artisanat élégant"], en: ["Popular comedy","Romantic drama","Actor duos","Elegant craftsmanship"] },
+                bio: { fr: "Réalisateur éclectique et prolifique, Leconte a traversé les genres avec aisance. Les Bronzés (1978) reste l'une des comédies les plus citées du cinéma français. Monsieur Hire et Le Mari de la Coiffeuse — deux films hantés par le désir et l'obsession — révèlent un auteur plus profond. Ridicule (1996), satire mordante de la cour de Versailles, est son film le plus accompli.", en: "An eclectic and prolific director, Leconte moved across genres with ease. Les Bronzés (1978) remains one of the most quoted comedies in French cinema. Monsieur Hire and The Hairdresser's Husband — two films haunted by desire and obsession — reveal a deeper auteur. Ridicule (1996), a biting satire of the court of Versailles, is his most accomplished film." },
+                quote: { fr: "\"Je fais des films pour que les gens se sentent moins seuls.\"", en: "\"I make films so people feel a little less alone.\"" },
+                imdb: "nm0498339",
+                careerStats: { totalFilms: 30, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Nommé aux Oscars — Ridicule (1997)", en: "Oscar nominated — Ridicule (1997)" } }
+            },
+            "Paul Verhoeven": {
+                born: "1938, Amsterdam", nationality: "🇳🇱 Dutch", era: "1970s–2020s",
+                tags: { fr: ["Provocateur absolu","Violence & sexe","Hollywood & retour en Europe","Regard renversé"], en: ["Absolute provocateur","Violence & sex","Hollywood & return to Europe","Subverted gaze"] },
+                bio: { fr: "Réalisateur néerlandais établi à Hollywood (RoboCop, Basic Instinct), Verhoeven est revenu en Europe pour réaliser avec Isabelle Huppert son film le plus audacieux. Elle (2016) — portrait d'une femme qui choisit de ne pas se définir par son viol — a choqué et fasciné à la fois. Huppert y est extraordinaire, et Verhoeven signe une œuvre qui renverse tous les codes du film de victime.", en: "A Dutch filmmaker established in Hollywood (RoboCop, Basic Instinct), Verhoeven returned to Europe to make with Isabelle Huppert his most audacious film. Elle (2016) — a portrait of a woman who refuses to be defined by her rape — shocked and fascinated in equal measure. Huppert is extraordinary, and Verhoeven delivers a work that overturns every code of the victim film." },
+                quote: { fr: "\"Je ne veux pas que le spectateur soit à l'aise. Je veux qu'il réfléchisse.\"", en: "\"I don't want the viewer to be comfortable. I want them to think.\"" },
+                imdb: "nm0000682",
+                careerStats: { totalFilms: 20, oscars: 0, goldenGlobes: 1, cannesWins: 0, cannesNote: { fr: "Golden Globe meilleure actrice — Huppert (2017)", en: "Golden Globe Best Actress — Huppert (2017)" } }
+            },
+            "Quentin Dupieux": {
+                born: "1974, Paris", nationality: "🇫🇷 French", era: "2000s–2020s",
+                tags: { fr: ["Absurde radical","Humour surréaliste","Cinéma low-budget","Mr. Oizo"], en: ["Radical absurdism","Surrealist humour","Low-budget cinema","Mr. Oizo"] },
+                bio: { fr: "DJ et producteur de musique électronique sous le nom Mr. Oizo, Dupieux a apporté au cinéma français une forme d'absurde radical totalement inédit. Rubber — film sur un pneu tueur — annonce un univers où la logique narrative est délibérément explosée. En tournant jusqu'à trois films par an avec de petits budgets, il est devenu le représentant d'un cinéma français décomplexé, libre et irrévérencieux.", en: "A DJ and electronic music producer as Mr. Oizo, Dupieux brought to French cinema a form of radical absurdism entirely his own. Rubber — a film about a killer tyre — announced a universe where narrative logic is deliberately exploded. By making up to three films a year on small budgets, he has become the representative of an uninhibited, free, and irreverent French cinema." },
+                quote: { fr: "\"Je ne sais pas pourquoi je fais des films. Mais je ne peux pas m'en empêcher.\"", en: "\"I don't know why I make films. But I can't help it.\"" },
+                imdb: "nm0244988",
+                careerStats: { totalFilms: 15, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Sélections Cannes répétées (Un Certain Regard)", en: "Repeated Cannes selections (Un Certain Regard)" } }
+            },
+            "Robin Campillo": {
+                born: "1962, Meknes", nationality: "🇫🇷 French", era: "2000s–2010s",
+                tags: { fr: ["Cinéma politique","Mémoire du SIDA","Militantisme & amour","Grand Prix Cannes"], en: ["Political cinema","AIDS memory","Activism & love","Cannes Grand Prix"] },
+                bio: { fr: "Monteur de formation (il a monté tous les films de Laurent Cantet), Campillo a signé une œuvre rare et politique. 120 Battements par Minute (2017) — reconstitution vibrante et déchirante des actions d'Act Up Paris dans les années 90 — mêle urgence militante, amour charnel et deuil collectif. Grand Prix à Cannes, le film est une résurrection mémorielle d'une génération sacrifiée.", en: "A trained editor (he cut all of Laurent Cantet's films), Campillo has directed a rare and political body of work. BPM (2017) — a vibrant, harrowing reconstruction of Act Up Paris's actions in the 1990s — blends militant urgency, carnal love, and collective grief. Cannes Grand Prix, the film is a memorial resurrection of a sacrificed generation." },
+                quote: { fr: "\"Je voulais que ces morts aient des corps, des visages, des désirs.\"", en: "\"I wanted these dead to have bodies, faces, desires.\"" },
+                imdb: "nm0131820",
+                careerStats: { totalFilms: 3, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Grand Prix Cannes (2017 — 120 Battements par Minute)", en: "Cannes Grand Prix (2017 — BPM)" } }
+            },
+            "Romain Gavras": {
+                born: "1981, Paris", nationality: "🇫🇷🇬🇷 French-Greek", era: "2010s–2020s",
+                tags: { fr: ["Clip & cinéma","Action chorégraphiée","Banlieue & colère","Fils de Costa-Gavras"], en: ["Music video & cinema","Choreographed action","Suburbs & rage","Son of Costa-Gavras"] },
+                bio: { fr: "Fils du réalisateur Costa-Gavras, Romain s'est d'abord imposé comme l'un des vidéastes de clips les plus radicaux de sa génération (M.I.A., Jay-Z). Athena (2022) est un film de guerre civile urbaine lancé par un plan-séquence d'ouverture de 10 minutes parmi les plus spectaculaires de l'histoire du cinéma récent. Tourné en vraie banlieue, avec une énergie et une rigueur formelle exceptionnelles.", en: "Son of filmmaker Costa-Gavras, Romain first established himself as one of the most radical music video directors of his generation (M.I.A., Jay-Z). Athena (2022) is an urban civil war film launched by a 10-minute opening single shot among the most spectacular in recent cinema history. Shot in a real suburb with exceptional energy and formal rigor." },
+                quote: { fr: "\"Je voulais que le premier plan soit un uppercut.\"", en: "\"I wanted the first shot to be an uppercut.\"" },
+                imdb: "nm1568501",
+                careerStats: { totalFilms: 2, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Sélection Cannes Midnight (2022 — Athena)", en: "Cannes Midnight selection (2022 — Athena)" } }
+            },
+            "Régis Wargnier": {
+                born: "1948, Paris", nationality: "🇫🇷 French", era: "1980s–2000s",
+                tags: { fr: ["Cinéma du grand spectacle","Oscar du meilleur film étranger","Indochine & colonisation","Catherine Deneuve"], en: ["Grand spectacle cinema","Best Foreign Film Oscar","Indochina & colonization","Catherine Deneuve"] },
+                bio: { fr: "Réalisateur de grandes fresques visuelles, Wargnier a remporté l'Oscar du meilleur film en langue étrangère avec Indochine (1992). Porté par une Catherine Deneuve somptueuse dans la peau d'une colonisatrice française confrontée à l'indépendance vietnamienne, le film est une épopée romanesque et politique d'une ampleur rare dans le cinéma français.", en: "A director of grand visual frescoes, Wargnier won the Oscar for Best Foreign Language Film with Indochine (1992). Carried by a sumptuous Catherine Deneuve as a French colonist confronting Vietnamese independence, the film is a romantic and political epic of rare scope in French cinema." },
+                quote: { fr: "\"J'aime les histoires qui traversent l'Histoire.\"", en: "\"I love stories that cross through History.\"" },
+                imdb: "nm0912188",
+                careerStats: { totalFilms: 9, oscars: 1, goldenGlobes: 1, cannesWins: 0, cannesNote: { fr: "Oscar du meilleur film étranger (1993 — Indochine)", en: "Oscar Best Foreign Film (1993 — Indochine)" } }
+            },
+            "Xavier Dolan": {
+                born: "1989, Montréal", nationality: "🇨🇦 Canadian", era: "2010s",
+                tags: { fr: ["Prodige québécois","Amour maternel","Format 1:1","Fulgurance émotionnelle"], en: ["Québec prodigy","Maternal love","1:1 format","Emotional flare"] },
+                bio: { fr: "Réalisateur prodige, Dolan a tourné son premier film (J'ai tué ma mère) à 19 ans. Sa relation fusionnelle et conflictuelle avec la figure maternelle traverse toute son œuvre. Mommy (2014) — son chef-d'œuvre — est tourné dans un format carré 1:1 qui s'élargit à un moment bouleversant. Partagé ex-aequo du Prix du jury à Cannes, ce film est un cri d'amour et de douleur d'une sincérité absolue.", en: "A prodigy director, Dolan shot his first film (I Killed My Mother) at 19. The fused, conflictual relationship with the maternal figure runs through his entire body of work. Mommy (2014) — his masterpiece — is shot in a square 1:1 format that widens at a shattering moment. Shared Cannes Jury Prize winner, this film is a cry of love and pain of absolute sincerity." },
+                quote: { fr: "\"Je fais des films comme j'aime : avec excès, avec urgence.\"", en: "\"I make films the way I love: with excess, with urgency.\"" },
+                imdb: "nm2076063",
+                careerStats: { totalFilms: 8, oscars: 0, goldenGlobes: 0, cannesWins: 1, cannesNote: { fr: "Prix du jury ex-aequo (2014 — Mommy)", en: "Shared Jury Prize (2014 — Mommy)" } }
+            },
+            "Xavier Giannoli": {
+                born: "1972, Paris", nationality: "🇫🇷 French", era: "2000s–2020s",
+                tags: { fr: ["Adaptations littéraires","Ambition & imposture","Fresque sociale","Balzac & Flaubert"], en: ["Literary adaptations","Ambition & imposture","Social fresco","Balzac & Flaubert"] },
+                bio: { fr: "Auteur exigeant et populaire, Giannoli excelle dans les adaptations littéraires ambitieuses. Illusions Perdues (2021) — adaptation spectaculaire de Balzac récompensée de six Césars dont Meilleur Film — est l'une des œuvres les plus accomplies du cinéma français de la décennie, alliant foisonnement narratif et modernité du regard.", en: "A demanding and popular filmmaker, Giannoli excels in ambitious literary adaptations. Lost Illusions (2021) — a spectacular Balzac adaptation winning six Césars including Best Film — is one of the most accomplished French films of the decade, combining narrative richness and a modern gaze." },
+                quote: { fr: "\"Balzac a tout compris des réseaux sociaux avant qu'ils existent.\"", en: "\"Balzac understood social media before it existed.\"" },
+                imdb: "nm0315791",
+                careerStats: { totalFilms: 8, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "6 Césars (2022 — Illusions Perdues)", en: "6 Césars (2022 — Lost Illusions)" } }
+            },
+            "Édouard Molinaro": {
+                born: "1928, Bordeaux", died: "2013", nationality: "🇫🇷 French", era: "1960s–90s",
+                tags: { fr: ["Comédie de boulevard","La Cage aux Folles","Vaudeville filmé","Humour transgressif"], en: ["Boulevard comedy","La Cage aux Folles","Filmed vaudeville","Transgressive humour"] },
+                bio: { fr: "Réalisateur polyvalent de policiers et de comédies, Molinaro a signé avec La Cage aux Folles (1978) l'une des comédies les plus audacieuses et les plus populaires de l'histoire du cinéma français. Film sur un couple homosexuel dont le fils se marie avec la fille d'un politicien conservateur, il a traité avec humour et tendresse une réalité encore taboue — et a été adapté à Broadway et dans le monde entier.", en: "A versatile director of thrillers and comedies, Molinaro made with La Cage aux Folles (1978) one of the most audacious and popular comedies in French cinema history. A film about a gay couple whose son marries the daughter of a conservative politician, it treated a still-taboo social reality with humour and tenderness — and was adapted on Broadway and worldwide." },
+                quote: { fr: "\"La comédie permet de dire ce que le drame n'oserait pas.\"", en: "\"Comedy allows you to say what drama wouldn't dare.\"" },
+                imdb: "nm0596520",
+                careerStats: { totalFilms: 30, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Nommé aux Oscars — La Cage aux Folles (1979)", en: "Oscar nominated — La Cage aux Folles (1979)" } }
+            },
+            "Éric Lartigau": {
+                born: "1965, Auch", nationality: "🇫🇷 French", era: "2000s–2010s",
+                tags: { fr: ["Comédie populaire","Surdité & musique","Famille & différence","Grand public"], en: ["Popular comedy","Deafness & music","Family & difference","Mainstream"] },
+                bio: { fr: "Réalisateur de comédies populaires, Lartigau a trouvé avec La Famille Bélier (2014) un succès phénoménal. Le film — sur une adolescente entendante dans une famille sourde qui découvre un don pour le chant — a cumulé 7 millions d'entrées en France et inspiré le remake américain CODA, qui a remporté l'Oscar du meilleur film en 2022. Il a révélé Louane Emera, devenue star de la chanson française.", en: "A director of popular comedies, Lartigau found with The Bélier Family (2014) a phenomenal success. The film — about a hearing teenager in a deaf family who discovers a singing gift — drew 7 million viewers in France and inspired the American remake CODA, which won the Oscar for Best Picture in 2022. It launched Louane Emera, now a French pop star." },
+                quote: { fr: "\"Je veux que les gens sortent de la salle avec de l'espoir.\"", en: "\"I want people to leave the theatre with hope.\"" },
+                imdb: "nm0488200",
+                careerStats: { totalFilms: 7, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "Remake CODA — Oscar du meilleur film (2022)", en: "Remake CODA won Best Picture Oscar (2022)" } }
+            },
+            "Éric Rohmer": {
+                born: "1920, Tulle", died: "2010", nationality: "🇫🇷 French", era: "1960s–2000s",
+                tags: { fr: ["Contes moraux","Dialogues philosophiques","Vacances & désir","Nouvelle Vague discrète"], en: ["Moral tales","Philosophical dialogue","Holidays & desire","Discreet New Wave"] },
+                bio: { fr: "Le plus pudique et le plus littéraire des cinéastes de la Nouvelle Vague, Rohmer a construit une œuvre en cycles — Contes Moraux, Comédies et Proverbes, Contes des Quatre Saisons — où des personnages bavards tergiversent sur l'amour, la fidélité et le désir. Ses films en décors naturels estivaux, avec des acteurs souvent inconnus, ont une légèreté et une profondeur uniques.", en: "The most discreet and literary of the New Wave filmmakers, Rohmer built a body of work in cycles — Moral Tales, Comedies and Proverbs, Tales of the Four Seasons — where talkative characters deliberate on love, fidelity, and desire. His films in natural summer settings with often unknown actors have unique lightness and depth." },
+                quote: { fr: "\"Je ne filme pas ce que les gens font, mais ce qu'ils pensent pendant qu'ils le font.\"", en: "\"I don't film what people do, but what they think while doing it.\"" },
+                imdb: "nm0735488",
+                careerStats: { totalFilms: 25, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "BAFTA du meilleur film étranger (1992 — Conte d'hiver)", en: "BAFTA Best Foreign Film (1992 — A Tale of Winter)" } }
+            },
+            "Étienne Chatiliez": {
+                born: "1952, Roubaix", nationality: "🇫🇷 French", era: "1980s–2000s",
+                tags: { fr: ["Comédie satirique","Bourgeoisie & classes sociales","Humour noir","Succès populaire"], en: ["Satirical comedy","Bourgeoisie & class","Dark humour","Popular success"] },
+                bio: { fr: "Réalisateur de publicités devenu cinéaste, Chatiliez a imposé son style avec La Vie est un Long Fleuve Tranquille (1988) — film sur l'échange de bébés entre une famille bourgeoise et une famille prolétaire. César du meilleur film, cette comédie noire et acerbe sur les classes sociales reste l'une des plus réjouissantes satires du cinéma français. Tatie Danielle a confirmé son talent pour les personnages inoubliablement antipathiques.", en: "An advertising director turned filmmaker, Chatiliez made his mark with Life Is a Long Quiet River (1988) — a film about babies swapped between a bourgeois and a proletarian family. César Best Film winner, this dark and biting comedy about social class remains one of the most delightful satires in French cinema. Tatie Danielle confirmed his talent for memorably odious characters." },
+                quote: { fr: "\"La comédie française est une arme de classe. Personne ne s'en rend compte, c'est pour ça qu'elle fonctionne.\"", en: "\"French comedy is a class weapon. Nobody realizes it, which is why it works.\"" },
+                imdb: "nm0154498",
+                careerStats: { totalFilms: 6, oscars: 0, goldenGlobes: 0, cannesWins: 0, cannesNote: { fr: "César du meilleur film (1989 — La Vie est un Long Fleuve Tranquille)", en: "César Best Film (1989 — Life Is a Long Quiet River)" } }
             }
         };
 
@@ -2447,6 +3879,268 @@
         /* expose globally so dome IIFE can call them */
         window._openDirectorSpotlight = openDirectorSpotlight;
         window._getLang = () => lang;
+
+        /* ================================================
+           SEARCH — all 90 films across all decades
+        ================================================= */
+        (function() {
+            const inp   = document.getElementById('search-input');
+            const panel = document.getElementById('search-results-panel');
+            const clearBtn = document.getElementById('search-clear');
+
+            const decadeLabels = {
+                0: { fr: 'Années 70', en: '1970s' },
+                1: { fr: 'Années 80', en: '1980s' },
+                2: { fr: 'Années 90', en: '1990s' },
+                3: { fr: 'Années 2000', en: '2000s' },
+                4: { fr: 'Années 2010', en: '2010s' },
+                5: { fr: 'Années 2020', en: '2020s' }
+            };
+
+            function buildPool() {
+                const pool = [];
+                cinemaData.forEach((decade, di) => {
+                    decade.movies.forEach((m, mi) => {
+                        pool.push({ title: m.title, dir: m.dir, cast: m.cast, img: m.img, di, mi, type: 'main' });
+                    });
+                    if (decade.decouvrir) {
+                        decade.decouvrir.forEach((m, mi) => {
+                            pool.push({ title: m.title, dir: m.dir, cast: m.cast, img: m.img, year: m.year, di, mi, type: 'decouvrir' });
+                        });
+                    }
+                });
+                return pool;
+            }
+
+            function highlight(text, q) {
+                if (!q) return text;
+                const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+            }
+
+            function search(q) {
+                const pool = buildPool();
+                const lq = q.toLowerCase().trim();
+                if (!lq) return [];
+                return pool.filter(m => {
+                    const titleFr = (m.title.fr || '').toLowerCase();
+                    const titleEn = (m.title.en || '').toLowerCase();
+                    const dir     = (m.dir  || '').toLowerCase();
+                    const cast    = (m.cast || '').toLowerCase();
+                    return titleFr.includes(lq) || titleEn.includes(lq) || dir.includes(lq) || cast.includes(lq);
+                });
+            }
+
+            function openResult(item) {
+                closePanel();
+                inp.value = '';
+                clearBtn.style.display = 'none';
+                if (item.type === 'main') {
+                    loadDecade(item.di);
+                    setTimeout(() => openModal(item.di, item.mi), 80);
+                } else {
+                    loadDecade(item.di);
+                    setTimeout(() => {
+                        const wrap = document.getElementById(`decouvrir-wrap-${item.di}`);
+                        const toggle = document.getElementById(`decouvrir-toggle-${item.di}`);
+                        if (wrap && !wrap.classList.contains('open')) {
+                            wrap.classList.add('open');
+                            if (toggle) toggle.classList.add('open');
+                        }
+                        setTimeout(() => openModalDecouvrir(item.di, item.mi), 80);
+                    }, 120);
+                }
+            }
+
+            function renderPanel(q) {
+                const results = search(q);
+                if (!results.length) {
+                    panel.innerHTML = `<div class="sr-no-results">Aucun résultat pour "<strong>${q}</strong>"</div>`;
+                    panel.style.display = 'block';
+                    return;
+                }
+
+                const currentLang = lang;
+                let html = '';
+                let lastDi = -1;
+
+                results.forEach((item, idx) => {
+                    if (item.di !== lastDi) {
+                        if (lastDi !== -1) html += '<div class="sr-divider"></div>';
+                        const dl = decadeLabels[item.di];
+                        html += `<div class="sr-section-label">${dl ? dl[currentLang] : ''}</div>`;
+                        lastDi = item.di;
+                    }
+                    const titleText = item.title[currentLang] || item.title.fr;
+                    const titleHL  = highlight(titleText, q);
+                    const dirHL    = highlight(item.dir || '', q);
+                    const castHL   = highlight(item.cast || '', q);
+                    const yearTag  = item.year ? `<span class="sr-decade-tag">${item.year}</span>` : '';
+
+                    html += `
+                        <div class="sr-item" onclick="(function(){${idx};})(); window._srOpen(${idx})">
+                            <img class="sr-poster" src="${item.img}" onerror="this.outerHTML='<div class=\\'sr-poster-fallback\\'>${titleText.substring(0,8)}</div>'" />
+                            <div class="sr-info">
+                                <div class="sr-title">${titleHL}</div>
+                                <div class="sr-meta">${dirHL}${item.cast ? ' · ' + castHL : ''}</div>
+                            </div>
+                            ${yearTag}
+                        </div>`;
+                });
+
+                panel.innerHTML = html;
+                panel.style.display = 'block';
+
+                window._srResults = results;
+                window._srOpen = function(idx) { openResult(window._srResults[idx]); };
+            }
+
+            function closePanel() {
+                panel.style.display = 'none';
+                panel.innerHTML = '';
+            }
+
+            inp.addEventListener('input', function() {
+                const q = this.value.trim();
+                clearBtn.style.display = q ? 'block' : 'none';
+                if (q.length >= 1) renderPanel(q);
+                else closePanel();
+            });
+
+            inp.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') { clearSearch(); }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!document.querySelector('.search-inner').contains(e.target)) closePanel();
+            });
+
+            window.clearSearch = function() {
+                inp.value = '';
+                clearBtn.style.display = 'none';
+                closePanel();
+                inp.focus();
+            };
+        })();
+
+        /* ================================================
+           WATCHLIST
+        ================================================= */
+        let watchlist = [];
+
+        function openWatchlist() {
+            document.getElementById('wl-drawer').classList.add('open');
+            document.getElementById('wl-scrim').classList.add('open');
+            wlRender();
+        }
+
+        function closeWatchlist() {
+            document.getElementById('wl-drawer').classList.remove('open');
+            document.getElementById('wl-scrim').classList.remove('open');
+        }
+
+        window.openWatchlist  = openWatchlist;
+        window.closeWatchlist = closeWatchlist;
+
+        function wlAddManual() {
+            const inp = document.getElementById('wl-manual-input');
+            const val = inp.value.trim();
+            if (!val) return;
+            wlAdd(val, '—', '');
+            inp.value = '';
+        }
+
+        document.getElementById('wl-manual-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') wlAddManual();
+        });
+
+        function wlAdd(title, dir, img) {
+            if (watchlist.find(m => m.title === title)) return;
+            watchlist.unshift({ title, dir, img, watched: false, added: new Date().toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-GB', { day:'numeric', month:'short' }) });
+            wlRender();
+            wlUpdateBadge();
+            wlUpdateModalBtn(title);
+        }
+
+        function wlRemove(idx) {
+            watchlist.splice(idx, 1);
+            wlRender();
+            wlUpdateBadge();
+        }
+
+        function wlToggle(idx) {
+            watchlist[idx].watched = !watchlist[idx].watched;
+            wlRender();
+        }
+
+        function wlClearWatched() {
+            watchlist = watchlist.filter(m => !m.watched);
+            wlRender();
+            wlUpdateBadge();
+        }
+
+        function wlUpdateBadge() {
+            const badge = document.getElementById('wl-count-badge');
+            const unwatched = watchlist.filter(m => !m.watched).length;
+            badge.textContent = unwatched;
+            badge.style.display = unwatched > 0 ? 'flex' : 'none';
+        }
+
+        function wlUpdateModalBtn(title) {
+            const btn  = document.getElementById('wl-modal-btn');
+            const txt  = document.getElementById('wl-modal-btn-text');
+            if (!btn || !txt) return;
+            const inList = watchlist.find(m => m.title === title);
+            const isFr = lang === 'fr';
+            if (inList) {
+                btn.classList.add('wl-already');
+                txt.textContent = inList.watched
+                    ? (isFr ? '✓ Déjà vu' : '✓ Already watched')
+                    : (isFr ? '✓ Dans la Watchlist' : '✓ In Watchlist');
+            } else {
+                btn.classList.remove('wl-already');
+                txt.textContent = isFr ? '＋ Ajouter à la Watchlist' : '＋ Add to Watchlist';
+            }
+        }
+
+        function wlToggleFromModal() {
+            const title = document.getElementById('m-title').innerText;
+            const dir   = document.getElementById('m-director').innerText.replace(/\s*↗?\s*$/, '').trim();
+            const img   = document.getElementById('m-img-container').querySelector('img')?.src || '';
+            const idx   = watchlist.findIndex(m => m.title === title);
+            if (idx === -1) {
+                wlAdd(title, dir, img);
+            } else {
+                wlRemove(idx);
+            }
+        }
+
+        function wlRender() {
+            const area = document.getElementById('wl-list-area');
+            const statsLine = document.getElementById('wl-stats-line');
+            const isFr = lang === 'fr';
+            const total   = watchlist.length;
+            const watched = watchlist.filter(m => m.watched).length;
+            statsLine.textContent = isFr
+                ? `${total} film${total !== 1 ? 's' : ''} · ${watched} vu${watched !== 1 ? 's' : ''}`
+                : `${total} film${total !== 1 ? 's' : ''} · ${watched} watched`;
+
+            if (!total) {
+                area.innerHTML = `<div class="wl-empty"><div class="wl-empty-icon">🎞️</div>${isFr ? 'Ta liste est vide.<br>Ouvre un film et clique <em>+ Watchlist</em>.' : 'Your list is empty.<br>Open a film and click <em>+ Watchlist</em>.'}</div>`;
+                return;
+            }
+
+            area.innerHTML = watchlist.map((m, i) => `
+                <div class="wl-item${m.watched ? ' wl-watched' : ''}">
+                    <button class="wl-check" onclick="wlToggle(${i})" title="${isFr ? 'Marquer comme vu' : 'Mark as watched'}">${m.watched ? '✓' : ''}</button>
+                    <div class="wl-item-info">
+                        <div class="wl-item-title">${m.title}</div>
+                        <div class="wl-item-meta">${m.dir !== '—' ? m.dir + ' · ' : ''}${m.added}</div>
+                    </div>
+                    <button class="wl-del" onclick="wlRemove(${i})" title="${isFr ? 'Retirer' : 'Remove'}">✕</button>
+                </div>
+            `).join('');
+        }
 
         init();
 
@@ -2997,7 +4691,145 @@
             dgScrim.addEventListener('click', closeTile);
             window.addEventListener('keydown', e => { if (e.key === 'Escape') closeTile(); });
 
+            /* ---------- AUTO-ROTATION ---------- */
+            const AUTO_SPEED   = 0.08;   // degrees per frame — increase for faster spin
+            const RESUME_DELAY = 2000;   // ms after drag ends before auto-spin resumes
+            let   autoRotRAF   = null;
+            let   autoActive   = true;
+
+            function autoRotStep() {
+                const idle = !dragging && !focusedEl &&
+                             (performance.now() - lastDragEnd) > RESUME_DELAY;
+                if (idle) {
+                    rotRef.y = wrapSigned(rotRef.y + AUTO_SPEED);
+                    applyTransform(rotRef.x, rotRef.y);
+                }
+                autoRotRAF = requestAnimationFrame(autoRotStep);
+            }
+
+            /* Pause auto-rotation while user is interacting with the dome */
+            dgMain.addEventListener('pointerdown', () => { /* lastDragEnd is reset in pointerup */ });
+
+            autoRotRAF = requestAnimationFrame(autoRotStep);
+
         })();
+    </script>
+
+
+    <script>
+    /* ---- TOP 5 modal opener — reuses existing modal ---- */
+    const top5Data = [
+        {
+            img: "images/amelie-poulain.png",
+            title: { fr: "Le Fabuleux Destin d'Amélie Poulain", en: "Amélie" },
+            dir: "Jean-Pierre Jeunet",
+            cast: "Audrey Tautou, Mathieu Kassovitz, Rufus",
+            syn: {
+                fr: "Amélie Poulain, serveuse timide à Montmartre, décide secrètement d'améliorer la vie des gens autour d'elle — tout en négligeant la sienne.",
+                en: "Shy Montmartre waitress Amélie secretly sets out to improve the lives of those around her — while neglecting her own."
+            },
+            trivia: {
+                fr: "Le film a été tourné dans 80 lieux différents à Paris. Audrey Tautou a été choisie parmi 500 candidates.",
+                en: "Shot across 80 different Paris locations. Audrey Tautou was chosen from 500 candidates."
+            },
+            awards: { oscar: "Nominated" },
+            trailer: "HUECWi5pX7o"
+        },
+        {
+            img: "images/la-haine.png",
+            title: { fr: "La Haine", en: "La Haine" },
+            dir: "Mathieu Kassovitz",
+            cast: "Vincent Cassel, Hubert Koundé, Saïd Taghmaoui",
+            syn: {
+                fr: "24 heures dans la vie de trois amis de banlieue après une nuit d'émeutes. La haine engendre la haine.",
+                en: "24 hours in the lives of three friends from the projects after a night of riots. Hatred breeds hatred."
+            },
+            trivia: {
+                fr: "Tourné en noir et blanc avec un budget de 2,5M€. Le film fut projeté au gouvernement français.",
+                en: "Shot in black and white on a €2.5M budget. The French government arranged a private screening."
+            },
+            awards: { cannes: "Best Director" },
+            trailer: "FKwcXt3JIaU"
+        },
+        {
+            img: "images/intouchables.png",
+            title: { fr: "Intouchables", en: "The Intouchables" },
+            dir: "Olivier Nakache & Éric Toledano",
+            cast: "François Cluzet, Omar Sy",
+            syn: {
+                fr: "Un aristocrate tétraplégique engage un jeune homme des banlieues comme aide-soignant. Une amitié improbable et bouleversante naît.",
+                en: "A paralyzed aristocrat hires a young man from the projects as his caretaker. An improbable, moving friendship is born."
+            },
+            trivia: {
+                fr: "2ème film français le plus vu au monde avec 51 millions d'entrées. Omar Sy a remporté le César du meilleur acteur.",
+                en: "The 2nd most-watched French film worldwide with 51 million admissions. Omar Sy won the César for Best Actor."
+            },
+            awards: {},
+            trailer: "bejs7k8ggbY"
+        },
+        {
+            img: "images/portrait-jeune-fille.png",
+            title: { fr: "Portrait de la Jeune Fille en Feu", en: "Portrait of a Lady on Fire" },
+            dir: "Céline Sciamma",
+            cast: "Noémie Merlant, Adèle Haenel",
+            syn: {
+                fr: "En 1770, une peintre est chargée de réaliser le portrait d'une jeune femme contre son gré. Une histoire d'amour brûlante naît dans le silence.",
+                en: "In 1770, a painter is commissioned to paint a young woman without her knowledge. A blazing love story is born in silence."
+            },
+            trivia: {
+                fr: "Sciamma a écrit le scénario pour Adèle Haenel. Le film est entièrement éclairé à la bougie et à la lumière naturelle.",
+                en: "Sciamma wrote the script for Adèle Haenel. The film is lit entirely by candlelight and natural light."
+            },
+            awards: { cannes: "Best Screenplay" },
+            trailer: "Bn_-YoG69Sw"
+        },
+        {
+            img: "images/the-artist-2011.jpg",
+            title: { fr: "The Artist", en: "The Artist" },
+            dir: "Michel Hazanavicius",
+            cast: "Jean Dujardin, Bérénice Bejo",
+            syn: {
+                fr: "Hollywood, fin des années 20. Un acteur de cinéma muet refuse d'embrasser le parlant pendant qu'une jeune actrice s'envole vers les sommets.",
+                en: "Hollywood, late 1920s. A silent film star refuses to embrace the talkies while a young actress soars to the top."
+            },
+            trivia: {
+                fr: "Premier film muet en noir et blanc à remporter l'Oscar du meilleur film depuis 1927. 5 Oscars dont meilleur acteur pour Dujardin.",
+                en: "First silent black-and-white film to win Best Picture since 1927. 5 Oscars including Best Actor for Dujardin."
+            },
+            awards: { oscar: "Winner" },
+            trailer: "YB9Oq0hn5KY"
+        }
+    ];
+
+    function top5Open(idx) {
+        const m = top5Data[idx];
+        const currentLang = window._getLang ? window._getLang() : 'fr';
+        const safeTitle = m.title[currentLang].replace(/'/g, "\\'");
+        const fallbackHtml = `<div class='fallback-poster' style='background:linear-gradient(135deg,#1a0a00,#3d1a00);font-size:2rem;padding:2rem;color:rgba(212,175,55,0.8);'>${safeTitle}</div>`;
+
+        document.getElementById('m-img-container').innerHTML = `
+            <img src="${m.img}" onerror="this.outerHTML=\`${fallbackHtml}\`">
+            ${m.trailer ? `<button class="play-btn-overlay" onclick="playTrailer('${m.trailer}')" title="Voir la bande-annonce">
+                <svg viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+            </button>` : ''}
+        `;
+
+        const dirEl = document.getElementById('m-director');
+        dirEl.innerHTML = `${m.dir} ${window.icons ? icons.externalLink : ''}`;
+        dirEl.onclick = () => openDirectorSpotlight(m.dir, currentLang);
+
+        document.getElementById('m-title').innerText    = m.title[currentLang];
+        document.getElementById('m-cast').innerText     = m.cast;
+        document.getElementById('m-syn').innerText      = m.syn[currentLang];
+        document.getElementById('m-trivia').innerText   = m.trivia[currentLang];
+
+        document.getElementById('m-dir-label').innerText  = currentLang === 'fr' ? 'RÉALISATEUR' : 'DIRECTOR';
+        document.getElementById('m-cast-label').innerText = currentLang === 'fr' ? 'ACTEURS PRINCIPAUX' : 'STARRING';
+        document.getElementById('m-syn-label').innerText  = currentLang === 'fr' ? "L'HISTOIRE" : 'THE STORY';
+
+        document.getElementById('modal').style.display = 'flex';
+        if (window.wlUpdateModalBtn) wlUpdateModalBtn(m.title[currentLang]);
+    }
     </script>
 
     <!-- ================================================
